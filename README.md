@@ -4,8 +4,7 @@ This project is a major work in progress and may altogether be abandoned if an e
 
 It expects that the [Emscripten SDK](https://github.com/emscripten-core/emsdk) is installed and pointed to by the *`EMSDK`* environment variable. Which will manually have to be added. If normal installation instructions were followed, then EMSDK should point to the _root_ directory and the upstream directory should be located at `$(EMSDK)\upstream`.
 
-
-## CMake 
+## CMake
 
 The Toolset can be selected either in the GUI or the command line. 
 With the GUI select the generator `Visual Studio 16 2019`, then fill in `Emscripten` for the platform generator and `emsdk` for the toolset. Alternatively for the command line, use the -G, -A and -T options respectively.
@@ -29,8 +28,7 @@ set_target_properties(<Target> PROPERTIES SUFFIX .wasm)
 
 ## ProjectType - HTMLApplication
 
-Adds the HTMLApplication `ConfigurationType` tag in the project file then uses the the
-EmCxx and EmLink tasks to call emcc.bat and em++.bat on the source file.
+Adds HTMLApplication as a possible value for the `ConfigurationType` tag in the project file.
 
 The `TargetExt` is set to `.html`. Emscripten will output the `.html, .js and .wasm` files needed to run it. By default it uses emrun.bat to start the localhost server and run the embedded .wasm file.
 
@@ -38,7 +36,6 @@ The `TargetExt` is set to `.html`. Emscripten will output the `.html, .js and .w
 
 It needs to have the suffix property changed in order to correctly output a html file.
 Since it is a custom configuration type, the `VS_CONFIGURATION_TYPE` must be set so that CMake will generate the correct type of project.
-
 
 ```cmake
 add_executable(<Target> ...)
@@ -75,3 +72,8 @@ It also accepts test arguments:
 + test01 - Plain MSBuild scripts
 + test02, test03 - CMake generate scripts.
 + test04 Is a manually created project.
+
+If this script fails 
+
++ Check that there are no projects open that are using the toolset.
++ Check user permissions on the `%VS2019INSTALLDIR%\MSBuild\Microsoft\VC\v160\Platforms\` directory.
