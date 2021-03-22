@@ -132,7 +132,7 @@
             <!-- Advanced -->
             <CompileAs>Default</CompileAs>
             <ForcedIncludeFiles />
-            <ShowIncludes />
+			<ShowIncludes>false</ShowIncludes>
             <EnableSpecificWarnings />
             <DisableSpecificWarnings />
             <TreatSpecificWarningsAsErrors />
@@ -159,13 +159,10 @@
         </Lib>
         <Link>
 			<AdditionalDependencies></AdditionalDependencies>
-
-
 	        <!-- Uses Module by default: do nothing if not set -->
 	        <EmExportName/>
 	        <EmWasmMode Condition="'%(Link.EmWasmMode)'==''">EmWasmOnlyWasm</EmWasmMode>
 	        <EmSDLVersion Condition="'%(Link.EmSDLVersion)' != ''">2</EmSDLVersion>
-
 		</Link>
     </ItemDefinitionGroup>
 </Project>

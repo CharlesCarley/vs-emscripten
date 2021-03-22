@@ -84,7 +84,6 @@ namespace EmscriptenTask
 
         private bool _IsInC => CompileAs.Equals("CompileAsC");
 
-
         /// <summary>
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
@@ -96,14 +95,18 @@ namespace EmscriptenTask
         public string LanguageStandard { get; set; }
 
         /// <summary>
-        /// Warning verbosity level.  
+        /// Warning verbosity level.
         /// A value of Default will do nothing and let the compiler emit the default messages.
         /// A value of None will pass -w.
         /// A value of All will pass -Wall.
-        /// 
+        ///
         /// </summary>
         public string WarningLevel { get; set; }
 
+        /// <summary>
+        /// Generates an error instead of a warning.
+        /// </summary>
+        public bool TreatWarningAsError { get; set; }
 
         /// <summary>
         /// Set standard exception handling.
@@ -112,7 +115,10 @@ namespace EmscriptenTask
         /// </summary>
         public string ExceptionHandling { get; set; }
 
-
+        /// <summary>
+        /// Output included files.
+        /// </summary>
+        public bool ShowIncludes { get; set; }
 
         /// <summary>
         /// Test to determine whether or not the supplied source code
@@ -183,7 +189,6 @@ namespace EmscriptenTask
 
             if (!string.IsNullOrEmpty(ExceptionHandling))
             {
-
                 if (ExceptionHandling.Equals("Disabled"))
                 {
                     builder.Write(' ');
@@ -194,6 +199,18 @@ namespace EmscriptenTask
                     builder.Write(' ');
                     builder.Write("-fexceptions");
                 }
+            }
+
+            if (ShowIncludes)
+            {
+                builder.Write(' ');
+                builder.Write("-H");
+            }
+
+            if (TreatWarningAsError)
+            {
+                builder.Write(' ');
+                builder.Write("-Werror");
             }
 
             if (!string.IsNullOrEmpty(WarningLevel))
@@ -210,10 +227,8 @@ namespace EmscriptenTask
                 }
             }
 
-
             if (!string.IsNullOrEmpty(LanguageStandard))
             {
-
                 builder.Write(' ');
                 if (LanguageStandard.Equals("stdc89") && _IsInC)
                     builder.Write("-std=c89");
@@ -281,8 +296,6 @@ namespace EmscriptenTask
                 builder.Write(' ');
                 builder.Write(PreprocessorDefinitions);
             }
-
-
 
             if (!string.IsNullOrEmpty(AdditionalOptions))
             {

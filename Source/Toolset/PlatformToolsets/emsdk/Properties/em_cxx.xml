@@ -325,7 +325,7 @@
     <!-- Advanced -->
     <EnumProperty Name="CompileAs"
                   Category="Advanced"
-                  Description="Select compile language option for .c and .cpp files. 'Default' will detect based on .c or .cpp extention."
+                  Description="Select compile language option for .c and .cpp files. 'Default' will detect based on a .c or extenstion."
                   DisplayName="Compile As">
         <EnumValue Name="Default"
                    DisplayName="Default" />
