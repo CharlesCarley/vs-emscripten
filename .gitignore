@@ -2,6 +2,7 @@
 obj
 Emscripten
 Debug
+Debug2
 obj
 *.user
 Publish
