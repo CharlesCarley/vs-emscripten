@@ -1,5 +1,5 @@
 ﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <!-- ======================================
+	<!-- ======================================
     Modified copy of:
     Microsoft.Cpp.MSVC.Toolset.Common.props
 
@@ -10,159 +10,164 @@
             == $(EMSDK)\upstream\bin
             == $(EMSDK)\upstream\emscripten - .bat
     ====================================== -->
-    <PropertyGroup>
-        <!-- Required for enabling Team Build for packaging Windows Store app projects -->
-        <OutDirWasSpecified Condition=" '$(OutDir)'!='' AND '$(OutDirWasSpecified)'=='' ">true</OutDirWasSpecified>
-        <OutDirWasSpecified Condition=" '$(OutDir)'=='' AND '$(OutDirWasSpecified)'=='' ">false</OutDirWasSpecified>
-        <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'!=''">$(IntermediateOutputPath)</IntDir>
-        <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'=='' and '$(Platform)' == 'Win32'">$(Configuration)\</IntDir>
-        <IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'=='' and '$(Platform)' != 'Win32'">$(Platform)\$(Configuration)\</IntDir>
-        <OutDir Condition="'$(OutDir)'=='' AND '$(SolutionDir)' != '' and '$(Platform)' == 'Win32'">$(SolutionDir)$(Configuration)\</OutDir>
-        <OutDir Condition="'$(OutDir)'=='' AND '$(SolutionDir)' != '' and '$(Platform)' != 'Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-        <OutDir Condition="'$(OutDir)'=='' AND '$(SolutionDir)' == ''">$(IntDir)</OutDir>
-    </PropertyGroup>
-    <Import Condition="Exists('$(VCTargetsPath)\Microsoft.Cpp.WindowsSDK.props')"
-            Project="$(VCTargetsPath)\Microsoft.Cpp.WindowsSDK.props" />
-    <ItemDefinitionGroup>
-        <ProjectReference>
-            <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
-        </ProjectReference>
-    </ItemDefinitionGroup>
-    <PropertyGroup>
-        <UseVCTools>true</UseVCTools>
-	    <CheckMSVCComponents>false</CheckMSVCComponents>
+	<PropertyGroup>
+		<!-- Required for enabling Team Build for packaging Windows Store app projects -->
+		<OutDirWasSpecified Condition=" '$(OutDir)'!='' AND '$(OutDirWasSpecified)'=='' ">true</OutDirWasSpecified>
+		<OutDirWasSpecified Condition=" '$(OutDir)'=='' AND '$(OutDirWasSpecified)'=='' ">false</OutDirWasSpecified>
+
+		<IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'!=''">$(IntermediateOutputPath)</IntDir>
+		<IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'=='' and '$(Platform)' == 'Win32'">$(Configuration)\</IntDir>
+		<IntDir Condition="'$(IntDir)'=='' AND '$(IntermediateOutputPath)'=='' and '$(Platform)' != 'Win32'">$(Platform)\$(Configuration)\</IntDir>
+		<OutDir Condition="'$(OutDir)'=='' AND '$(SolutionDir)' != '' and '$(Platform)' == 'Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+		<OutDir Condition="'$(OutDir)'=='' AND '$(SolutionDir)' != '' and '$(Platform)' != 'Win32'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+		<OutDir Condition="'$(OutDir)'=='' AND '$(SolutionDir)' == ''">$(IntDir)</OutDir>
+	</PropertyGroup>
+
+	<Import Condition="Exists('$(VCTargetsPath)\Microsoft.Cpp.WindowsSDK.props')"
+			Project="$(VCTargetsPath)\Microsoft.Cpp.WindowsSDK.props" />
+
+	<ItemDefinitionGroup>
+		<ProjectReference>
+			<SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+		</ProjectReference>
+	</ItemDefinitionGroup>
+
+	<PropertyGroup>
+		<UseVCTools>true</UseVCTools>
+		<CheckMSVCComponents>false</CheckMSVCComponents>
 		<VerboseOutput Condition="'$(VerboseOutput)' == ''">NoVerboseOutput</VerboseOutput>
-    </PropertyGroup>
-    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Common.props" />
-    <!-- ======================================
-        Bring in The Emscripten properties
-    ======================================= -->
-    <PropertyGroup>
-        <PreferredToolArchitecture>x64</PreferredToolArchitecture>
-        <TargetPlatformIdentifier>Emscripten</TargetPlatformIdentifier>
-        <ToolsetISenseIdentifier>$(TargetPlatformIdentifier)</ToolsetISenseIdentifier>
-        <EmscriptenSDK>$(EMSDK)</EmscriptenSDK>
-        <EmscriptenUpstream>$(EMSDK)\upstream</EmscriptenUpstream>
-        <EmscriptenLLVM>$(EMSDK)\upstream\bin</EmscriptenLLVM>
-        <EmscriptenRoot>$(EMSDK)\upstream\emscripten</EmscriptenRoot>
-        <EmscriptenSystem>$(EMSDK)\upstream\emscripten\system</EmscriptenSystem>
-        <!-- Include paths -->
-        <EmscriptenInclude>$(EmscriptenRoot)\cache\sysroot\include;$(EmscriptenRoot)\cache\sysroot\include\c++\v1;$(EmscriptenUpstream)\clang\13.0.0\lib\include</EmscriptenInclude>
-        <!-- Library paths -->
-        <EmscriptenLib>$(EmscriptenSystem)\cache\sysroot\lib</EmscriptenLib>
-        <!-- Standard Search paths -->
-        <IncludePath Condition="'$(IncludePath)' == ''">$(EmscriptenInclude)</IncludePath>
-        <LibraryWPath Condition="'$(LibraryWPath)' == ''" />
-        <SourcePath Condition="'$(SourcePath)' == ''" />
-        <LibraryPath Condition="'$(LibraryPath)' == ''">$(EmscriptenLib)</LibraryPath>
-        <ExcludePath Condition="'$(ExcludePath)' == ''">$(CommonExcludePath)</ExcludePath>
-        <!-- Standard Search paths -->
-        <CommonExecutablePath>$(EmscriptenLLVM);$(PATH);$(EmscriptenRoot)</CommonExecutablePath>
-        <ExecutablePath Condition="'$(ExecutablePath)' == ''">$(CommonExecutablePath)</ExecutablePath>
-        <CheckMSVCComponents>false</CheckMSVCComponents>
-        <DebugCppRuntimeFilesPath />
-        <CppRuntimeFilesPath />
-        <!-- ======================================
+	</PropertyGroup>
+
+	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Common.props" />
+
+	<PropertyGroup>
+		<PreferredToolArchitecture>x64</PreferredToolArchitecture>
+		<TargetPlatformIdentifier>Emscripten</TargetPlatformIdentifier>
+		<ToolsetISenseIdentifier>$(TargetPlatformIdentifier)</ToolsetISenseIdentifier>
+		<EmscriptenSDK>$(EMSDK)</EmscriptenSDK>
+		<EmscriptenUpstream>$(EMSDK)\upstream</EmscriptenUpstream>
+		<EmscriptenLLVM>$(EMSDK)\upstream\bin</EmscriptenLLVM>
+		<EmscriptenRoot>$(EMSDK)\upstream\emscripten</EmscriptenRoot>
+		<EmscriptenSystem>$(EMSDK)\upstream\emscripten\system</EmscriptenSystem>
+
+		<EmscriptenInclude>$(EmscriptenRoot)\cache\sysroot\include;$(EmscriptenRoot)\cache\sysroot\include\c++\v1;$(EmscriptenUpstream)\clang\13.0.0\lib\include</EmscriptenInclude>
+		<EmscriptenLib>$(EmscriptenSystem)\cache\sysroot\lib</EmscriptenLib>
+		
+		<IncludePath Condition="'$(IncludePath)' == ''">$(EmscriptenInclude)</IncludePath>
+		<LibraryWPath Condition="'$(LibraryWPath)' == ''" />
+		<SourcePath Condition="'$(SourcePath)' == ''" />
+		<LibraryPath Condition="'$(LibraryPath)' == ''">$(EmscriptenLib)</LibraryPath>
+		<ExcludePath Condition="'$(ExcludePath)' == ''">$(CommonExcludePath)</ExcludePath>
+		<CommonExecutablePath>$(EmscriptenLLVM);$(PATH);$(EmscriptenRoot)</CommonExecutablePath>
+		<ExecutablePath Condition="'$(ExecutablePath)' == ''">$(CommonExecutablePath)</ExecutablePath>
+		<CheckMSVCComponents>false</CheckMSVCComponents>
+		<DebugCppRuntimeFilesPath />
+		<CppRuntimeFilesPath />
+		
+
+		<!-- ======================================
         Copy of (Modified):
         <Import Project="$(VCTargetsPath)\Microsoft.Cpp.ClangCl.Common.props" />
         ====================================== -->
-        <CLToolExe>clang.exe</CLToolExe>
-        <LinkToolExe>$(EmscriptenLLVM)\llvm-link.exe</LinkToolExe>
-        <LibToolExe>$(EmscriptenLLVM)\llvm-lib.exe</LibToolExe>
-        <!-- not using the WindowsSDK -->
-        <WindowsSDKDir>$(EmscriptenRoot)</WindowsSDKDir>
-        <ExecutablePath>$(EmscriptenLLVM)\bin;$(ExecutablePath)</ExecutablePath>
-        <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
-        <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
-        <ClCompilerPath>$(EmscriptenLLVM)\$(CLToolExe)</ClCompilerPath>
-        <UseClangCl>true</UseClangCl>
-        <UseLldLink>true</UseLldLink>
-        <UseLlvmLib>true</UseLlvmLib>
-        <!-- Debugger Settings -->
-        <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+		<CLToolExe>clang.exe</CLToolExe>
+		<LinkToolExe>$(EmscriptenLLVM)\llvm-link.exe</LinkToolExe>
+		<LibToolExe>$(EmscriptenLLVM)\llvm-lib.exe</LibToolExe>
+		
+		
+		<WindowsSDKDir>$(EmscriptenRoot)</WindowsSDKDir>
+		<ExecutablePath>$(EmscriptenLLVM)\bin;$(ExecutablePath)</ExecutablePath>
+		<EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
+		<EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
 
+		<ClCompilerPath>$(EmscriptenLLVM)\$(CLToolExe)</ClCompilerPath>
+		<UseClangCl>true</UseClangCl>
+		<UseLldLink>true</UseLldLink>
+		<UseLlvmLib>true</UseLlvmLib>
+		
+		<!-- Debugger Settings -->
+		<DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
 
+	</PropertyGroup>
 
-
-    </PropertyGroup>
-    <!-- Define The default settings for common properties -->
-    <ItemDefinitionGroup>
-        <ClCompile>
-            <!-- General -->
-            <AdditionalIncludeDirectories />
-            <DebugInformationFormat>FullDebug</DebugInformationFormat>
-            <WarningLevel>Default</WarningLevel>
-            <TreatWarningAsError>false</TreatWarningAsError>
-            <ErrorLimit />
-            <TemplateBacktraceLimit />
-            <!-- Optimization -->
-            <OptimizationLevel>O0</OptimizationLevel>
-            <OmitFramePointers>false</OmitFramePointers>
-            <!-- Preprocessor -->
-            <PreprocessorDefinitions />
-            <UndefinePreprocessorDefinitions />
-            <SystemPreprocessorDefinitions>__EMSCRIPTEN__</SystemPreprocessorDefinitions>
-            <SystemUndefinePreprocessorDefinitions />
-            <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
-            <!-- Code Generation -->
-            <ExceptionHandling>Disabled</ExceptionHandling>
-            <FunctionLevelLinking>true</FunctionLevelLinking>
-            <DataLevelLinking>true</DataLevelLinking>
-            <BufferSecurityCheck>true</BufferSecurityCheck>
-            <PositionIndependentCode>true</PositionIndependentCode>
-            <UseShortEnums>true</UseShortEnums>
-            <!-- Emscripten -->
-            <EmVerbose>false</EmVerbose>
-            <EmTracing>false</EmTracing>
-            <EmDisableExceptionCatching>Disabled</EmDisableExceptionCatching>
-            <EmDisableExceptionCatchingAllowed />
-            <!-- Language -->
-            <RuntimeTypeInfo>false</RuntimeTypeInfo>
-            <LanguageStandard>Default</LanguageStandard>
-            <LanguageExtensions>EnableLanguageExtensions</LanguageExtensions>
-            <EnableMicrosoftExtensions>true</EnableMicrosoftExtensions>
-            <MscVersion>VisualC120</MscVersion>
-            <ConstExprLimit />
-            <TemplateRecursionLimit />
-            <!-- Output Files -->
-            <ObjectFileName>$(IntDir)</ObjectFileName>
-            <PreserveTempFiles />
-            <GenerateDependencyFile />
-            <DependencyFileName />
-            <!-- Advanced -->
-            <CompileAs>Default</CompileAs>
-            <ForcedIncludeFiles />
+	
+	<!-- Define The default settings for common properties -->
+	<ItemDefinitionGroup>
+		<ClCompile>
+			<!-- General -->
+			<AdditionalIncludeDirectories />
+			<DebugInformationFormat>FullDebug</DebugInformationFormat>
+			<WarningLevel>Default</WarningLevel>
+			<TreatWarningAsError>false</TreatWarningAsError>
+			<ErrorLimit />
+			<TemplateBacktraceLimit />
+			<!-- Optimization -->
+			<OptimizationLevel>O0</OptimizationLevel>
+			<OmitFramePointers>false</OmitFramePointers>
+			<!-- Preprocessor -->
+			<PreprocessorDefinitions />
+			<UndefinePreprocessorDefinitions />
+			<SystemPreprocessorDefinitions>__EMSCRIPTEN__</SystemPreprocessorDefinitions>
+			<SystemUndefinePreprocessorDefinitions />
+			<UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
+			<!-- Code Generation -->
+			<ExceptionHandling>Disabled</ExceptionHandling>
+			<FunctionLevelLinking>true</FunctionLevelLinking>
+			<DataLevelLinking>true</DataLevelLinking>
+			<BufferSecurityCheck>true</BufferSecurityCheck>
+			<PositionIndependentCode>true</PositionIndependentCode>
+			<UseShortEnums>true</UseShortEnums>
+			<!-- Emscripten -->
+			<EmVerbose>false</EmVerbose>
+			<EmTracing>false</EmTracing>
+			<EmDisableExceptionCatching>Disabled</EmDisableExceptionCatching>
+			<EmDisableExceptionCatchingAllowed />
+			<!-- Language -->
+			<RuntimeTypeInfo>false</RuntimeTypeInfo>
+			<LanguageStandard>Default</LanguageStandard>
+			<LanguageExtensions>EnableLanguageExtensions</LanguageExtensions>
+			<EnableMicrosoftExtensions>true</EnableMicrosoftExtensions>
+			<MscVersion>VisualC120</MscVersion>
+			<ConstExprLimit />
+			<TemplateRecursionLimit />
+			<!-- Output Files -->
+			<ObjectFileName>$(IntDir)</ObjectFileName>
+			<PreserveTempFiles />
+			<GenerateDependencyFile />
+			<DependencyFileName />
+			<!-- Advanced -->
+			<CompileAs>Default</CompileAs>
+			<ForcedIncludeFiles />
 			<ShowIncludes>false</ShowIncludes>
-            <EnableSpecificWarnings />
-            <DisableSpecificWarnings />
-            <TreatSpecificWarningsAsErrors />
-            <TreatSpecificWarningsNotAsErrors />
-            <EchoCommandLines>false</EchoCommandLines>
-            <RunStaticAnalysis>false</RunStaticAnalysis>
-            <!-- Command Line -->
+			<EnableSpecificWarnings />
+			<DisableSpecificWarnings />
+			<TreatSpecificWarningsAsErrors />
+			<TreatSpecificWarningsNotAsErrors />
+			<EchoCommandLines>false</EchoCommandLines>
+			<RunStaticAnalysis>false</RunStaticAnalysis>
+			<!-- Command Line -->
 			<AdditionalOptions/>
-            <!-- Needs to be added: -->
-            <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+			<!-- Needs to be added: -->
+			<BasicRuntimeChecks>Default</BasicRuntimeChecks>
 			<LanguageStandard>gnucpp11</LanguageStandard>
-            <!-- Zero options that are not used -->
-            <AssemblerOutput />
-            <AssemblerListingLocation />
-            <AcceptableNonZeroExitCodes />
-            <BrowseInformation />
-            <BrowseInformationFile />
-            <EnableASAN />
-            <ConformanceMode />
-            <SuppressStartupBanner>true</SuppressStartupBanner>
-            <SuppressStartupBanner />
-        </ClCompile>
-        <Lib>
-        </Lib>
-        <Link>
+			<!-- Zero options that are not used -->
+			<AssemblerOutput />
+			<AssemblerListingLocation />
+			<AcceptableNonZeroExitCodes />
+			<BrowseInformation />
+			<BrowseInformationFile />
+			<EnableASAN />
+			<ConformanceMode />
+			<SuppressStartupBanner>true</SuppressStartupBanner>
+			<SuppressStartupBanner />
+		</ClCompile>
+		<Lib>
+		</Lib>
+		<Link>
 			<AdditionalDependencies></AdditionalDependencies>
-	        <!-- Uses Module by default: do nothing if not set -->
-	        <EmExportName/>
-	        <EmWasmMode Condition="'%(Link.EmWasmMode)'==''">EmWasmOnlyWasm</EmWasmMode>
-	        <EmSDLVersion Condition="'%(Link.EmSDLVersion)' != ''">2</EmSDLVersion>
+			<!-- Uses Module by default: do nothing if not set -->
+			<EmExportName/>
+			<EmWasmMode Condition="'%(Link.EmWasmMode)'==''">EmWasmOnlyWasm</EmWasmMode>
+			<EmSDLVersion Condition="'%(Link.EmSDLVersion)' != ''">2</EmSDLVersion>
 		</Link>
-    </ItemDefinitionGroup>
+	</ItemDefinitionGroup>
 </Project>

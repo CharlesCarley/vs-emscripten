@@ -3,6 +3,6 @@
 int main()
 {
     Mock1();
-    Mock1();
+    Mock2();
     return 0;
 }

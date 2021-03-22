@@ -2,6 +2,7 @@
 obj
 Emscripten
 Debug
+Build
 Debug2
 obj
 *.user

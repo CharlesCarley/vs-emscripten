@@ -46,16 +46,17 @@
                         Persistence="ProjectFile" />
         </StringProperty.DataSource>
     </StringProperty>
-	<EnumProperty Name="VerboseOutput"
-	              Category="General"
-	              Description="Specify what kind of debug trace output to generate during compilation."
-	              DisplayName="Verbose Compilation">
-		<EnumValue Name="NoVerboseOutput"
-		           DisplayName="Disabled" />
-		<EnumValue Name="VerboseOutputMode"
-		           DisplayName="Log what the task is doing." />
-		<EnumProperty.DataSource>
-			<DataSource Persistence="UserFile" Label=""/>
-		</EnumProperty.DataSource>
-	</EnumProperty>
+    <EnumProperty Name="VerboseOutput"
+                  Category="General"
+                  Description="Specify what kind of debug trace output to generate during compilation."
+                  DisplayName="Verbose Compilation">
+        <EnumValue Name="NoVerboseOutput"
+                   DisplayName="Disabled" />
+        <EnumValue Name="VerboseOutputMode"
+                   DisplayName="Log what the task is doing." />
+        <EnumProperty.DataSource>
+            <DataSource Persistence="UserFile"
+                        Label=""/>
+        </EnumProperty.DataSource>
+    </EnumProperty>
 </Rule>

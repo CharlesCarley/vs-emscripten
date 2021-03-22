@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Rule xmlns="http://schemas.microsoft.com/build/2009/properties"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:sys="clr-namespace:System;assembly=mscorlib"
       Name="Lib"
       DisplayName="Emscripten Librarian"
       Order="40"
       PageTemplate="tool"
       SwitchPrefix="-">
+
     <Rule.Categories>
         <Category Name="General"
                   DisplayName="General" />
