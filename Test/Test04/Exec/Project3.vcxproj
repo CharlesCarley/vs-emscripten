@@ -58,7 +58,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>FullDebug</DebugInformationFormat>
-      <AdditionalIncludeDirectories>F:\VisualStudio-EmscriptenTools\Test\Test04\Lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <CompileAs>Default</CompileAs>
     </ClCompile>
