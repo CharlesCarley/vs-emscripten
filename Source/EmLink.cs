@@ -33,16 +33,37 @@ namespace EmscriptenTask
 
         protected override string _BuildFileName => OutputFile;
 
+        /// <summary>
+        /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
+        /// </summary>
         public string OutputFile { get; set; }
 
+        /// <summary>
+        /// User supplied libraries.
+        /// </summary>
         public string AdditionalDependencies { get; set; }
 
+        /// <summary>
+        /// Extra library search paths.
+        /// </summary>
         public string AdditionalLibraryDirectories { get; set; }
 
+        public string CurrentConfig { get; set;  }
+
+
+        /// <summary>
+        /// Settings.js conversion, the EXPORT_NAME option
+        /// </summary>
         public string EmExportName { get; set; }
 
+        /// <summary>
+        /// Settings.js conversion, the argument to WASM=[0,1,2]
+        /// </summary>
         public string EmWasmMode { get; set; }
 
+        /// <summary>
+        /// Settings.js conversion, the argument to USE_SDL=[1,2]
+        /// </summary>
         public string EmSDLVersion { get; set; }
 
         protected string BuildSwitches()

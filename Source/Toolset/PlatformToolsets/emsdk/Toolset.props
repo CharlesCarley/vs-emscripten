@@ -40,6 +40,20 @@
 
 	<Import Project="$(VCTargetsPath)\Microsoft.Cpp.Common.props" />
 
+	<!-- For Extra configurations not supplied in Microsoft.Cpp.Common.props -->
+
+    <PropertyGroup Condition="'$(ConfigurationType)' == 'HTMLApplication'">
+        <LinkCompiled>true</LinkCompiled>
+        <TargetExt>.html</TargetExt>
+        <OutputType>exe</OutputType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(ConfigurationType)' == 'JavaScriptApplication'">
+        <LinkCompiled>true</LinkCompiled>
+        <TargetExt>.js</TargetExt>
+        <OutputType>exe</OutputType>
+    </PropertyGroup>
+
 	<PropertyGroup>
 		<PreferredToolArchitecture>x64</PreferredToolArchitecture>
 		<TargetPlatformIdentifier>Emscripten</TargetPlatformIdentifier>

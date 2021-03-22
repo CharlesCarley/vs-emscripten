@@ -65,14 +65,24 @@
 	    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_directories.xml" />
 
 
-		<PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"           Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
-	    <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"           Include="$(MSBuildThisFileDirectory)\Properties\em_wasm.xml" />
-	    <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"           Include="$(MSBuildThisFileDirectory)\Properties\em_js_link.xml" />
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_wasm.xml" />
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_js_link.xml" />
 
-	    
-	    
-	    <PropertyPageSchema Condition="'$(ConfigurationType)' == 'StaticLibrary'"         Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
-		<PropertyPageSchema Condition="'$(ConfigurationType)' == 'StaticLibrary'"         Include="$(MSBuildThisFileDirectory)\Properties\em_ar.xml" />
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'HTMLApplication'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'HTMLApplication'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_wasm.xml" />
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'HTMLApplication'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_js_link.xml" />
+
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'StaticLibrary'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
+        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'StaticLibrary'"
+                            Include="$(MSBuildThisFileDirectory)\Properties\em_ar.xml" />
 
     </ItemGroup>
     <!-- ============================================================ -->
@@ -164,6 +174,7 @@
                 EmWasmMode="%(Link.EmWasmMode)"
                 EmSDLVersion="%(Link.EmSDLVersion)"
                 Sources="@(Link)"
+                CurrentConfig="$(ConfigurationType)"
                 Verbose="$(DoVerbose)">
 			<Output TaskParameter="SkippedExecution" PropertyName="LinkSkippedExecution" />
 		</EmLink>
@@ -173,10 +184,17 @@
 	             Text="$(MSBuildProjectFile) -> $(TargetPath)"
 	             Importance="High" />
     </Target>
+
     <PropertyGroup Condition="'$(ConfigurationType)' == 'Application' and '$(TargetPath)' != ''">
         <LocalDebuggerCommand>$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
         <LocalDebuggerCommandArguments>run $(TargetPath)</LocalDebuggerCommandArguments>
     </PropertyGroup>
+
+    <PropertyGroup Condition="'$(ConfigurationType)' == 'HTMLApplication' and '$(TargetPath)' != ''">
+        <LocalDebuggerCommand>$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
+        <LocalDebuggerCommandArguments>$(TargetPath)</LocalDebuggerCommandArguments>
+    </PropertyGroup>
+
     <ItemDefinitionGroup Condition="$(Configuration) == 'Debug'">
         <ClCompile>
             <OptimizationLevel Condition="'%(ClCompile.OptimizationLevel)' == ''">O0</OptimizationLevel>
@@ -203,11 +221,11 @@
         <ProjectTools Include="Lib" />
         <ProjectTools Include="CustomBuildStep" />
     </ItemGroup>
-    <ItemGroup Condition="'$(ConfigurationType)' == 'HTMLPage'">
+    <ItemGroup Condition="'$(ConfigurationType)' == 'HTMLApplication'">
         <ProjectTools Include="Link" />
         <ProjectTools Include="CustomBuildStep" />
     </ItemGroup>
-    <ItemGroup Condition="'$(ConfigurationType)' == 'JSApplication'">
+    <ItemGroup Condition="'$(ConfigurationType)' == 'JavaScriptApplication'">
         <ProjectTools Include="Link" />
         <ProjectTools Include="CustomBuildStep" />
     </ItemGroup>

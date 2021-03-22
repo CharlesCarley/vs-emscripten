@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "StaticLinking", "StaticLinking", "{62D1807C-A07C-4014-90D2-C28925672F50}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02-StaticLinking", "02-StaticLinking", "{62D1807C-A07C-4014-90D2-C28925672F50}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Basic", "Basic", "{543104F9-B460-4B8F-8D69-3094DFAB19DD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01-Basic", "01-Basic", "{543104F9-B460-4B8F-8D69-3094DFAB19DD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloWorld", "HelloWorld\HelloWorld.vcxproj", "{03A56E26-71B9-4779-99B8-2F54A0E8819A}"
 EndProject
@@ -15,6 +15,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Application", "Application\
 	ProjectSection(ProjectDependencies) = postProject
 		{AB3715EA-B836-43C6-B19D-3DEFC5AA0994} = {AB3715EA-B836-43C6-B19D-3DEFC5AA0994}
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03-HTMLApp", "03-HTMLApp", "{1FE1CD61-9D2C-4BC6-ADAB-5F25BA296DAC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JavaScript", "HTMLApplication\HTMLApplication.vcxproj", "{2EAECC09-896D-4CFB-985A-5D9A46AB82B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +38,10 @@ Global
 		{FBA8B160-DE9A-4E97-8FFF-741350273878}.Debug|Emscripten.Build.0 = Debug|Emscripten
 		{FBA8B160-DE9A-4E97-8FFF-741350273878}.Release|Emscripten.ActiveCfg = Release|Emscripten
 		{FBA8B160-DE9A-4E97-8FFF-741350273878}.Release|Emscripten.Build.0 = Release|Emscripten
+		{2EAECC09-896D-4CFB-985A-5D9A46AB82B8}.Debug|Emscripten.ActiveCfg = Debug|Emscripten
+		{2EAECC09-896D-4CFB-985A-5D9A46AB82B8}.Debug|Emscripten.Build.0 = Debug|Emscripten
+		{2EAECC09-896D-4CFB-985A-5D9A46AB82B8}.Release|Emscripten.ActiveCfg = Release|Emscripten
+		{2EAECC09-896D-4CFB-985A-5D9A46AB82B8}.Release|Emscripten.Build.0 = Release|Emscripten
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -42,6 +50,7 @@ Global
 		{03A56E26-71B9-4779-99B8-2F54A0E8819A} = {543104F9-B460-4B8F-8D69-3094DFAB19DD}
 		{AB3715EA-B836-43C6-B19D-3DEFC5AA0994} = {62D1807C-A07C-4014-90D2-C28925672F50}
 		{FBA8B160-DE9A-4E97-8FFF-741350273878} = {62D1807C-A07C-4014-90D2-C28925672F50}
+		{2EAECC09-896D-4CFB-985A-5D9A46AB82B8} = {1FE1CD61-9D2C-4BC6-ADAB-5F25BA296DAC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C4B6CBDF-2F6A-4045-9EEF-7366B6358292}
