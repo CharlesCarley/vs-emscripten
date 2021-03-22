@@ -1,0 +1,123 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6CA4653C-BD22-4742-84F4-9FB8E14C7163}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{8718CD30-666C-4ACA-A7A2-EC14E4D7E225}"
+	ProjectSection(SolutionItems) = preProject
+		.clang-format = .clang-format
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		clean.bat = clean.bat
+		install.bat = install.bat
+		LICENSE = LICENSE
+	EndProjectSection
+EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Tools", "BuildTools\Tools.pyproj", "{22F11BE4-4710-406A-81C5-1C6D83D20ABB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmscriptenTask", "Source\EmscriptenTask.csproj", "{B406192A-A412-4D43-AECE-798EEC936F3D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test01", "Test01", "{EAD105E6-9CD0-499D-B095-831F9C1A86AF}"
+	ProjectSection(SolutionItems) = preProject
+		Test\Test01\main.cpp = Test\Test01\main.cpp
+		Test\Test01\Test1 = Test\Test01\Test1
+		Test\Test01\Test2 = Test\Test01\Test2
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test02", "Test02", "{1437C93F-8F45-4FAB-B848-5CA5CC69EF43}"
+	ProjectSection(SolutionItems) = preProject
+		Test\Test02\CMakeLists.txt = Test\Test02\CMakeLists.txt
+		Test\Test02\main.cpp = Test\Test02\main.cpp
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test03", "Test03", "{E1A274F2-ABE1-4751-AF1C-E37093E71069}"
+	ProjectSection(SolutionItems) = preProject
+		Test\Test03\CMakeLists.txt = Test\Test03\CMakeLists.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exe", "Exe", "{8A110740-4E73-4648-9FF7-A82E39E9D649}"
+	ProjectSection(SolutionItems) = preProject
+		Test\Test03\Exe\CMakeLists.txt = Test\Test03\Exe\CMakeLists.txt
+		Test\Test03\Exe\main.cpp = Test\Test03\Exe\main.cpp
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Lib", "Lib", "{2EEAB905-3E16-4479-B617-BAD5120A91A6}"
+	ProjectSection(SolutionItems) = preProject
+		Test\Test03\Lib\CMakeLists.txt = Test\Test03\Lib\CMakeLists.txt
+		Test\Test03\Lib\MockLibAPI.cpp = Test\Test03\Lib\MockLibAPI.cpp
+		Test\Test03\Lib\MockLibAPI.h = Test\Test03\Lib\MockLibAPI.h
+		Test\Test03\Lib\MockLibAPI_Impl.cpp = Test\Test03\Lib\MockLibAPI_Impl.cpp
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MakeFileProject", "Test\Test02\MakeFileProject.vcxproj", "{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test04", "Test04", "{33BDC5B4-707B-48AC-81D7-3CDF1FB66AAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|Emscripten = Debug|Emscripten
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|Emscripten = Release|Emscripten
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Debug|Emscripten.ActiveCfg = Debug|Any CPU
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Release|Emscripten.ActiveCfg = Release|Any CPU
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Release|x64.ActiveCfg = Release|Any CPU
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB}.Release|x86.ActiveCfg = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|Emscripten.ActiveCfg = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|Emscripten.Build.0 = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|x64.Build.0 = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Debug|x86.Build.0 = Debug|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|Emscripten.ActiveCfg = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|Emscripten.Build.0 = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|x64.ActiveCfg = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|x64.Build.0 = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|x86.ActiveCfg = Release|Any CPU
+		{B406192A-A412-4D43-AECE-798EEC936F3D}.Release|x86.Build.0 = Release|Any CPU
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Debug|Emscripten.ActiveCfg = Debug|Win32
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Debug|x64.ActiveCfg = Debug|x64
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Debug|x64.Build.0 = Debug|x64
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Debug|x86.ActiveCfg = Debug|Win32
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Debug|x86.Build.0 = Debug|Win32
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Release|Any CPU.ActiveCfg = Release|Win32
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Release|Emscripten.ActiveCfg = Release|Win32
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Release|x64.ActiveCfg = Release|x64
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Release|x64.Build.0 = Release|x64
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Release|x86.ActiveCfg = Release|Win32
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8718CD30-666C-4ACA-A7A2-EC14E4D7E225} = {6CA4653C-BD22-4742-84F4-9FB8E14C7163}
+		{22F11BE4-4710-406A-81C5-1C6D83D20ABB} = {6CA4653C-BD22-4742-84F4-9FB8E14C7163}
+		{8A110740-4E73-4648-9FF7-A82E39E9D649} = {E1A274F2-ABE1-4751-AF1C-E37093E71069}
+		{2EEAB905-3E16-4479-B617-BAD5120A91A6} = {E1A274F2-ABE1-4751-AF1C-E37093E71069}
+		{E974E04E-7E75-42A5-A7B7-7B13FAFD75E6} = {1437C93F-8F45-4FAB-B848-5CA5CC69EF43}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B4BE6E9-F7C1-4ADE-B5AE-70F7E6E93EEF}
+	EndGlobalSection
+EndGlobal

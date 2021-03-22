@@ -1,0 +1,215 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <UseDefaultProjectTools>false</UseDefaultProjectTools>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.CppCommon.targets" />
+    <!-- ============================================================ -->
+    <ItemDefinitionGroup>
+        <ClCompile>
+            <TargetExt>.o</TargetExt>
+            <ObjectFileName Condition="'%(ClCompile.OutputFile)' == ''">$(IntDir)%(Filename).o</ObjectFileName>
+			<PreprocessorDefinitions 
+				Condition="'%(ClCompile.PreprocessorDefinitions)' == ''" >
+				$(PreprocessorDefinitions)
+			</PreprocessorDefinitions>
+            
+	        <Warnings Condition="'%(ClCompile.Warnings)' == ''">
+		        NormalWarnings
+	        </Warnings>
+            
+	        <TreatWarningAsError Condition="'%(ClCompile.TreatWarningAsError)' == ''">
+		        false
+	        </TreatWarningAsError>
+
+	        <SystemIncludeDirectories Condition="'%(ClCompile.SystemIncludeDirectories)' == ''">$(IncludePath)</SystemIncludeDirectories>
+            <EchoCommandLines Condition="'%(ClCompile.EchoCommandLines)' == ''">false</EchoCommandLines>
+            <ProgramDataBaseFileName Condition="'%(ClCompile.ProgramDataBaseFileName)' == ''" />
+            <TrackerLogDirectory Condition="'%(ClCompile.TrackerLogDirectory)' == ''">$(TLogLocation)</TrackerLogDirectory>
+			<SystemPreprocessorDefinitions Condition="'%(ClCompile.SystemPreprocessorDefinitions)' == ''" >$(SystemPreprocessorDefinitions)</SystemPreprocessorDefinitions>
+        </ClCompile>
+        <Lib>
+            <TargetExt>.a</TargetExt>
+            <OutputFile Condition="'%(Lib.OutputFile)' == ''">$(OutDir)%(Filename).o</OutputFile>
+            <AdditionalDependencies Condition="'%(Lib.AdditionalDependencies)' == ''" />
+            <AdditionalLibraryDirectories Condition="'%(Lib.AdditionalLibraryDirectories)' == ''" />
+            <Warnings Condition="'%(Lib.Warnings)' == ''">NormalWarnings</Warnings>
+            <TreatWarningAsError Condition="'%(Lib.TreatWarningAsError)' == ''">false</TreatWarningAsError>
+            <TypedArrays Condition="'%(Lib.TypedArrays)' == ''">Default</TypedArrays>
+            <IgnoreDynamicLinking Condition="'%(Lib.IgnoreDynamicLinking)' == ''">false</IgnoreDynamicLinking>
+            <SystemLibraryDirectories Condition="'%(Lib.SystemLibraryDirectories)' == ''">$(LibraryPath)</SystemLibraryDirectories>
+            <EchoCommandLines Condition="'%(Lib.EchoCommandLines)' == ''">false</EchoCommandLines>
+            <TrackerLogDirectory Condition="'%(Lib.TrackerLogDirectory)' == ''">$(TLogLocation)</TrackerLogDirectory>
+        </Lib>
+        <Link>
+            <TargetExt>.wasm</TargetExt>
+            <OutputFile Condition="'%(Link.OutputFile)' == ''">$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+            <AdditionalDependencies Condition="'%(Link.AdditionalDependencies)' == ''" />
+            <AdditionalLibraryDirectories Condition="'%(Link.AdditionalLibraryDirectories)' == ''" />
+            <Warnings Condition="'%(Link.Warnings)' == ''">NormalWarnings</Warnings>
+            <TreatWarningAsError Condition="'%(Link.TreatWarningAsError)' == ''">false</TreatWarningAsError>
+            <TypedArrays Condition="'%(Link.TypedArrays)' == ''">Default</TypedArrays>
+            <IgnoreDynamicLinking Condition="'%(Link.IgnoreDynamicLinking)' == ''">false</IgnoreDynamicLinking>
+            <SystemLibraryDirectories Condition="'%(Link.SystemLibraryDirectories)' == ''">$(LibraryPath)</SystemLibraryDirectories>
+            <EchoCommandLines Condition="'%(Link.EchoCommandLines)' == ''">false</EchoCommandLines>
+            <TrackerLogDirectory Condition="'%(Link.TrackerLogDirectory)' == ''">$(TLogLocation)</TrackerLogDirectory>
+        </Link>
+    </ItemDefinitionGroup>
+    <!-- ============================================================ -->
+    <ItemGroup>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_general.xml">
+            <Context>Project</Context>
+        </PropertyPageSchema>
+	    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_js_general.xml" />
+
+		<PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_adv_override.xml" />
+	    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_directories.xml" />
+
+
+		<PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"           Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
+	    <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"           Include="$(MSBuildThisFileDirectory)\Properties\em_wasm.xml" />
+	    <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"           Include="$(MSBuildThisFileDirectory)\Properties\em_js_link.xml" />
+
+	    
+	    
+	    <PropertyPageSchema Condition="'$(ConfigurationType)' == 'StaticLibrary'"         Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
+		<PropertyPageSchema Condition="'$(ConfigurationType)' == 'StaticLibrary'"         Include="$(MSBuildThisFileDirectory)\Properties\em_ar.xml" />
+
+    </ItemGroup>
+    <!-- ============================================================ -->
+    <UsingTask AssemblyFile="$(VCTargetsPath)Platforms\$(Platform)\EmscriptenTask.CPP.Tasks.dll"
+               TaskName="EmCxx" />
+    <UsingTask AssemblyFile="$(VCTargetsPath)Platforms\$(Platform)\EmscriptenTask.CPP.Tasks.dll"
+               TaskName="EmLink" />
+    <UsingTask AssemblyFile="$(VCTargetsPath)Platforms\$(Platform)\EmscriptenTask.CPP.Tasks.dll"
+               TaskName="EmAr" />
+    <!-- ============================================================ -->
+    <Target Name="ClCompile"
+            Condition="'@(ClCompile)' != ''"
+            DependsOnTargets="SelectClCompile">
+        <ItemGroup>
+            <ClCompile>
+                <MinimalRebuildFromTracking Condition="'%(ClCompile.MinimalRebuildFromTracking)' == '' and '$(BuildType)' == 'Build' and '$(ForceRebuild)' != 'true'">true</MinimalRebuildFromTracking>
+            </ClCompile>
+        </ItemGroup>
+        <PropertyGroup>
+            <DoVerbose Condition="'$(VerboseOutput)' != 'NoVerboseOutput'">true</DoVerbose>
+        </PropertyGroup>
+        <!-- ============================================================ -->
+		<EmCxx Condition="'%(ClCompile.ExcludedFromBuild)' != 'true'"
+               Sources="@(ClCompile)"
+               Verbose="$(DoVerbose)"
+               CompileAs="%(ClCompile.CompileAs)"
+               ObjectFileName="%(ClCompile.ObjectFileName)"
+               AdditionalOptions="%(ClCompile.AdditionalOptions)"
+               AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
+               DebugInformationFormat="%(ClCompile.DebugInformationFormat)"
+               EmTracing="%(ClCompile.EmTracing)"
+               EmVerbose="%(ClCompile.EmVerbose)"
+               EmccTool="$(EmccTool)"
+               ExceptionHandling="%(ClCompile.ExceptionHandling)"
+               WarningLevel="%(ClCompile.WarningLevel)"
+               EchoCommandLines="%(ClCompile.EchoCommandLines)"
+               EmscriptenDirectory="$(EmscriptenDirectory)"
+               LanguageStandard="%(ClCompile.LanguageStandard)"
+               SystemPreprocessorDefinitions="%(ClCompile.SystemPreprocessorDefinitions)"
+               PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)">
+			<Output TaskParameter="SkippedExecution" PropertyName="ClSkippedExecution" />
+		</EmCxx>
+
+        <!-- Reflect the status of the build -->
+        <Message Condition="'$(ClSkippedExecution)' == 'false'" 
+                 Text="Linking..."
+                 Importance="High" />
+    </Target>
+    <!-- Lib -->
+    <Target Name="Lib"
+            Condition="'@(Lib)' != ''">
+        <ItemGroup>
+            <Lib>
+                <MinimalRebuildFromTracking Condition="'%(Lib.MinimalRebuildFromTracking)' == '' and '$(BuildType)' == 'Build' and '$(ForceRebuild)' != 'true'">true</MinimalRebuildFromTracking>
+            </Lib>
+        </ItemGroup>
+        <PropertyGroup>
+            <LibToolArchitecture Condition="'$(LibToolArchitecture)' == ''">$(VCToolArchitecture)</LibToolArchitecture>
+            <DoVerbose Condition="'$(VerboseOutput)' != 'NoVerboseOutput'">true</DoVerbose>
+        </PropertyGroup>
+		<EmAr OutputFile="%(Lib.OutputFile)"
+              Sources="@(Lib)"
+              Verbose="$(DoVerbose)">
+			<Output TaskParameter="SkippedExecution" PropertyName="LibSkippedExecution" />
+		</EmAr>
+
+
+	    <!-- Reflect the status of the build -->
+	    <Message Condition="'$(LibSkippedExecution)' == 'false'" 
+	             Text="$(MSBuildProjectFile) -> $(TargetPath)"
+	             Importance="High" />
+    </Target>
+    <!-- Link -->
+    <Target Name="Link"
+            Condition="'@(Link)' != ''">
+        <PropertyGroup>
+            <LinkToolArchitecture Condition="'$(LinkToolArchitecture)' == ''">$(VCToolArchitecture)</LinkToolArchitecture>
+            <Link_MinimalRebuildFromTracking Condition="'@(Link->AnyHaveMetadataValue('MinimalRebuildFromTracking', 'false'))' == 'true'">false</Link_MinimalRebuildFromTracking>
+            <Link_MinimalRebuildFromTracking Condition="'$(BuildType)' != 'Build' or '$(ForceRebuild)' == 'true'">false</Link_MinimalRebuildFromTracking>
+            <Link_MinimalRebuildFromTracking Condition="'$(Link_MinimalRebuildFromTracking)' == ''">true</Link_MinimalRebuildFromTracking>
+            <DoVerbose Condition="'$(VerboseOutput)' != 'NoVerboseOutput'">true</DoVerbose>
+        </PropertyGroup>
+		<EmLink OutputFile="%(Link.OutputFile)"
+                AdditionalDependencies="%(Link.AdditionalDependencies)"
+                AdditionalLibraryDirectories="%(Link.AdditionalLibraryDirectories)"
+                EmExportName="%(Link.EmExportName)"
+                EmWasmMode="%(Link.EmWasmMode)"
+                EmSDLVersion="%(Link.EmSDLVersion)"
+                Sources="@(Link)"
+                Verbose="$(DoVerbose)">
+			<Output TaskParameter="SkippedExecution" PropertyName="LinkSkippedExecution" />
+		</EmLink>
+
+	    <!-- Reflect the status of the build -->
+	    <Message Condition="'$(LinkSkippedExecution)' == 'false'" 
+	             Text="$(MSBuildProjectFile) -> $(TargetPath)"
+	             Importance="High" />
+    </Target>
+    <PropertyGroup Condition="'$(ConfigurationType)' == 'Application' and '$(TargetPath)' != ''">
+        <LocalDebuggerCommand>$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
+        <LocalDebuggerCommandArguments>run $(TargetPath)</LocalDebuggerCommandArguments>
+    </PropertyGroup>
+    <ItemDefinitionGroup Condition="$(Configuration) == 'Debug'">
+        <ClCompile>
+            <OptimizationLevel Condition="'%(ClCompile.OptimizationLevel)' == ''">O0</OptimizationLevel>
+            <GenerateDebugInformation Condition="'%(ClCompile.GenerateDebugInformation)' == ''">FullDebug</GenerateDebugInformation>
+        </ClCompile>
+        <Link>
+            <LinkerOptimizationLevel Condition="'%(Link.LinkerOptimizationLevel)' == ''">O0</LinkerOptimizationLevel>
+        </Link>
+    </ItemDefinitionGroup>
+    <ItemDefinitionGroup Condition="$(Configuration) != 'Debug'">
+        <ClCompile>
+            <OptimizationLevel Condition="'%(ClCompile.OptimizationLevel)' == ''">O2</OptimizationLevel>
+            <GenerateDebugInformation Condition="'%(ClCompile.GenerateDebugInformation)' == ''">None</GenerateDebugInformation>
+        </ClCompile>
+        <Link>
+            <LinkerOptimizationLevel Condition="'%(Link.LinkerOptimizationLevel)' == ''">O3</LinkerOptimizationLevel>
+        </Link>
+    </ItemDefinitionGroup>
+    <ItemGroup Condition="'$(ConfigurationType)' == 'Application'">
+        <ProjectTools Include="Link" />
+        <ProjectTools Include="CustomBuildStep" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(ConfigurationType)' == 'StaticLibrary'">
+        <ProjectTools Include="Lib" />
+        <ProjectTools Include="CustomBuildStep" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(ConfigurationType)' == 'HTMLPage'">
+        <ProjectTools Include="Link" />
+        <ProjectTools Include="CustomBuildStep" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(ConfigurationType)' == 'JSApplication'">
+        <ProjectTools Include="Link" />
+        <ProjectTools Include="CustomBuildStep" />
+    </ItemGroup>
+    <PropertyGroup>
+        <UseDefaultDebuggersPropertyPageSchemas>true</UseDefaultDebuggersPropertyPageSchemas>
+    </PropertyGroup>
+</Project>

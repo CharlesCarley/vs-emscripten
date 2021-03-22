@@ -1,0 +1,17 @@
+.vs
+obj
+Emscripten
+Debug
+obj
+*.user
+Publish
+credentials.json
+secrets
+*.dll
+*.pdb
+EmscriptenTask.dll.config
+*.o
+*.a
+*.abcdefg
+*.wasm
+__build__

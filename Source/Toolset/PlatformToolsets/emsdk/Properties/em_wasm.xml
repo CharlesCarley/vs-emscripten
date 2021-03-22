@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule xmlns="http://schemas.microsoft.com/build/2009/properties"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      Name="Link"
+      DisplayName="Emscripten WASM Linker"
+      Order="20"
+      PageTemplate="tool"
+      SwitchPrefix="-">
+    <Rule.Categories>
+        <Category Name="General"
+                  DisplayName="General" />
+        <Category Name="Input"
+                  DisplayName="Input" />
+        <Category Name="Optimization"
+                  DisplayName="Optimization" />
+        <Category Name="Advanced"
+                  DisplayName="Advanced" />
+        <Category Name="All Options"
+                  DisplayName="All Options"
+                  Subtype="Search" />
+        <Category Name="Command Line"
+                  DisplayName="Command Line"
+                  Subtype="CommandLine" />
+    </Rule.Categories>
+    <Rule.DataSource>
+        <DataSource HasConfigurationCondition="true"
+                    ItemType="Link"
+                    Label=""
+                    Persistence="ProjectFile" />
+    </Rule.DataSource>
+    <!-- General -->
+    <StringProperty Name="OutputFile"
+                    Category="General"
+                    DisplayName="Output File"
+                    Separator=" "
+                    Subtype="file"
+                    Switch="o" />
+    <StringListProperty Name="AdditionalLibraryDirectories"
+                        Category="General"
+                        DisplayName="Additional Library Directories (-L)"
+                        Subtype="folder"
+                        Switch="L" />
+    <BoolProperty Name="LinkLibraryDependencies"
+                  Category="General"
+                  Description="Specifies whether or not library outputs from project dependencies are automatically linked in."
+                  DisplayName="Link Library Dependencies"
+                  F1Keyword="VC.Project.VCLinkerTool.LinkLibraryDependencies"
+                  IncludeInCommandLine="false">
+        <BoolProperty.DataSource>
+            <DataSource HasConfigurationCondition="true"
+                        ItemType="ProjectReference"
+                        Label=""
+                        Persistence="ProjectFile" />
+        </BoolProperty.DataSource>
+    </BoolProperty>
+    <BoolProperty Name="UseLibraryDependencyInputs"
+                  Category="General"
+                  Description="Specifies whether or not the inputs to the librarian tool are used rather than the library file itself when linking in library outputs of project dependencies."
+                  DisplayName="Use Library Dependency Inputs"
+                  F1Keyword="VC.Project.VCLinkerTool.UseLibraryDependencyInputs"
+                  IncludeInCommandLine="false">
+        <BoolProperty.DataSource>
+            <DataSource HasConfigurationCondition="true"
+                        ItemType="ProjectReference"
+                        Label=""
+                        Persistence="ProjectFile" />
+        </BoolProperty.DataSource>
+    </BoolProperty>
+    <EnumProperty Name="Warnings"
+                  Category="General"
+                  DisplayName="Warnings">
+        <EnumValue Name="DisableAllWarnings"
+                   Description="Suppresses the output of all warning messages."
+                   DisplayName="Disable All Warnings"
+                   Switch="w" />
+        <EnumValue Name="NormalWarnings"
+                   Description="Run clang with normal warning output level."
+                   DisplayName="Enable Normal Warnings" />
+        <EnumValue Name="AllWarnings"
+                   Description="Display all possible warnings detected by clang. "
+                   DisplayName="Enable All Warnings"
+                   Switch="Wall" />
+    </EnumProperty>
+    <BoolProperty Name="IgnoreDynamicLinking"
+                  Category="General"
+                  Description="Normally emcc will treat dynamic linking like static linking, by linking in the code from the dynamic library. This fails if the same dynamic library is linked more than once. With this option, dynamic linking is ignored, which allows the build system to proceed without errors. However, you will need to manually link to the shared libraries later on yourself.Disregards dynamic library linking minification process will be executed for the generated JavaScript code."
+                  DisplayName="Ignore Dynamic Linking"
+                  Switch="-ignore-dynamic-linking" />
+    <!-- Input -->
+    <StringListProperty Name="AdditionalDependencies"
+                        Category="Input"
+                        DisplayName="Additional Dependencies"
+                        Subtype="file" />
+    <StringListProperty Name="PreJsFile"
+                        Category="Input"
+                        Description="Specifies a .js file to embed to the beginning of the generated script file, before running optimizations on the file."
+                        DisplayName="Pre-Add JavaScript File (--pre-js)"
+                        Subtype="file"
+                        Switch="-pre-js " />
+    <StringListProperty Name="PostJsFile"
+                        Category="Input"
+                        Description="Specifies a .js file to embed to the beginning of the generated script file, after optimizations have been performed."
+                        DisplayName="Post-Add JavaScript File (--post-js)"
+                        Subtype="file"
+                        Switch="-post-js " />
+    <StringListProperty Name="EmbedFile"
+                        Category="Input"
+                        Description="Specifies a list of resource files to embed inside the generated JavaScript file."
+                        DisplayName="Embedded Resource Files (--embed-file)"
+                        Subtype="file"
+                        Switch="-embed-file " />
+    <StringListProperty Name="PreloadFile"
+                        Category="Input"
+                        Description="Specifies a list of resource files to preload for the HTML page before running the compiled JavaScript code."
+                        DisplayName="Preloaded Resource Files (--preload-file)"
+                        Subtype="file"
+                        Switch="-preload-file " />
+    <StringListProperty Name="HtmlShellFile"
+                        Category="Input"
+                        Description="Specifies the .html file template inside which the generated JavaScript code will be generated to."
+                        DisplayName="HTML Shell File (--shell-file)"
+                        Subtype="file"
+                        Switch="-shell-file " />
+    <StringListProperty Name="JsLibrary"
+                        Category="Input"
+                        Description="Specifies additional JavaScript libraries to link the generated code with."
+                        DisplayName="Additional JavaScript Libraries (--js-library)"
+                        Subtype="file"
+                        Switch="-js-library " />
+    <!-- Optimization -->
+    <EnumProperty Name="LinkerOptimizationLevel"
+                  Category="Optimization"
+                  DisplayName="Optimization">
+        <EnumValue Name="Custom"
+                   DisplayName="Default" />
+        <EnumValue Name="O0"
+                   DisplayName="Disabled"
+                   Switch="O0" />
+        <EnumValue Name="O1"
+                   DisplayName="LLVM O1, asm.js, relooping, disable exceptions, disable emcc system assertions, enable aliasing function pointers"
+                   Switch="O1" />
+        <EnumValue Name="O2"
+                   DisplayName="LLVM O2"
+                   Switch="O2" />
+        <EnumValue Name="O3"
+                   DisplayName="LLVM O3, LLVM LTO, closure, force aligned memory, truncate doubles to floats on loads and stores, substitute double for int64"
+                   Switch="O3" />
+    </EnumProperty>
+    <BoolProperty Name="RunClosureCompiler"
+                  Category="Optimization"
+                  Description="Forces the closure compiler to be run as part of the build or skips it if set to false."
+                  DisplayName="Force Closure Compiler Run (--closure)"
+                  ReverseSwitch="-closure 0"
+                  Switch="-closure 1" />
+    <BoolProperty Name="RunMinify"
+                  Category="Optimization"
+                  Description="Skips the JS code minification process if set to false."
+                  DisplayName="Force JS Code Minifier Run (--minify)"
+                  ReverseSwitch="-minify 0"
+                  Switch="-minify 1" />
+    <!-- Advanced -->
+    <EnumProperty Name="TypedArrays"
+                  Category="Advanced"
+                  Description="Specifies the compilation mode for typed arrays. See https://github.com/kripken/emscripten/wiki/Code-Generation-Modes."
+                  DisplayName="Typed Arrays">
+        <EnumValue Name="Default"
+                   DisplayName="Default" />
+        <EnumValue Name="NoTypedArrays"
+                   DisplayName="No Typed Arrays"
+                   Switch="-typed-arrays=0" />
+        <EnumValue Name="ParallelTypedArrays"
+                   DisplayName="Parallel Typed Arrays"
+                   Switch="-typed-arrays=1" />
+        <EnumValue Name="SharedTypedArrays"
+                   DisplayName="Shared Typed Arrays"
+                   Switch="-typed-arrays=2" />
+    </EnumProperty>
+    <StringListProperty Name="EnableWarnings"
+                        Category="Advanced"
+                        Description="Specify one or more warnings to be enabled."
+                        DisplayName="Enable Specific Warnings"
+                        Subtype="folder"
+                        Switch="W" />
+    <StringListProperty Name="DisableWarnings"
+                        Category="Advanced"
+                        Description="Specify one or more warnings to be suppressed."
+                        DisplayName="Disable Specific Warnings"
+                        Subtype="folder"
+                        Switch="Wno-" />
+    <BoolProperty Name="TreatWarningAsError"
+                  Category="Advanced"
+                  Description="Treats all linker warnings as errors."
+                  DisplayName="Treat Warnings as Errors"
+                  Switch="Werror" />
+    <StringProperty Name="TargetExt"
+                    Category="Advanced"
+                    Description="Specifies a file extension that the program will have. (Example: .exe or .dll)"
+                    DisplayName="Target File Extension"
+                    F1Keyword="VC.Project.VCConfiguration.TargetExt">
+        <StringProperty.DataSource>
+            <DataSource Label=""
+                        Persistence="ProjectFile" />
+        </StringProperty.DataSource>
+    </StringProperty>
+    <BoolProperty Name="EchoCommandLines"
+                  Category="Advanced"
+                  Description="Print out the commands emcc is invoked with during linking."
+                  DisplayName="Echo Command Lines" />
+    <!-- Command Line -->
+    <StringProperty Name="AdditionalOptions"
+                    Category="Command Line"
+                    Description="Additional Options"
+                    DisplayName="Additional Options" />
+</Rule>

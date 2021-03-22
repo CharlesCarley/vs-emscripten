@@ -1,0 +1,9 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <PlatformShortName>Emscripten</PlatformShortName>
+        <PlatformArchitecture>x64</PlatformArchitecture>
+        <PlatformTarget>Emscripten</PlatformTarget>
+        <DefaultPlatformToolset>emsdk</DefaultPlatformToolset>
+        <PlatformToolset Condition="'$(PlatformToolset)' == ''">emsdk</PlatformToolset>
+    </PropertyGroup>
+</Project>

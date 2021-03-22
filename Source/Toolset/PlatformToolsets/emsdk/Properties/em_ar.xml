@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule xmlns="http://schemas.microsoft.com/build/2009/properties"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      Name="Lib"
+      DisplayName="Emscripten Librarian"
+      Order="40"
+      PageTemplate="tool"
+      SwitchPrefix="-">
+    <Rule.Categories>
+        <Category Name="General"
+                  DisplayName="General" />
+        <Category Name="AllOptions"
+                  DisplayName="All Options"
+                  Subtype="Search" />
+        <Category Name="Command Line"
+                  DisplayName="Command Line"
+                  Subtype="CommandLine" />
+    </Rule.Categories>
+    <Rule.DataSource>
+        <DataSource HasConfigurationCondition="true"
+                    ItemType="Lib"
+                    Label=""
+                    Persistence="ProjectFile" />
+    </Rule.DataSource>
+    <!-- General -->
+    <StringProperty Name="OutputFile"
+                    Category="General"
+                    DisplayName="Output File"
+                    Subtype="file"
+                    Switch="o" />
+    <!-- Command Line -->
+    <StringProperty Name="AdditionalOptions"
+                    Category="Command Line"
+                    Description="Additional Options"
+                    DisplayName="Additional Options" />
+</Rule>

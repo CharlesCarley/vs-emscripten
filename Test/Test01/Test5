@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<UsingTask TaskName="EmCxx" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+	<UsingTask TaskName="EmAr" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+	<UsingTask TaskName="EmLink" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+
+	<Target Name="Build">
+
+        <PropertyGroup>
+            <DoVerbose>true</DoVerbose>
+            <Idir>Debug</Idir>
+            <FileName>main1</FileName>
+            <FileExt>.o</FileExt>
+            <OutDir>.</OutDir>
+        </PropertyGroup>
+		<EmCxx Sources="main2.c;fn1.c;fn2.c;fn3.c" 
+		      Verbose="$(DoVerbose)" 
+			  ObjectFileName="$(Idir)\$(FileName)$(FileExt)"
+		      />
+        <EmAr Sources="$(Idir)\fn1.c.o;$(Idir)\fn2.c.o;$(Idir)\fn3.c.o"
+               Verbose="$(DoVerbose)"
+		       OutputFile="$(Idir)\fnLib.a"/>
+		<EmLink Sources="$(Idir)\fnLib.a;$(Idir)\main2.c.o"
+		        Verbose="$(DoVerbose)"
+		        OutputFile="$(OutDir)\E.wasm"/>
+		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run $(OutDir)\E.wasm"/>
+	</Target>
+</Project>
