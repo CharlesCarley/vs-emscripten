@@ -260,8 +260,7 @@
                     />
     </Rule.DataSource>
 
-	<!-- General -->
-
+    <!-- General -->
     <BoolProperty Name="EmVerbose"
                   Category="General"
                   Description=" When set to 1, will generate more verbose output during compilation."
@@ -304,28 +303,29 @@
     <StringProperty Name="EmExportName"
                     DisplayName="Exported Module name"
                     Description="Global variable to export the module as for environments without a standardized module loading system (e.g. the browser and SM shell)."
-                    Category="Link"
-    />
+                    Category="Link"/>
+
     <EnumProperty Name="EmWasmMode"
                   DisplayName="Wasm Compile Mode"
                   Description="Specify how to compile code to WebAssembly."
                   Category="Link">
+        
         <EnumValue Name="EmWasmOnlyWasm"
                    DisplayName="Compile to WebAssembly"
                    Description="Target only WebAssembly" />
+        
         <EnumValue Name="EmWasmOnlyJS"
                    DisplayName="Compile to JavaScript"
                    Description="Target only JavaScript" />
+
         <EnumValue Name="EmWasmBoth"
                    DisplayName="Compile to WebAssembly and JavaScript"
                    Description="Target both WebAssembly and JavaScript at the same time." />
 
     </EnumProperty>
 
-
     <StringProperty Name="EmSDLVersion"
                     Category="Link"
                     DisplayName="SDL version"
-                    Description="Specify the SDL version of the builtin port."
-    />
+                    Description="Specify the SDL version of the builtin port."/>
 </Rule>
