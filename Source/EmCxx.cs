@@ -46,6 +46,8 @@ namespace EmscriptenTask
         /// </summary>
         public string AdditionalIncludeDirectories { get; set; }
 
+        public string SystemIncludeDirectories { get; set; }
+
         /// <summary>
         /// Provides any extra user supplied preprocessor definitions.
         /// </summary>
@@ -159,7 +161,7 @@ namespace EmscriptenTask
                     if (result)
                         CompileAs = "CompileAsC";
                     else
-                        CompileAs = "CompileAsCpp";
+                        CompileAs = "Default";
                 }
                 return result;
             }
@@ -180,7 +182,7 @@ namespace EmscriptenTask
                     builder.Write(' ');
                     builder.Write("-x c");
                 }
-                else
+                else if (!CompileAs.Equals("CompileAsCpp"))
                 {
                     builder.Write(' ');
                     builder.Write("-x c++");
@@ -194,7 +196,7 @@ namespace EmscriptenTask
                     builder.Write(' ');
                     builder.Write("-fno-exceptions");
                 }
-                else
+                else if (ExceptionHandling.Equals("Enabled"))
                 {
                     builder.Write(' ');
                     builder.Write("-fexceptions");
@@ -279,6 +281,18 @@ namespace EmscriptenTask
                 builder.Write("-s EMSCRIPTEN_TRACING=1");
             }
 
+            if (!string.IsNullOrEmpty(AdditionalOptions))
+            {
+                builder.Write(' ');
+                builder.Write(AdditionalOptions);
+            }
+
+            if (!string.IsNullOrEmpty(SystemIncludeDirectories))
+            {
+                builder.Write(' ');
+                builder.Write(SystemIncludeDirectories);
+            }
+
             if (!string.IsNullOrEmpty(AdditionalIncludeDirectories))
             {
                 builder.Write(' ');
@@ -314,10 +328,15 @@ namespace EmscriptenTask
 
         protected void TaskStarted()
         {
+            // enabled by default if not set.
+            if (string.IsNullOrEmpty(ExceptionHandling))
+                ExceptionHandling = "Enabled";
+
             if (Verbose)
                 LogTaskProps(GetType(), this);
 
             AdditionalIncludeDirectories  = SeperatePaths(AdditionalIncludeDirectories, ';', "-I", true);
+            SystemIncludeDirectories =  SeperatePaths(SystemIncludeDirectories, ';', "-I", false);
             SystemPreprocessorDefinitions = SeperatePaths(SystemPreprocessorDefinitions, ';', "-D");
 
             if (!UndefineAllPreprocessorDefinitions)

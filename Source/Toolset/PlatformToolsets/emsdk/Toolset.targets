@@ -8,20 +8,11 @@
         <ClCompile>
             <TargetExt>.o</TargetExt>
             <ObjectFileName Condition="'%(ClCompile.OutputFile)' == ''">$(IntDir)%(Filename).o</ObjectFileName>
-			<PreprocessorDefinitions 
-				Condition="'%(ClCompile.PreprocessorDefinitions)' == ''" >
-				$(PreprocessorDefinitions)
-			</PreprocessorDefinitions>
-            
-	        <Warnings Condition="'%(ClCompile.Warnings)' == ''">
-		        NormalWarnings
-	        </Warnings>
-            
-	        <TreatWarningAsError Condition="'%(ClCompile.TreatWarningAsError)' == ''">
-		        false
-	        </TreatWarningAsError>
+			<PreprocessorDefinitions Condition="'%(ClCompile.PreprocessorDefinitions)' == ''" >$(PreprocessorDefinitions)</PreprocessorDefinitions>
+	        <TreatWarningAsError Condition="'%(ClCompile.TreatWarningAsError)' == ''">false</TreatWarningAsError>
 
 	        <SystemIncludeDirectories Condition="'%(ClCompile.SystemIncludeDirectories)' == ''">$(IncludePath)</SystemIncludeDirectories>
+
             <EchoCommandLines Condition="'%(ClCompile.EchoCommandLines)' == ''">false</EchoCommandLines>
             <ProgramDataBaseFileName Condition="'%(ClCompile.ProgramDataBaseFileName)' == ''" />
             <TrackerLogDirectory Condition="'%(ClCompile.TrackerLogDirectory)' == ''">$(TLogLocation)</TrackerLogDirectory>
@@ -69,15 +60,11 @@
                             Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
         <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"
                             Include="$(MSBuildThisFileDirectory)\Properties\em_wasm.xml" />
-        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"
-                            Include="$(MSBuildThisFileDirectory)\Properties\em_js_link.xml" />
 
         <PropertyPageSchema Condition="'$(ConfigurationType)' == 'HTMLApplication'"
                             Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
         <PropertyPageSchema Condition="'$(ConfigurationType)' == 'HTMLApplication'"
                             Include="$(MSBuildThisFileDirectory)\Properties\em_wasm.xml" />
-        <PropertyPageSchema Condition="'$(ConfigurationType)' == 'HTMLApplication'"
-                            Include="$(MSBuildThisFileDirectory)\Properties\em_js_link.xml" />
 
         <PropertyPageSchema Condition="'$(ConfigurationType)' == 'StaticLibrary'"
                             Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
@@ -106,25 +93,27 @@
         </PropertyGroup>
         <!-- ============================================================ -->
 		<EmCxx Condition="'%(ClCompile.ExcludedFromBuild)' != 'true'"
-               Sources="@(ClCompile)"
-               Verbose="$(DoVerbose)"
-               CompileAs="%(ClCompile.CompileAs)"
-               ObjectFileName="%(ClCompile.ObjectFileName)"
+
                AdditionalOptions="%(ClCompile.AdditionalOptions)"
                AdditionalIncludeDirectories="%(ClCompile.AdditionalIncludeDirectories)"
+               CompileAs="%(ClCompile.CompileAs)"
                DebugInformationFormat="%(ClCompile.DebugInformationFormat)"
-               EmTracing="%(ClCompile.EmTracing)"
-               EmVerbose="%(ClCompile.EmVerbose)"
+               EmTracing="$(EmTracing)"
+               EmVerbose="$(EmVerbose)"
                EmccTool="$(EmccTool)"
-               ShowIncludes="%(CLCompile.ShowIncludes)"
-               ExceptionHandling="%(ClCompile.ExceptionHandling)"
-               WarningLevel="%(ClCompile.WarningLevel)"
-               TreatWarningAsError="%(ClCompile.TreatWarningAsError)"
-               EchoCommandLines="%(ClCompile.EchoCommandLines)"
                EmscriptenDirectory="$(EmscriptenDirectory)"
+               ExceptionHandling="%(ClCompile.ExceptionHandling)"
+               EchoCommandLines="%(ClCompile.EchoCommandLines)"
                LanguageStandard="%(ClCompile.LanguageStandard)"
+               ObjectFileName="%(ClCompile.ObjectFileName)"
+               PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)"
+               Sources="@(ClCompile)"
                SystemPreprocessorDefinitions="%(ClCompile.SystemPreprocessorDefinitions)"
-               PreprocessorDefinitions="%(ClCompile.PreprocessorDefinitions)">
+               SystemIncludeDirectories="%(ClCompile.SystemIncludeDirectories)"
+               ShowIncludes="%(CLCompile.ShowIncludes)"
+               TreatWarningAsError="%(ClCompile.TreatWarningAsError)"
+               Verbose="$(DoVerbose)"
+               WarningLevel="%(ClCompile.WarningLevel)">
 			<Output TaskParameter="SkippedExecution" PropertyName="ClSkippedExecution" />
 		</EmCxx>
 
@@ -170,9 +159,9 @@
 		<EmLink OutputFile="%(Link.OutputFile)"
                 AdditionalDependencies="%(Link.AdditionalDependencies)"
                 AdditionalLibraryDirectories="%(Link.AdditionalLibraryDirectories)"
-                EmExportName="%(Link.EmExportName)"
-                EmWasmMode="%(Link.EmWasmMode)"
-                EmSDLVersion="%(Link.EmSDLVersion)"
+                EmExportName="$(EmExportName)"
+                EmWasmMode="$(EmWasmMode)"
+                EmSDLVersion="$(EmSDLVersion)"
                 Sources="@(Link)"
                 CurrentConfig="$(ConfigurationType)"
                 Verbose="$(DoVerbose)">

@@ -48,8 +48,7 @@ namespace EmscriptenTask
         /// </summary>
         public string AdditionalLibraryDirectories { get; set; }
 
-        public string CurrentConfig { get; set;  }
-
+        public string CurrentConfig { get; set; }
 
         /// <summary>
         /// Settings.js conversion, the EXPORT_NAME option

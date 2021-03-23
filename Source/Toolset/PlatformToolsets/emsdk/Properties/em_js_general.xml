@@ -2,7 +2,7 @@
 <Rule xmlns="http://schemas.microsoft.com/build/2009/properties"
       Name="JavaScriptAdvanced"
       Description="Advanced properties"
-      DisplayName="settings.js"
+      DisplayName="Settings.js"
       PageTemplate="generic"
       SwitchPrefix="-">
     <!-- Emscripten -s options https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
@@ -247,30 +247,35 @@
 	var OFFSCREEN_FRAMEBUFFER_FORBID_VAO_PATH = 0;
 	var TEST_MEMORY_GROWTH_FAILS = 0; -->
     <Rule.Categories>
-        <Category Name="Emscripten"
-                  Description="Emscripten properties"
-                  DisplayName="Emscripten Properties" />
+        <Category Name="General"
+                  Description="General Emscripten properties that effect both compiling and linking."
+                  DisplayName="General" />
+        <Category Name="Link"
+                  Description="General Emscripten properties that effect linking."
+                  DisplayName="General" />
     </Rule.Categories>
     <Rule.DataSource>
         <DataSource HasConfigurationCondition="true"
-                    ItemType="ClCompile"
-                    Persistence="UserFile"
-                    Label="" />
+                    Persistence="ProjectFile"
+                    />
     </Rule.DataSource>
+
+	<!-- General -->
+
     <BoolProperty Name="EmVerbose"
-                  Category="Emscripten"
+                  Category="General"
                   Description=" When set to 1, will generate more verbose output during compilation."
                   DisplayName="Verbose"
                   ReverseSwitch="s VERBOSE=0"
                   Switch="s VERBOSE=1" />
     <BoolProperty Name="EmTracing"
-                  Category="Emscripten"
+                  Category="General"
                   Description="Add some calls to emscripten tracing APIs."
                   DisplayName="Tracing"
                   ReverseSwitch="s EMSCRIPTEN_TRACING=0"
                   Switch="s EMSCRIPTEN_TRACING=1" />
     <EnumProperty Name="EmDisableExceptionCatching"
-                  Category="Emscripten"
+                  Category="General"
                   Description="Disables generating code to actually catch exceptions."
                   DisplayName="Disable Exception Catching">
         <EnumValue Name="GenerateCode"
@@ -289,6 +294,38 @@
     <StringProperty Name="EmDisableExceptionCatchingAllowed"
                     DisplayName="Allowed Catch Functions"
                     Description="Enables catching exception in the listed functions only. For use with Disable Exception Catching DisabledWithAllowedFunctions"
-                    Category="Emscripten"
+                    Category="General"
                     Separator=";" />
+
+
+
+    <!-- Link -->
+
+    <StringProperty Name="EmExportName"
+                    DisplayName="Exported Module name"
+                    Description="Global variable to export the module as for environments without a standardized module loading system (e.g. the browser and SM shell)."
+                    Category="Link"
+    />
+    <EnumProperty Name="EmWasmMode"
+                  DisplayName="Wasm Compile Mode"
+                  Description="Specify how to compile code to WebAssembly."
+                  Category="Link">
+        <EnumValue Name="EmWasmOnlyWasm"
+                   DisplayName="Compile to WebAssembly"
+                   Description="Target only WebAssembly" />
+        <EnumValue Name="EmWasmOnlyJS"
+                   DisplayName="Compile to JavaScript"
+                   Description="Target only JavaScript" />
+        <EnumValue Name="EmWasmBoth"
+                   DisplayName="Compile to WebAssembly and JavaScript"
+                   Description="Target both WebAssembly and JavaScript at the same time." />
+
+    </EnumProperty>
+
+
+    <StringProperty Name="EmSDLVersion"
+                    Category="Link"
+                    DisplayName="SDL version"
+                    Description="Specify the SDL version of the builtin port."
+    />
 </Rule>

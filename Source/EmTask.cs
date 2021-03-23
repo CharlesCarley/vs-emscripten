@@ -25,6 +25,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
 using static EmscriptenTask.EmUtils;
+using System.Text.RegularExpressions;
 
 namespace EmscriptenTask
 {
@@ -123,27 +124,44 @@ namespace EmscriptenTask
             string a = new string('=', 35);
             LogMessage($"{a} {message}");
         }
-
         protected void LogMessage(string message)
         {
             BuildEngine.LogMessageEvent(
                 new BuildMessageEventArgs(
                     message ?? "null",       // message
-                    string.Empty,            // help string
+                    string.Empty,            // help keyword
                     SenderName,              // sender
                     MessageImportance.High,  // importance
                     DateTime.Now             // date and time
                     ));
         }
-        protected void LogError(string message)
+
+        protected void LogWarning(string message, int line = 0, int column = 0)
+        {
+            BuildEngine.LogWarningEvent(
+                new BuildWarningEventArgs(
+                    string.Empty,       // subcategory
+                    string.Empty,       // code
+                    _BuildFileName,     // file
+                    line,               // line number
+                    column,             // column number
+                    0,                  // end line number
+                    0,                  // end column number
+                    message ?? "null",  // message
+                    string.Empty,       // help keyword
+                    SenderName,         // sender
+                    DateTime.Now        // date and time
+                    ));
+        }
+        protected void LogError(string message, int line = 0, int column = 0)
         {
             BuildEngine.LogErrorEvent(
                 new BuildErrorEventArgs(
                     string.Empty,       // subcategory
                     string.Empty,       // code
                     _BuildFileName,     // file
-                    0,                  // line number
-                    0,                  // column number
+                    line,               // line number
+                    column,             // column number
                     0,                  // end line number
                     0,                  // end column number
                     message ?? "null",  // message
@@ -158,9 +176,18 @@ namespace EmscriptenTask
             if (Verbose || EchoCommandLines)
                 LogMessage($"{info.FileName} {info.Arguments}");
 
+            // ensure that the redirect options have been set.
+            info.RedirectStandardOutput = true;
+            info.RedirectStandardError  = true;
+
             var process = Process.Start(info);
 
-            /// Wait at least 2 minutes, and
+            process.OutputDataReceived += OnMessageDataRecieved;
+            process.ErrorDataReceived += OnErrorDataRecieved;
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+
+            /// Wait at least 30 seconds, and
             /// if the process has not finished
             /// by then, kill it and report a time out.
             if (!process.WaitForExit(30000))
@@ -169,19 +196,48 @@ namespace EmscriptenTask
                 return false;
             }
 
-            var str = process.StandardOutput.ReadToEnd();
-            if (str.Length > 0)
-                LogMessage(str);
-
-            str = process.StandardError.ReadToEnd();
-            if (str.Length > 0)
-            {
-                if (process.ExitCode != 0)
-                    LogError(str);
-                else
-                    LogMessage(str);
-            }
             return process.ExitCode != 0;
+        }
+
+        private void OnMessageDataRecieved(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data != null)
+                LogMessage(e.Data);
+        }
+
+        private void OnErrorDataRecieved(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data != null)
+            {
+                int  line    = 0;
+                int  column  = 0;
+                bool matched = false;
+
+                if (e.Data.Contains(_BuildFileName))
+                {
+                    // >main.cpp : error : main.cpp:8:5: error: ...
+                    Regex re    = new Regex($@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
+                    var   match = re.Match(e.Data);
+                    if (match.Success && match.Groups.Count == 3)
+                    {
+                        matched = true;
+                        if (int.TryParse(match.Groups[1].Value, out int pline))
+                            line = pline;
+                        if (int.TryParse(match.Groups[2].Value, out int pcolumn))
+                            column = pcolumn;
+                    }
+                }
+
+                if (e.Data.Contains("error:"))
+                    LogError(e.Data, line, column);
+                else
+                {
+                    if (matched)
+                        LogWarning(e.Data, line, column);
+                    else
+                        LogMessage(e.Data);
+                }
+            }
         }
 
         public abstract bool Run();

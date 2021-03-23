@@ -64,7 +64,7 @@
 		<EmscriptenRoot>$(EMSDK)\upstream\emscripten</EmscriptenRoot>
 		<EmscriptenSystem>$(EMSDK)\upstream\emscripten\system</EmscriptenSystem>
 
-		<EmscriptenInclude>$(EmscriptenRoot)\cache\sysroot\include;$(EmscriptenRoot)\cache\sysroot\include\c++\v1;$(EmscriptenUpstream)\clang\13.0.0\lib\include</EmscriptenInclude>
+		<EmscriptenInclude>$(EmscriptenRoot)\cache\sysroot\include;$(EmscriptenRoot)\cache\sysroot\include\c++\v1;$(EmscriptenUpstream)\lib\clang\13.0.0\include</EmscriptenInclude>
 		<EmscriptenLib>$(EmscriptenSystem)\cache\sysroot\lib</EmscriptenLib>
 		
 		<IncludePath Condition="'$(IncludePath)' == ''">$(EmscriptenInclude)</IncludePath>
@@ -101,7 +101,28 @@
 		<!-- Debugger Settings -->
 		<DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
 
-	</PropertyGroup>
+        <LocalDebuggerCommand Condition="'$(ConfigurationType)' == 'Application'">$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
+        <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'Application'">run $(TargetPath)</LocalDebuggerCommandArguments>
+
+        <LocalDebuggerCommand Condition="'$(ConfigurationType)' == 'HTMLApplication'">$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
+        <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'HTMLApplication'">$(TargetPath)</LocalDebuggerCommandArguments>
+
+    
+		<!-- Settings.js properties  -->
+
+        
+        <EmVerbose>false</EmVerbose>
+        <EmTracing>false</EmTracing>
+        <EmDisableExceptionCatching>Disabled</EmDisableExceptionCatching>
+        <EmDisableExceptionCatchingAllowed />
+
+
+        <!-- Uses Module by default: do nothing if not set -->
+        <EmExportName/>
+        <EmWasmMode Condition="'$(EmWasmMode)'==''">EmWasmOnlyWasm</EmWasmMode>
+        <EmSDLVersion Condition="'$(EmSDLVersion)' != ''">2</EmSDLVersion>
+
+    </PropertyGroup>
 
 	
 	<!-- Define The default settings for common properties -->
@@ -121,20 +142,14 @@
 			<PreprocessorDefinitions />
 			<UndefinePreprocessorDefinitions />
 			<SystemPreprocessorDefinitions>__EMSCRIPTEN__</SystemPreprocessorDefinitions>
-			<SystemUndefinePreprocessorDefinitions />
 			<UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
 			<!-- Code Generation -->
-			<ExceptionHandling>Disabled</ExceptionHandling>
+			<ExceptionHandling>Enabled</ExceptionHandling>
 			<FunctionLevelLinking>true</FunctionLevelLinking>
 			<DataLevelLinking>true</DataLevelLinking>
 			<BufferSecurityCheck>true</BufferSecurityCheck>
 			<PositionIndependentCode>true</PositionIndependentCode>
 			<UseShortEnums>true</UseShortEnums>
-			<!-- Emscripten -->
-			<EmVerbose>false</EmVerbose>
-			<EmTracing>false</EmTracing>
-			<EmDisableExceptionCatching>Disabled</EmDisableExceptionCatching>
-			<EmDisableExceptionCatchingAllowed />
 			<!-- Language -->
 			<RuntimeTypeInfo>false</RuntimeTypeInfo>
 			<LanguageStandard>Default</LanguageStandard>
@@ -160,6 +175,7 @@
 			<RunStaticAnalysis>false</RunStaticAnalysis>
 			<!-- Command Line -->
 			<AdditionalOptions/>
+
 			<!-- Needs to be added: -->
 			<BasicRuntimeChecks>Default</BasicRuntimeChecks>
 			<LanguageStandard>gnucpp11</LanguageStandard>
@@ -171,17 +187,14 @@
 			<BrowseInformationFile />
 			<EnableASAN />
 			<ConformanceMode />
-			<SuppressStartupBanner>true</SuppressStartupBanner>
-			<SuppressStartupBanner />
-		</ClCompile>
+			<SuppressStartupBanner/>
+            <SystemIncludeDirectories>$(EmscriptenInclude)</SystemIncludeDirectories>
+
+        </ClCompile>
 		<Lib>
 		</Lib>
 		<Link>
 			<AdditionalDependencies></AdditionalDependencies>
-			<!-- Uses Module by default: do nothing if not set -->
-			<EmExportName/>
-			<EmWasmMode Condition="'%(Link.EmWasmMode)'==''">EmWasmOnlyWasm</EmWasmMode>
-			<EmSDLVersion Condition="'%(Link.EmSDLVersion)' != ''">2</EmSDLVersion>
 		</Link>
 	</ItemDefinitionGroup>
 </Project>

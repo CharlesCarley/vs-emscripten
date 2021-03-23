@@ -253,37 +253,8 @@
 	</Rule.Categories>
 	<Rule.DataSource>
 		<DataSource HasConfigurationCondition="true"
-                    ItemType="Link"
-                    Persistence="UserFile"
-                    Label="" />
+                    Persistence="ProjectFile"
+                    />
 	</Rule.DataSource>
 
-	
-	<StringProperty Name="EmExportName"
-	                DisplayName="Exported Module name"
-	                Description="Global variable to export the module as for environments without a standardized module loading system (e.g. the browser and SM shell)."
-	                Category="Emscripten"
-	                />
-	<EnumProperty Name="EmWasmMode"
-	                DisplayName="Wasm Compile Mode"
-	                Description="Specify how to compile code to WebAssembly."
-	                Category="Emscripten">
-		<EnumValue Name="EmWasmOnlyWasm"
-		           DisplayName="Compile to WebAssembly"
-		           Description="Target only WebAssembly" />
-		<EnumValue Name="EmWasmOnlyJS"
-		           DisplayName="Compile to JavaScript"
-		           Description="Target only JavaScript" />
-		<EnumValue Name="EmWasmBoth"
-		           DisplayName="Compile to WebAssembly and JavaScript"
-		           Description="Target both WebAssembly and JavaScript at the same time." />
-
-	</EnumProperty>
-
-
-	<StringProperty Name="EmSDLVersion"
-	                Category="Emscripten"
-	                DisplayName="SDL version"
-	                Description="Specify the SDL version of the builtin port." 
-	                />
 </Rule>

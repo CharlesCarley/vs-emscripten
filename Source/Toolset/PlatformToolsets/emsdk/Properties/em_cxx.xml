@@ -135,10 +135,6 @@
 						Category="Preprocessor"
 						Switch="D"
 						Visible="false" />
-	<StringListProperty Name="SystemUndefinePreprocessorDefinitions"
-						Category="Preprocessor"
-						Switch="U"
-						Visible="false" />
 	<BoolProperty Name="UndefineAllPreprocessorDefinitions"
 				  Category="Preprocessor"
 				  Description="Undefine all previously defined preprocessor values."
