@@ -206,7 +206,7 @@ namespace UnitTest
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
             string output = string.Empty;
-            int rc = Spawn(msBuild, "Test5", ref output);
+            int    rc     = Spawn(msBuild, "Test5", ref output);
             Assert.AreEqual(0, rc);
 
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main2.c.o"));
@@ -217,7 +217,7 @@ namespace UnitTest
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test5.wasm"));
 
             output = string.Empty;
-            rc = Spawn(wavm, @" run Debug\Test5.wasm", ref output);
+            rc     = Spawn(wavm, @" run Debug\Test5.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("Main2--------------------------------Hello WASM World!\n", output);
             Assert.IsTrue(ClearIfExists());
