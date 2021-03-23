@@ -7,20 +7,20 @@
         <PropertyGroup>
             <DoVerbose>true</DoVerbose>
             <Idir>Debug</Idir>
-            <FileName>main</FileName>
+            <FileName>main.c</FileName>
             <FileExt>.o</FileExt>
-            <OutDir>.</OutDir>
+            <OutDir>$(Idir)</OutDir>
         </PropertyGroup>
 
-		<EmCxx Sources="main.c" 
+		<EmCxx Sources="$(FileName)" 
 		      Verbose="$(DoVerbose)" 
 			  ObjectFileName="$(Idir)\$(FileName)$(FileExt)"
 		      />
 
 		<EmLink Sources="$(Idir)\$(FileName)$(FileExt)"
 		        Verbose="$(DoVerbose)"
-		        OutputFile="$(OutDir)\C.wasm"/>
+		        OutputFile="$(OutDir)\Test3.wasm"/>
 
-		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run C.wasm"/>
+		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run $(OutDir)\Test3.wasm"/>
 	</Target>
 </Project>

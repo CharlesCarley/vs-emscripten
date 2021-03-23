@@ -6,21 +6,17 @@
 
         <PropertyGroup>
             <DoVerbose>true</DoVerbose>
-            <Idir>Debug</Idir>
-            <FileName>main1</FileName>
-            <FileExt>.o</FileExt>
-            <OutDir>.</OutDir>
         </PropertyGroup>
 
 		<EmCxx Sources="main2.c;fn1.c;fn2.c;fn3.c" 
 		      Verbose="$(DoVerbose)" 
-			  ObjectFileName="$(Idir)\$(FileName)$(FileExt)"
+			  ObjectFileName="Debug\Test4.wasm"
 		      />
 
-		<EmLink Sources="$(Idir)\main2.c.o;$(Idir)\fn1.c.o;$(Idir)\fn2.c.o;$(Idir)\fn3.c.o"
+		<EmLink Sources="Debug\main2.c.o;Debug\fn1.c.o;Debug\fn2.c.o;Debug\fn3.c.o"
 		        Verbose="$(DoVerbose)"
-		        OutputFile="$(OutDir)\D.wasm"/>
+		        OutputFile="Debug\Test4.wasm"/>
 
-		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run D.wasm"/>
+		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run Debug\Test4.wasm"/>
 	</Target>
 </Project>

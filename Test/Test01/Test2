@@ -11,13 +11,13 @@
 		<EmCxx Sources="main.cpp" 
 		      Verbose="$(DoVerbose)" 
 		      AdditionalIncludeDirectories="$(EMSDK);.;../"
-			  ObjectFileName="Debug2\main.abcdefg"
+			  ObjectFileName="Debug\main.abcdefg"
 		      />
 
-		<EmLink Sources="Debug2\main.abcdefg"
+		<EmLink Sources="Debug\main.abcdefg"
 		        Verbose="$(DoVerbose)"
-		        OutputFile="main2.wasm"/>
+		        OutputFile="Debug\Test2.wasm"/>
 
-		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run main2.wasm"/>
+		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run Debug\Test2.wasm"/>
 	</Target>
 </Project>

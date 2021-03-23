@@ -122,22 +122,104 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void RunTest0()
+        public void RunTest01()
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
             string output = string.Empty;
-            int rc = Spawn(msBuild, "Test1", ref output);
+            int    rc     = Spawn(msBuild, "Test1", ref output);
             Assert.AreEqual(0, rc);
 
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main.cpp.o"));
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test1.wasm"));
 
-
             output = string.Empty;
-            rc = Spawn(wavm, @" run Debug\Test1.wasm", ref output);
+            rc     = Spawn(wavm, @" run Debug\Test1.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("Main.cpp Hello WASM World!\n", output);
+            Assert.IsTrue(ClearIfExists());
+        }
+
+        [TestMethod]
+        public void RunTest02()
+        {
+            Assert.IsTrue(SetupEnv() && ClearIfExists());
+
+            string output = string.Empty;
+            int    rc     = Spawn(msBuild, "Test2", ref output);
+            Assert.AreEqual(0, rc);
+
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main.abcdefg"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test2.wasm"));
+
+            output = string.Empty;
+            rc     = Spawn(wavm, @" run Debug\Test2.wasm", ref output);
+            Assert.AreEqual(0, rc);
+            Assert.AreEqual("Main.cpp Hello WASM World!\n", output);
+            Assert.IsTrue(ClearIfExists());
+        }
+
+        [TestMethod]
+        public void RunTest03()
+        {
+            Assert.IsTrue(SetupEnv() && ClearIfExists());
+
+            string output = string.Empty;
+            int    rc     = Spawn(msBuild, "Test3", ref output);
+            Assert.AreEqual(0, rc);
+
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test3.wasm"));
+
+            output = string.Empty;
+            rc     = Spawn(wavm, @" run Debug\Test3.wasm", ref output);
+            Assert.AreEqual(0, rc);
+            Assert.AreEqual("main.c Hello WASM World!\n", output);
+            Assert.IsTrue(ClearIfExists());
+        }
+
+        [TestMethod]
+        public void RunTest04()
+        {
+            Assert.IsTrue(SetupEnv() && ClearIfExists());
+
+            string output = string.Empty;
+            int    rc     = Spawn(msBuild, "Test4", ref output);
+            Assert.AreEqual(0, rc);
+
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main2.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\fn1.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\fn2.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\fn3.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test4.wasm"));
+
+            output = string.Empty;
+            rc     = Spawn(wavm, @" run Debug\Test4.wasm", ref output);
+            Assert.AreEqual(0, rc);
+            Assert.AreEqual("Main2--------------------------------Hello WASM World!\n", output);
+            Assert.IsTrue(ClearIfExists());
+        }
+
+        [TestMethod]
+        public void RunTest05()
+        {
+            Assert.IsTrue(SetupEnv() && ClearIfExists());
+
+            string output = string.Empty;
+            int rc = Spawn(msBuild, "Test5", ref output);
+            Assert.AreEqual(0, rc);
+
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main2.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\fn1.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\fn2.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\fn3.c.o"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\fnLib.a"));
+            Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test5.wasm"));
+
+            output = string.Empty;
+            rc = Spawn(wavm, @" run Debug\Test5.wasm", ref output);
+            Assert.AreEqual(0, rc);
+            Assert.AreEqual("Main2--------------------------------Hello WASM World!\n", output);
             Assert.IsTrue(ClearIfExists());
         }
     }

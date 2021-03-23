@@ -24,9 +24,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmscriptenTask", "Source\Em
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test01", "Test01", "{EAD105E6-9CD0-499D-B095-831F9C1A86AF}"
 	ProjectSection(SolutionItems) = preProject
+		Test\Test01\main.c = Test\Test01\main.c
 		Test\Test01\main.cpp = Test\Test01\main.cpp
 		Test\Test01\Test1 = Test\Test01\Test1
 		Test\Test01\Test2 = Test\Test01\Test2
+		Test\Test01\Test3 = Test\Test01\Test3
+		Test\Test01\Test4 = Test\Test01\Test4
+		Test\Test01\Test5 = Test\Test01\Test5
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test02", "Test02", "{1437C93F-8F45-4FAB-B848-5CA5CC69EF43}"
