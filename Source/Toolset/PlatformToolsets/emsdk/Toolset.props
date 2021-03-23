@@ -54,7 +54,7 @@
         <OutputType>exe</OutputType>
     </PropertyGroup>
 
-	<PropertyGroup>
+    <PropertyGroup>
 		<PreferredToolArchitecture>x64</PreferredToolArchitecture>
 		<TargetPlatformIdentifier>Emscripten</TargetPlatformIdentifier>
 		<ToolsetISenseIdentifier>$(TargetPlatformIdentifier)</ToolsetISenseIdentifier>
@@ -110,7 +110,6 @@
     
 		<!-- Settings.js properties  -->
 
-        
         <EmVerbose>false</EmVerbose>
         <EmTracing>false</EmTracing>
         <EmDisableExceptionCatching>Disabled</EmDisableExceptionCatching>
@@ -189,7 +188,6 @@
 			<ConformanceMode />
 			<SuppressStartupBanner/>
             <SystemIncludeDirectories>$(EmscriptenInclude)</SystemIncludeDirectories>
-
         </ClCompile>
 		<Lib>
 		</Lib>

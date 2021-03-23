@@ -33,13 +33,13 @@ namespace EmscriptenTask
         protected override string SenderName     => nameof(EmCxx);
         protected override string _BuildFileName => BuildFile;
 
-        public string AdditionalOptions { get; set; }
-
         /// <summary>
         /// An internal property that is set per source file right
         /// before calling ProcessFile.
         /// </summary>
         protected string BuildFile { get; set; }
+
+        // ================================ General ================================
 
         /// <summary>
         /// Provides any extra user supplied include directories.
@@ -49,14 +49,38 @@ namespace EmscriptenTask
         public string SystemIncludeDirectories { get; set; }
 
         /// <summary>
+        /// Debug info options.
+        /// </summary>
+        public string DebugInformationFormat { get; set; }
+
+        /// <summary>
+        /// Warning verbosity level.
+        /// A value of Default will do nothing and let the compiler emit the default messages.
+        /// A value of None will pass -w.
+        /// A value of All will pass -Wall.
+        ///
+        /// </summary>
+        public string WarningLevel { get; set; }
+
+        /// <summary>
+        /// Generates an error instead of a warning.
+        /// </summary>
+        public bool TreatWarningAsError { get; set; }
+
+        // ErrorLimit
+        // TemplateBacktraceLimit
+
+        // ============================= Optimization ==============================
+        // OptimizationLevel
+        // OmitFramePointers
+        //
+
+        // ============================= Preprocessor ==============================
+
+        /// <summary>
         /// Provides any extra user supplied preprocessor definitions.
         /// </summary>
         public string PreprocessorDefinitions { get; set; }
-
-        /// <summary>
-        /// Do not pass any preprocessor definitions
-        /// </summary>
-        public bool UndefineAllPreprocessorDefinitions { get; set; } = false;
 
         /// <summary>
         /// Extra system definitions.
@@ -64,9 +88,51 @@ namespace EmscriptenTask
         public string SystemPreprocessorDefinitions { get; set; }
 
         /// <summary>
-        /// Debug info options.
+        /// Do not pass any preprocessor definitions
         /// </summary>
-        public string DebugInformationFormat { get; set; }
+        public bool UndefineAllPreprocessorDefinitions { get; set; } = false;
+
+        // ============================= Code Generation ===========================
+        // FunctionLevelLinking
+        // DataLevelLinking
+        // BufferSecurityCheck
+        // PositionIndependentCode
+        // UseShortEnums
+
+        /// <summary>
+        /// Set standard exception handling.
+        /// A value of Disabled will disable exceptions.
+        /// A value of Enabled will enable exceptions.
+        /// </summary>
+        public string ExceptionHandling { get; set; }
+
+        // ============================= Language ==============================----
+        // RuntimeTypeInfo
+        // LanguageExtensions
+        // EnableMicrosoftExtensions
+        // ConstExprLimit
+        // TemplateRecursionLimit
+
+        /// <summary>
+        /// Option to explicitly set the desired C++ standard version.
+        /// </summary>
+        public string LanguageStandard { get; set; }
+
+        // ============================= Output Files ==============================
+        // PreserveTempFiles
+        // GenerateDependencyFile
+        // DependencyFileName
+
+        /// <summary>
+        /// The output object file defined as $(OutDir)%(Filename).o
+        /// </summary>
+        public string ObjectFileName { get; set; } = null;
+
+        // =========================-==== Advanced  ==============================--
+        // ForcedIncludeFiles
+        // EnableSpecificWarnings
+        // DisableSpecificWarnings
+        // TreatSpecificWarningsAsErrors
 
         /// <summary>
         /// Explicit statement for setting how the source file should be compiled.
@@ -83,44 +149,15 @@ namespace EmscriptenTask
         ///
         /// </summary>
         public string CompileAs { get; set; }
-
-        private bool _IsInC => CompileAs.Equals("CompileAsC");
-
-        /// <summary>
-        /// The output object file defined as $(OutDir)%(Filename).o
-        /// </summary>
-        public string ObjectFileName { get; set; } = null;
-
-        /// <summary>
-        /// Option to explicitly set the desired C++ standard version.
-        /// </summary>
-        public string LanguageStandard { get; set; }
-
-        /// <summary>
-        /// Warning verbosity level.
-        /// A value of Default will do nothing and let the compiler emit the default messages.
-        /// A value of None will pass -w.
-        /// A value of All will pass -Wall.
-        ///
-        /// </summary>
-        public string WarningLevel { get; set; }
-
-        /// <summary>
-        /// Generates an error instead of a warning.
-        /// </summary>
-        public bool TreatWarningAsError { get; set; }
-
-        /// <summary>
-        /// Set standard exception handling.
-        /// A value of Disabled will disable exceptions.
-        /// A value of Enabled will enable exceptions.
-        /// </summary>
-        public string ExceptionHandling { get; set; }
+        private bool  _IsInC => CompileAs.Equals("CompileAsC");
 
         /// <summary>
         /// Output included files.
         /// </summary>
         public bool ShowIncludes { get; set; }
+
+        // ============================= Command Line  =============================
+        public string AdditionalOptions { get; set; }
 
         /// <summary>
         /// Test to determine whether or not the supplied source code
@@ -336,7 +373,7 @@ namespace EmscriptenTask
                 LogTaskProps(GetType(), this);
 
             AdditionalIncludeDirectories  = SeperatePaths(AdditionalIncludeDirectories, ';', "-I", true);
-            SystemIncludeDirectories =  SeperatePaths(SystemIncludeDirectories, ';', "-I", false);
+            SystemIncludeDirectories      = SeperatePaths(SystemIncludeDirectories, ';', "-I", false);
             SystemPreprocessorDefinitions = SeperatePaths(SystemPreprocessorDefinitions, ';', "-D");
 
             if (!UndefineAllPreprocessorDefinitions)

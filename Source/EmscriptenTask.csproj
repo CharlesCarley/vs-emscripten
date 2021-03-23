@@ -69,8 +69,6 @@
     <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_directories.xml" />
     <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_general.xml" />
     <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_js_general.xml" />
-    <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_js_link.xml" />
-    <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_link.xml" />
     <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_wasm.xml" />
   </ItemGroup>
   <ItemGroup />

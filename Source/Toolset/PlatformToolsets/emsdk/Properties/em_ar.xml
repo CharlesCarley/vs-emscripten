@@ -19,7 +19,6 @@
     <Rule.DataSource>
         <DataSource HasConfigurationCondition="true"
                     ItemType="Lib"
-                    Label=""
                     Persistence="ProjectFile" />
     </Rule.DataSource>
     <!-- General -->

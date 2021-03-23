@@ -37,8 +37,6 @@ namespace EmscriptenTask
         public IBuildEngine BuildEngine { get; set; }
         public ITaskHost    HostObject { get; set; }
 
-        public string TargetFile { get; set; }
-
         /// <summary>
         /// Indicator to determine build state
         /// </summary>

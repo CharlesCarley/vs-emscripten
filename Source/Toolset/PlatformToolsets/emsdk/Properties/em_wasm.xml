@@ -29,6 +29,8 @@
                     Label=""
                     Persistence="ProjectFile" />
     </Rule.DataSource>
+
+    
     <!-- General -->
     <StringProperty Name="OutputFile"
                     Category="General"
@@ -54,6 +56,7 @@
                         Persistence="ProjectFile" />
         </BoolProperty.DataSource>
     </BoolProperty>
+
     <BoolProperty Name="UseLibraryDependencyInputs"
                   Category="General"
                   Description="Specifies whether or not the inputs to the librarian tool are used rather than the library file itself when linking in library outputs of project dependencies."
@@ -67,6 +70,7 @@
                         Persistence="ProjectFile" />
         </BoolProperty.DataSource>
     </BoolProperty>
+
     <EnumProperty Name="Warnings"
                   Category="General"
                   DisplayName="Warnings">
@@ -87,47 +91,15 @@
                   Description="Normally emcc will treat dynamic linking like static linking, by linking in the code from the dynamic library. This fails if the same dynamic library is linked more than once. With this option, dynamic linking is ignored, which allows the build system to proceed without errors. However, you will need to manually link to the shared libraries later on yourself.Disregards dynamic library linking minification process will be executed for the generated JavaScript code."
                   DisplayName="Ignore Dynamic Linking"
                   Switch="-ignore-dynamic-linking" />
+
+    
     <!-- Input -->
     <StringListProperty Name="AdditionalDependencies"
                         Category="Input"
                         DisplayName="Additional Dependencies"
                         Subtype="file" />
-    <StringListProperty Name="PreJsFile"
-                        Category="Input"
-                        Description="Specifies a .js file to embed to the beginning of the generated script file, before running optimizations on the file."
-                        DisplayName="Pre-Add JavaScript File (--pre-js)"
-                        Subtype="file"
-                        Switch="-pre-js " />
-    <StringListProperty Name="PostJsFile"
-                        Category="Input"
-                        Description="Specifies a .js file to embed to the beginning of the generated script file, after optimizations have been performed."
-                        DisplayName="Post-Add JavaScript File (--post-js)"
-                        Subtype="file"
-                        Switch="-post-js " />
-    <StringListProperty Name="EmbedFile"
-                        Category="Input"
-                        Description="Specifies a list of resource files to embed inside the generated JavaScript file."
-                        DisplayName="Embedded Resource Files (--embed-file)"
-                        Subtype="file"
-                        Switch="-embed-file " />
-    <StringListProperty Name="PreloadFile"
-                        Category="Input"
-                        Description="Specifies a list of resource files to preload for the HTML page before running the compiled JavaScript code."
-                        DisplayName="Preloaded Resource Files (--preload-file)"
-                        Subtype="file"
-                        Switch="-preload-file " />
-    <StringListProperty Name="HtmlShellFile"
-                        Category="Input"
-                        Description="Specifies the .html file template inside which the generated JavaScript code will be generated to."
-                        DisplayName="HTML Shell File (--shell-file)"
-                        Subtype="file"
-                        Switch="-shell-file " />
-    <StringListProperty Name="JsLibrary"
-                        Category="Input"
-                        Description="Specifies additional JavaScript libraries to link the generated code with."
-                        DisplayName="Additional JavaScript Libraries (--js-library)"
-                        Subtype="file"
-                        Switch="-js-library " />
+
+    
     <!-- Optimization -->
     <EnumProperty Name="LinkerOptimizationLevel"
                   Category="Optimization"
@@ -147,18 +119,21 @@
                    DisplayName="LLVM O3, LLVM LTO, closure, force aligned memory, truncate doubles to floats on loads and stores, substitute double for int64"
                    Switch="O3" />
     </EnumProperty>
+
     <BoolProperty Name="RunClosureCompiler"
                   Category="Optimization"
                   Description="Forces the closure compiler to be run as part of the build or skips it if set to false."
                   DisplayName="Force Closure Compiler Run (--closure)"
                   ReverseSwitch="-closure 0"
                   Switch="-closure 1" />
+
     <BoolProperty Name="RunMinify"
                   Category="Optimization"
                   Description="Skips the JS code minification process if set to false."
                   DisplayName="Force JS Code Minifier Run (--minify)"
                   ReverseSwitch="-minify 0"
                   Switch="-minify 1" />
+
     <!-- Advanced -->
     <EnumProperty Name="TypedArrays"
                   Category="Advanced"
@@ -176,6 +151,7 @@
                    DisplayName="Shared Typed Arrays"
                    Switch="-typed-arrays=2" />
     </EnumProperty>
+    
     <StringListProperty Name="EnableWarnings"
                         Category="Advanced"
                         Description="Specify one or more warnings to be enabled."
@@ -188,11 +164,13 @@
                         DisplayName="Disable Specific Warnings"
                         Subtype="folder"
                         Switch="Wno-" />
+    
     <BoolProperty Name="TreatWarningAsError"
                   Category="Advanced"
                   Description="Treats all linker warnings as errors."
                   DisplayName="Treat Warnings as Errors"
                   Switch="Werror" />
+    
     <StringProperty Name="TargetExt"
                     Category="Advanced"
                     Description="Specifies a file extension that the program will have. (Example: .exe or .dll)"
@@ -203,10 +181,13 @@
                         Persistence="ProjectFile" />
         </StringProperty.DataSource>
     </StringProperty>
+    
     <BoolProperty Name="EchoCommandLines"
                   Category="Advanced"
                   Description="Print out the commands emcc is invoked with during linking."
                   DisplayName="Echo Command Lines" />
+
+    
     <!-- Command Line -->
     <StringProperty Name="AdditionalOptions"
                     Category="Command Line"
