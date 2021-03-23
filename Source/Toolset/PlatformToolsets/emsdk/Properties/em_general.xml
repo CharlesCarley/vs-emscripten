@@ -4,6 +4,7 @@
       PageTemplate="generic"
       Description="General"
       xmlns="http://schemas.microsoft.com/build/2009/properties">
+
     <Rule.Categories>
         <Category Name="General"
                   Description="General"
@@ -12,10 +13,13 @@
                   Description="Emscripten SDK installation paths."
                   DisplayName="Emscripten SDK" />
     </Rule.Categories>
+    
     <Rule.DataSource>
         <DataSource Label="Configuration"
                     Persistence="ProjectFile" />
     </Rule.DataSource>
+    
+    
     <!-- General -->
     <StringProperty Name="OutDir"
                     Category="General"

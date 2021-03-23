@@ -16,7 +16,7 @@
 		<EmLink Sources="Debug\main.cpp.o"
 		        Verbose="$(DoVerbose)" 
 		        EchoCommandLines="$(DoVerbose)"
-		        OutputFile="main.wasm"/>
-		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run main.wasm"/>
+		        OutputFile="Debug\Test1.wasm"/>
+		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run Debug\Test1.wasm"/>
 	</Target>
 </Project>
