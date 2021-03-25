@@ -79,7 +79,7 @@
 
 
     <!-- ======================================
-        Copy of (Modified):
+        Modified Copy of :
         <Import Project="$(VCTargetsPath)\Microsoft.Cpp.ClangCl.Common.props" />
         ====================================== -->
     <CLToolExe>clang.exe</CLToolExe>
@@ -118,8 +118,6 @@
     <EmExportName/>
     <EmWasmMode Condition="'$(EmWasmMode)'==''">EmWasmOnlyWasm</EmWasmMode>
     <EmSDLVersion Condition="'$(EmSDLVersion)' != ''">2</EmSDLVersion>
-    <MinimalRebuildFromTrackingValue>true</MinimalRebuildFromTrackingValue>
-    <MinimalRebuildFromTracking>$(MinimalRebuildFromTrackingValue)</MinimalRebuildFromTracking>
 
 
   </PropertyGroup>
@@ -183,12 +181,10 @@
       <EchoCommandLines>false</EchoCommandLines>
       <RunStaticAnalysis>false</RunStaticAnalysis>
 
-
       <!-- Command Line -->
       <AdditionalOptions/>
 
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <VerboseOutput>NoVerboseOutput</VerboseOutput>
 
       <!-- Zero options that are not used -->
       <AssemblerOutput />
@@ -201,19 +197,21 @@
       <SuppressStartupBanner/>
       <SystemIncludeDirectories>$(EmscriptenInclude)</SystemIncludeDirectories>
 
-      <MinimalRebuildFromTracking>$(MinimalRebuildFromTrackingValue)</MinimalRebuildFromTracking>
+
+      <!-- Extra -->
+      <VerboseOutput>NoVerboseOutput</VerboseOutput>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </ClCompile>
 
     <Lib>
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
-      <MinimalRebuildFromTracking>$(MinimalRebuildFromTrackingValue)</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Lib>
 
 
     <Link>
-      <MinimalRebuildFromTracking>$(MinimalRebuildFromTrackingValue)</MinimalRebuildFromTracking>
-      <Link_MinimalRebuildFromTracking>$(MinimalRebuildFromTrackingValue)</Link_MinimalRebuildFromTracking>
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <AdditionalDependencies/>
     </Link>
   </ItemDefinitionGroup>

@@ -150,11 +150,13 @@ namespace EmscriptenTask
 
         public override bool Run()
         {
-            TaskStarted();
-
             var tool = EmccTool;
             tool     = tool.Replace("emcc.bat", "em++.bat");
             return Call(tool, BuildSwitches());
+        }
+        public override void OnStart()
+        {
+            OnTaskStarted += TaskStarted;
         }
     }
 }

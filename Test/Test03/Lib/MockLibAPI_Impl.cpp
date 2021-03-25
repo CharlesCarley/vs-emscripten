@@ -6,7 +6,6 @@ void Mock2()
     printf("Mock symbol 2 called\n");
 }
 
-
 MockEnum Mock3(int x)
 {
     switch (x)

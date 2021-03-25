@@ -61,11 +61,16 @@ namespace EmscriptenTask
 
         public override bool Run()
         {
-            TaskStarted();
             bool result = RunAr();
             if (result)
                 result = RunRanlib();
             return result;
         }
+
+        public override void OnStart()
+        {
+            OnTaskStarted += TaskStarted;
+        }
+
     }
 }

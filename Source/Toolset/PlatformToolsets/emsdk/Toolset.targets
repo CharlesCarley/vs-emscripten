@@ -3,7 +3,6 @@
     <UseDefaultProjectTools>false</UseDefaultProjectTools>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.CppCommon.targets" />
-
   <!-- Define The default settings for common properties -->
   <!-- ============================================================ -->
   <ItemDefinitionGroup>
@@ -15,8 +14,8 @@
       <DebugInformationFormat             Condition="'%(ClCompile.DebugInformationFormat)'             == ''">FullDebug</DebugInformationFormat>
       <WarningLevel                       Condition="'%(ClCompile.WarningLevel)'                       == ''">Default</WarningLevel>
       <TreatWarningAsError                Condition="'%(ClCompile.TreatWarningAsError)'                == ''">false</TreatWarningAsError>
-      <ErrorLimit                         Condition="'%(ClCompile.ErrorLimit)'                         == ''"></ErrorLimit>
-      <TemplateBacktraceLimit             Condition="'%(ClCompile.TemplateBacktraceLimit)'             == ''"></TemplateBacktraceLimit>
+      <ErrorLimit                         Condition="'%(ClCompile.ErrorLimit)'                         == ''"/> <!--Redundant, but consistancy is important! -->
+      <TemplateBacktraceLimit             Condition="'%(ClCompile.TemplateBacktraceLimit)'             == ''"/>
       <!-- Optimization -->
       <OptimizationLevel                  Condition="'%(ClCompile.OptimizationLevel)'                  == ''">O0</OptimizationLevel>
       <OmitFramePointers                  Condition="'%(ClCompile.OmitFramePointers)'                  == ''">false</OmitFramePointers>
@@ -39,8 +38,8 @@
       <LanguageExtensions                 Condition="'%(ClCompile.LanguageExtensions)'                 == ''">EnableLanguageExtensions</LanguageExtensions>
       <EnableMicrosoftExtensions          Condition="'%(ClCompile.EnableMicrosoftExtensions)'          == ''">true</EnableMicrosoftExtensions>
       <MscVersion                         Condition="'%(ClCompile.MscVersion)'                         == ''">VisualC120</MscVersion>
-      <ConstExprLimit                     Condition="'%(ClCompile.ConstExprLimit)'                     == ''"></ConstExprLimit>
-      <TemplateRecursionLimit             Condition="'%(ClCompile.TemplateRecursionLimit)'             == ''"></TemplateRecursionLimit>
+      <ConstExprLimit                     Condition="'%(ClCompile.ConstExprLimit)'                     == ''"/>
+      <TemplateRecursionLimit             Condition="'%(ClCompile.TemplateRecursionLimit)'             == ''"/>
       <!-- Output Files -->
       <ObjectFileName                     Condition="'%(ClCompile.OutputFile)'                         == ''">$(IntDir)%(Filename).o</ObjectFileName>
       <DependencyFileName                 Condition="'%(ClCompile.DependencyFileName)'                 == ''">$(IntDir)%(Filename)_dep.o</DependencyFileName>
@@ -49,14 +48,14 @@
       <CompileAs                          Condition="'%(ClCompile.CompileAs)'                          == ''">Default</CompileAs>
       <ForcedIncludeFiles                 Condition="'%(ClCompile.ForcedIncludeFiles)'                 == ''"></ForcedIncludeFiles>
       <ShowIncludes                       Condition="'%(ClCompile.ShowIncludes)'                       == ''">false</ShowIncludes>
-      <EnableSpecificWarnings             Condition="'%(ClCompile.EnableSpecificWarnings)'             == ''"></EnableSpecificWarnings>
-      <DisableSpecificWarnings            Condition="'%(ClCompile.DisableSpecificWarnings)'            == ''"></DisableSpecificWarnings>
-      <TreatSpecificWarningsAsErrors      Condition="'%(ClCompile.TreatSpecificWarningsAsErrors)'      == ''"></TreatSpecificWarningsAsErrors>
-      <TreatSpecificWarningsNotAsErrors   Condition="'%(ClCompile.TreatSpecificWarningsNotAsErrors)'   == ''"></TreatSpecificWarningsNotAsErrors>
+      <EnableSpecificWarnings             Condition="'%(ClCompile.EnableSpecificWarnings)'             == ''"/>
+      <DisableSpecificWarnings            Condition="'%(ClCompile.DisableSpecificWarnings)'            == ''"/>
+      <TreatSpecificWarningsAsErrors      Condition="'%(ClCompile.TreatSpecificWarningsAsErrors)'      == ''"/>
+      <TreatSpecificWarningsNotAsErrors   Condition="'%(ClCompile.TreatSpecificWarningsNotAsErrors)'   == ''"/>
       <EchoCommandLines                   Condition="'%(ClCompile.EchoCommandLines)'                   == ''">false</EchoCommandLines>
       <RunStaticAnalysis                  Condition="'%(ClCompile.RunStaticAnalysis)'                  == ''">false</RunStaticAnalysis>
       <!-- Command Line -->
-      <AdditionalOptions                  Condition="'%(ClCompile.AdditionalOptions)'                  == ''"></AdditionalOptions>
+      <AdditionalOptions                  Condition="'%(ClCompile.AdditionalOptions)'                  == ''"/>
       <BasicRuntimeChecks                 Condition="'%(ClCompile.BasicRuntimeChecks)'                 == ''">Default</BasicRuntimeChecks>
       <TrackerLogDirectory                Condition="'%(ClCompile.TrackerLogDirectory)'                == ''">$(TLogLocation)</TrackerLogDirectory>
       <MinimalRebuildFromTracking         Condition="'%(ClCompile.MinimalRebuildFromTracking)'         == ''">true</MinimalRebuildFromTracking>
@@ -76,8 +75,8 @@
       <TargetExt>.a</TargetExt>
       <VerboseOutput                  Condition="'%(Lib.VerboseOutput)'                 == ''">NoVerboseOutput</VerboseOutput>
       <OutputFile                     Condition="'%(Lib.OutputFile)'                    == ''">$(OutDir)%(Filename).o</OutputFile>
-      <AdditionalDependencies         Condition="'%(Lib.AdditionalDependencies)'        == ''"></AdditionalDependencies>
-      <AdditionalLibraryDirectories   Condition="'%(Lib.AdditionalLibraryDirectories)'  == ''"></AdditionalLibraryDirectories>
+      <AdditionalDependencies         Condition="'%(Lib.AdditionalDependencies)'        == ''"/>
+      <AdditionalLibraryDirectories   Condition="'%(Lib.AdditionalLibraryDirectories)'  == ''"/>
       <Warnings                       Condition="'%(Lib.Warnings)'                      == ''">NormalWarnings</Warnings>
       <TreatWarningAsError            Condition="'%(Lib.TreatWarningAsError)'           == ''">false</TreatWarningAsError>
       <TypedArrays                    Condition="'%(Lib.TypedArrays)'                   == ''">Default</TypedArrays>
@@ -108,11 +107,10 @@
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_general.xml">
       <Context>Project</Context>
     </PropertyPageSchema>
-    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_js_general.xml" />
 
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_js_general.xml" />
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_adv_override.xml" />
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_directories.xml" />
-
 
     <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"
                         Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />

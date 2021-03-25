@@ -34,8 +34,8 @@ namespace EmscriptenTask
         protected override string SenderName     => nameof(EmCxx);
         protected override string _BuildFileName => BuildFile;
 
-        private CanonicalTrackedInputFiles InputFiles { get; set; }
-        private CanonicalTrackedInputFiles OutputFiles { get; set; }
+        private CanonicalTrackedInputFiles  InputFiles { get; set; }
+        private CanonicalTrackedOutputFiles OutputFiles { get; set; }
 
         /// <summary>
         /// An internal property that is set per source file right
@@ -376,10 +376,8 @@ namespace EmscriptenTask
             return builder.ToString();
         }
 
-        protected void TaskStarted()
+        private void TaskStarted()
         {
-            NotifyTaskStated();
-
             // enabled by default if not set.
             if (string.IsNullOrEmpty(ExceptionHandling))
                 ExceptionHandling = "Enabled";
@@ -395,22 +393,47 @@ namespace EmscriptenTask
                 PreprocessorDefinitions = SeperatePaths(PreprocessorDefinitions, ';', "-D");
             else
                 PreprocessorDefinitions = "";
+
+            if (TLogWriteFiles == null)
+            {
+                TLogWriteFiles = new EmSource[] {
+                    new EmSource($@"{TrackerLogDirectory}\CL.write.1.tlog")
+                };
+            }
+            if (TLogReadFiles == null)
+            {
+                TLogReadFiles = new EmSource[] {
+                    new EmSource($@"{TrackerLogDirectory}\CL.read.1.tlog")
+                };
+            }
+
+            OutputFiles = new CanonicalTrackedOutputFiles(TLogWriteFiles);
+            InputFiles  = new CanonicalTrackedInputFiles(TLogReadFiles, CompileSourceFileList(), OutputFiles, MinimalRebuildFromTracking, true);
         }
 
-        protected List<string> GetFileList()
+        private void TaskStopped(bool succeded)
         {
-            if (string.IsNullOrEmpty(Sources))
-                throw new NullReferenceException($"{SenderName}: no input files");
-            return new List<string>(Sources.Split(';'));
+            if (succeded)
+            {
+                OutputFiles.SaveTlog();
+            }
         }
 
+        protected ITaskItem[] GetFileList()
+        {
+            return InputFiles.ComputeSourcesNeedingCompilation();
+        }
+
+        /// <summary>
+        /// Makes sure that the output file name is absolute
+        /// and that the intermediate directory exists. 
+        /// </summary>
         public void ValidateOutputFile()
         {
             var baseName = BaseName(ObjectFileName);
             var basePath = ObjectFileName.Replace(baseName, "");
 
-            if (Sources.Contains(";"))
-                ObjectFileName = basePath + BaseName(BuildFile) + ".o";
+            ObjectFileName = AbsoultePath($"{basePath}{baseName}");
 
             if (!string.IsNullOrEmpty(basePath))
             {
@@ -426,13 +449,15 @@ namespace EmscriptenTask
             }
         }
 
-        protected bool ProcessFile(string file)
+        protected bool ProcessFile(ITaskItem file)
         {
-            BuildFile = file;
+            BuildFile = file.GetMetadata("FullPath");
 
+            // Reflect the BaseName of the file currently being compiled.
             LogMessage(BaseName(BuildFile));
 
-            ValidateOutputFile();
+            OutputFiles.AddComputedOutputForSourceRoot(BuildFile.ToUpperInvariant(), file.GetMetadata("OutputFile"));
+
 
             var tool = EmccTool;
             if (!TestCompileAsC())
@@ -441,14 +466,42 @@ namespace EmscriptenTask
             return Call(tool, BuildSwitches());
         }
 
+        private ITaskItem[] CompileSourceFileList()
+        {
+            if (SourceFiles != null)
+                return SourceFiles;
+
+            var sourceFiles = Sources.Split(';');
+            if (sourceFiles.Length <= 0)
+                return null;
+
+            SourceFiles = new ITaskItem[sourceFiles.Length];
+
+            StringWriter builder = new StringWriter();
+            int          i       = 0;
+            foreach (var source in sourceFiles)
+            {
+                BuildFile = AbsoultePath(source);
+                ValidateOutputFile();
+
+
+                var sourceFile = new EmSource(BuildFile, ObjectFileName);
+                SourceFiles[i++] = sourceFile;
+
+                builder.Write(sourceFile.GetMetadata("RootedFullPath"));
+                builder.Write('\n');
+            }
+
+            File.WriteAllText($@"{TrackerLogDirectory}\CL.read.1.tlog", builder.ToString());
+            return SourceFiles;
+        }
+
         public override bool Run()
         {
-            TaskStarted();
-
             var list = GetFileList();
-            foreach (string file in list)
+            foreach (var file in list)
             {
-                if (!string.IsNullOrEmpty(file))
+                if (!string.IsNullOrEmpty(file.ItemSpec))
                 {
                     if (!ProcessFile(file))
                         return false;
@@ -460,6 +513,12 @@ namespace EmscriptenTask
                 }
             }
             return true;
+        }
+
+        public override void OnStart()
+        {
+            OnTaskStarted += TaskStarted;
+            OnTaskStopped += TaskStopped;
         }
     }
 }

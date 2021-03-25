@@ -68,6 +68,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFIles", "TestFIles", "{
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test02", "Test\Test02\Test02.csproj", "{AAD1D6EB-0D0D-43AE-8F14-71BEA33C531F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Html", "Html", "{B6F87EF8-89FD-4830-A8DD-8D6551E4A51E}"
+	ProjectSection(SolutionItems) = preProject
+		Test\Test03\HTML\CMakeLists.txt = Test\Test03\HTML\CMakeLists.txt
+		Test\Test03\HTML\Main.cpp = Test\Test03\HTML\Main.cpp
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDL", "SDL", "{744156B9-82BA-4C0A-8846-E22DAA0F6A4D}"
+	ProjectSection(SolutionItems) = preProject
+		Test\Test03\SDL\CMakeLists.txt = Test\Test03\SDL\CMakeLists.txt
+		Test\Test03\SDL\Main.cpp = Test\Test03\SDL\Main.cpp
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +161,8 @@ Global
 		{D51E545F-7D58-4798-B141-757EEBCAD5FD} = {EAD105E6-9CD0-499D-B095-831F9C1A86AF}
 		{6859FDC4-748B-4D38-BFEF-2A025C636035} = {1437C93F-8F45-4FAB-B848-5CA5CC69EF43}
 		{AAD1D6EB-0D0D-43AE-8F14-71BEA33C531F} = {1437C93F-8F45-4FAB-B848-5CA5CC69EF43}
+		{B6F87EF8-89FD-4830-A8DD-8D6551E4A51E} = {E1A274F2-ABE1-4751-AF1C-E37093E71069}
+		{744156B9-82BA-4C0A-8846-E22DAA0F6A4D} = {E1A274F2-ABE1-4751-AF1C-E37093E71069}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B4BE6E9-F7C1-4ADE-B5AE-70F7E6E93EEF}

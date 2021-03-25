@@ -41,9 +41,11 @@ namespace EmscriptenTask
 
         public string TrackerLogDirectory { get; set; }
 
-        public string TLogReadFiles { get; set; }
-        public string TLogWriteFiles { get; set; }
-        public bool   MinimalRebuildFromTracking { get; set; }
+        public ITaskItem[] TLogReadFiles { get; set; }
+        public ITaskItem[] TLogWriteFiles { get; set; }
+        protected ITaskItem[] SourceFiles { get; set; }
+
+        public bool MinimalRebuildFromTracking { get; set; }
 
         // Temporary extra debug properties
         public string DebugProp1 { get; set; }
@@ -53,7 +55,7 @@ namespace EmscriptenTask
         /// <summary>
         /// Indicator to determine build state
         /// </summary>
-        [Output] public bool SkippedExecution { get; set; } = true;
+        [Output] public bool SkippedExecution { get; set; }
 
         /// <summary>
         /// This should be the upstream/emscripten directory in the emsdk.
@@ -173,22 +175,44 @@ namespace EmscriptenTask
                     ));
         }
 
-        protected void NotifyTaskStated()
+        protected delegate void TaskStartEventHandler();
+        protected delegate void TaskStopEventHandler(bool succeeded);
+
+        /// <summary>
+        /// An Event that is called after the SDK paths have been validated and before
+        /// The Run method is invoked.
+        /// </summary>
+        protected event TaskStartEventHandler OnTaskStarted;
+
+        /// <summary>
+        /// An Event that is called after Run is finished.
+        /// </summary>
+        protected event TaskStopEventHandler OnTaskStopped;
+
+        private void NotifyTaskStated()
         {
             SkippedExecution = true;
+            OnTaskStarted?.Invoke();
         }
 
-        protected void NotifyTaskFinished(bool succeeded)
+        private void NotifyTaskFinished(bool succeeded)
         {
             SkippedExecution = !succeeded;
+            OnTaskStopped?.Invoke(succeeded);
         }
 
+        /// <summary>
+        /// A convenience function for spawning a process.
+        /// </summary>
+        /// <param name="tool">The process to start</param>
+        /// <param name="arguments">Supplies any parameters for the process.</param>
+        /// <returns>true if the call is successful.</returns>
         protected bool Call(string tool, string arguments)
         {
             if (string.IsNullOrEmpty(tool))
                 throw new ArgumentNullException(nameof(tool), "the tool argument cannot be null");
             if (arguments == null)
-                throw new ArgumentNullException(nameof(arguments), "the arguments argument cannot be null");
+                arguments = string.Empty;
 
             IEmTask task = this;
             return !task.Spawn(new ProcessStartInfo(tool) {
@@ -271,16 +295,31 @@ namespace EmscriptenTask
             }
         }
 
+        /// <summary>
+        /// The main task function for tasks that derive from
+        /// the EmTask base class.
+        /// </summary>
+        /// <returns>
+        /// A true return indicates a successful run.
+        /// </returns>
         public abstract bool Run();
+
+        /// <summary>
+        /// Defines a callback for code that needs executed right as the main
+        /// ITask.Execute function is invoked.
+        /// </summary>
+        public abstract void OnStart();
 
         public bool Execute()
         {
+            OnStart();
             if (!ValidateSDK())
             {
                 LogError("Failed to resolve the EMSDK root environment variable");
                 LogError("emcc was not found");
                 return false;
             }
+
             try
             {
                 NotifyTaskStated();
@@ -294,6 +333,8 @@ namespace EmscriptenTask
             {
                 LogError(ex.Message);
             }
+
+            NotifyTaskFinished(false);
             return false;
         }
     }
