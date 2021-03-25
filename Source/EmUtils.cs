@@ -66,7 +66,8 @@ namespace EmscriptenTask
                 }
 
                 EmscriptenDirectory = $"{emsdk}\\upstream\\emscripten";
-                EmccTool            = $"{EmscriptenDirectory}\\emcc.bat";
+
+                EmccTool = $"{EmscriptenDirectory}\\emcc.bat";
             }
             return true;
         }
@@ -125,7 +126,7 @@ namespace EmscriptenTask
         /// <param name="paths">The original string.</param>
         /// <param name="originalSeparator">The original separator - mainly a semicolon ';' </param>
         /// <param name="tagSeperation">The string to insert in place of the separator</param>
-        /// <param name="needsValidation">if this is set to true, the separation will be 
+        /// <param name="needsValidation">if this is set to true, the separation will be
         /// skipped if it is not a valid file or directory</param>
         /// <returns>returns the result of the operation.</returns>
         public static string SeperatePaths(string paths,

@@ -24,12 +24,13 @@ using System;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
+using Microsoft.Build.Utilities;
 
 namespace EmscriptenTask
 {
     public class EmAr : EmTask
     {
-        protected override string SenderName    => nameof(EmAr);
+        protected override string SenderName => nameof(EmAr);
 
         protected override string _BuildFileName => OutputFile;
 
@@ -46,45 +47,24 @@ namespace EmscriptenTask
 
         public bool RunAr()
         {
-            var tool     = EmccTool;
-            tool         = tool.Replace("emcc.bat", "emar.bat");
-            IEmTask task = this;
-            return !task.Spawn(new ProcessStartInfo(tool) {
-                CreateNoWindow         = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true,
-                UseShellExecute        = false,
-                WorkingDirectory       = Environment.CurrentDirectory,
-                Arguments              = $"qc {OutputFile} {EmUtils.GetSeperatedSource(' ', Sources)}",
-            });
+            var tool = EmccTool;
+            tool     = tool.Replace("emcc.bat", "emar.bat");
+            return Call(tool, $"qc {OutputFile} {EmUtils.GetSeperatedSource(' ', Sources)}");
         }
 
         public bool RunRanlib()
         {
-            var tool     = EmccTool;
-            tool         = tool.Replace("emcc.bat", "emranlib.bat");
-            IEmTask task = this;
-            return !task.Spawn(new ProcessStartInfo(tool) {
-                CreateNoWindow         = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true,
-                UseShellExecute        = false,
-                WorkingDirectory       = Environment.CurrentDirectory,
-                Arguments              = $"{OutputFile}",
-            });
+            var tool = EmccTool;
+            tool     = tool.Replace("emcc.bat", "emranlib.bat");
+            return Call(tool, OutputFile);
         }
 
         public override bool Run()
         {
             TaskStarted();
-
             bool result = RunAr();
             if (result)
-            {
                 result = RunRanlib();
-                if (result)
-                    SkippedExecution = false;
-            }
             return result;
         }
     }

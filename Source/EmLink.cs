@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
+using Microsoft.Build.Utilities;
 
 namespace EmscriptenTask
 {
@@ -65,6 +66,13 @@ namespace EmscriptenTask
         /// </summary>
         public string EmSDLVersion { get; set; }
 
+        /// <summary>
+        /// Settings.js conversion, the argument to FULL_ES3=[1]
+        /// </summary>
+        /// <returns></returns>
+        ///
+        public bool EmUseFullOpenGLES3 { get; set; }
+
         protected string BuildSwitches()
         {
             if (string.IsNullOrEmpty(OutputFile))
@@ -83,6 +91,12 @@ namespace EmscriptenTask
             }
             else
                 builder.Write("-s WASM=1");
+
+            if (EmUseFullOpenGLES3)
+            {
+                builder.Write(' ');
+                builder.Write("-s FULL_ES3=1");
+            }
 
             if (!string.IsNullOrEmpty(EmSDLVersion))
             {
@@ -138,17 +152,9 @@ namespace EmscriptenTask
         {
             TaskStarted();
 
-            var tool     = EmccTool;
-            tool         = tool.Replace("emcc.bat", "em++.bat");
-            IEmTask task = this;
-            return !task.Spawn(new ProcessStartInfo(tool) {
-                CreateNoWindow         = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError  = true,
-                UseShellExecute        = false,
-                WorkingDirectory       = Environment.CurrentDirectory,
-                Arguments              = BuildSwitches(),
-            });
+            var tool = EmccTool;
+            tool     = tool.Replace("emcc.bat", "em++.bat");
+            return Call(tool, BuildSwitches());
         }
     }
 }

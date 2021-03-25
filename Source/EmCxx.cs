@@ -20,6 +20,7 @@
 -------------------------------------------------------------------------------
 */
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using System;
 using System.IO;
 using System.Diagnostics;
@@ -32,6 +33,9 @@ namespace EmscriptenTask
     {
         protected override string SenderName     => nameof(EmCxx);
         protected override string _BuildFileName => BuildFile;
+
+        private CanonicalTrackedInputFiles InputFiles { get; set; }
+        private CanonicalTrackedInputFiles OutputFiles { get; set; }
 
         /// <summary>
         /// An internal property that is set per source file right
@@ -128,6 +132,10 @@ namespace EmscriptenTask
         /// </summary>
         public string ObjectFileName { get; set; } = null;
 
+        public bool GenerateDependencyFile { get; set; }
+
+        public string DependencyFileName { get; set; }
+
         // =========================-==== Advanced  ==============================--
         // ForcedIncludeFiles
         // EnableSpecificWarnings
@@ -158,6 +166,8 @@ namespace EmscriptenTask
 
         // ============================= Command Line  =============================
         public string AdditionalOptions { get; set; }
+
+        // ============================= Tracking =============================
 
         /// <summary>
         /// Test to determine whether or not the supplied source code
@@ -239,6 +249,9 @@ namespace EmscriptenTask
                     builder.Write("-fexceptions");
                 }
             }
+
+            if (GenerateDependencyFile && !string.IsNullOrEmpty(DependencyFileName))
+                builder.Write($" -MD -MF {DependencyFileName}");
 
             if (ShowIncludes)
             {
@@ -365,6 +378,8 @@ namespace EmscriptenTask
 
         protected void TaskStarted()
         {
+            NotifyTaskStated();
+
             // enabled by default if not set.
             if (string.IsNullOrEmpty(ExceptionHandling))
                 ExceptionHandling = "Enabled";
@@ -416,35 +431,26 @@ namespace EmscriptenTask
             BuildFile = file;
 
             LogMessage(BaseName(BuildFile));
+
             ValidateOutputFile();
 
             var tool = EmccTool;
             if (!TestCompileAsC())
                 tool = tool.Replace("emcc.bat", "em++.bat");
 
-            IEmTask task = this;
-            return task.Spawn(
-                new ProcessStartInfo(tool) {
-                    CreateNoWindow         = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError  = true,
-                    UseShellExecute        = false,
-                    WorkingDirectory       = Environment.CurrentDirectory,
-                    Arguments              = BuildSwitches(),
-                });
+            return Call(tool, BuildSwitches());
         }
 
         public override bool Run()
         {
             TaskStarted();
-            SkippedExecution = false;
 
             var list = GetFileList();
             foreach (string file in list)
             {
                 if (!string.IsNullOrEmpty(file))
                 {
-                    if (ProcessFile(file))
+                    if (!ProcessFile(file))
                         return false;
                 }
                 else

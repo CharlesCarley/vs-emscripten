@@ -5,66 +5,66 @@
       PageTemplate="generic"
       Order="8"
       xmlns="http://schemas.microsoft.com/build/2009/properties">
-    <Rule.Categories>
-        <Category Name="VC++"
-                  DisplayName="General"
-                  Description="Visual C++ Directories" />
-        <Category Name="Toolchain"
-                  DisplayName="Toolchain Paths"
-                  Description="Toolchain Paths" />
-    </Rule.Categories>
-    <Rule.DataSource>
-        <DataSource Persistence="ProjectFile" />
-    </Rule.DataSource>
-    <!-- Visual C++ Directories -->
-    <StringListProperty Name="ExecutablePath"
-                        DisplayName="Executable Directories"
-                        Description="Path to use when searching for executable files while building a VC++ project. Corresponds to environment variable PATH."
-                        Category="VC++"
-                        F1Keyword="VC.Project.VCDirectories.ExecutablePath"
-                        Separator=";"
-                        Subtype="folder" />
-    <StringListProperty Name="IncludePath"
-                        DisplayName="Include Directories"
-                        Description="Path to use when searching for include files while building a VC++ project. Corresponds to environment variable INCLUDE."
-                        Category="VC++"
-                        F1Keyword="VC.Project.VCDirectories.IncludePath"
-                        Separator=";"
-                        Subtype="folder" />
-    <StringListProperty Name="LibraryPath"
-                        DisplayName="Library Directories"
-                        Description="Path to use when searching for library files while building a VC++ project. Corresponds to environment variable LIB."
-                        Category="VC++"
-                        F1Keyword="VC.Project.VCDirectories.LibraryPath"
-                        Separator=";"
-                        Subtype="folder" />
-    <!-- Paths -->
-    <StringProperty Name="EmscriptenSDK"
-                    DisplayName="Emscripten SDK"
-                    Description="Specify the directory where Emscripten is located. Corresponds to environment variable EMSDK."
-                    Category="Toolchain"
-                    Default="$(EmscriptenSDK)"
-                    Separator=";"
-                    Subtype="folder" />
-    <StringProperty Name="EmscriptenUpstream"
-                    DisplayName="Emscripten Upstream"
-                    Description="Specify the directory where the Emscripten upstream folder is located."
-                    Category="Toolchain"
-                    Default="$(EmscriptenUpstream)"
-                    Separator=";"
-                    Subtype="folder" />
-    <StringProperty Name="EmscriptenRoot"
-                    DisplayName="Emscripten Home"
-                    Description="Specify the directory where the Emscripten emscripten folder is located."
-                    Category="Toolchain"
-                    Default="$(EmscriptenRoot)"
-                    Separator=";"
-                    Subtype="folder" />
-    <StringProperty Name="EmscriptenLLVM"
-                    DisplayName="Emscripten LLVM"
-                    Description="Specify the directory where the Emscripten LLVM folder is located."
-                    Category="Toolchain"
-                    Default="$(EmscriptenLLVM)"
-                    Separator=";"
-                    Subtype="folder" />
+  <Rule.Categories>
+    <Category Name="VC++"
+              DisplayName="General"
+              Description="Visual C++ Directories" />
+    <Category Name="Toolchain"
+              DisplayName="Toolchain Paths"
+              Description="Toolchain Paths" />
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource Persistence="ProjectFile" />
+  </Rule.DataSource>
+  <!-- Visual C++ Directories -->
+  <StringListProperty Name="ExecutablePath"
+                      DisplayName="Executable Directories"
+                      Description="Path to use when searching for executable files while building a VC++ project. Corresponds to environment variable PATH."
+                      Category="VC++"
+                      F1Keyword="VC.Project.VCDirectories.ExecutablePath"
+                      Separator=";"
+                      Subtype="folder" />
+  <StringListProperty Name="IncludePath"
+                      DisplayName="Include Directories"
+                      Description="Path to use when searching for include files while building a VC++ project. Corresponds to environment variable INCLUDE."
+                      Category="VC++"
+                      F1Keyword="VC.Project.VCDirectories.IncludePath"
+                      Separator=";"
+                      Subtype="folder" />
+  <StringListProperty Name="LibraryPath"
+                      DisplayName="Library Directories"
+                      Description="Path to use when searching for library files while building a VC++ project. Corresponds to environment variable LIB."
+                      Category="VC++"
+                      F1Keyword="VC.Project.VCDirectories.LibraryPath"
+                      Separator=";"
+                      Subtype="folder" />
+  <!-- Paths -->
+  <StringProperty Name="EmscriptenSDK"
+                  DisplayName="Emscripten SDK"
+                  Description="Specify the directory where Emscripten is located. Corresponds to environment variable EMSDK."
+                  Category="Toolchain"
+                  Default="$(EmscriptenSDK)"
+                  Separator=";"
+                  Subtype="folder" />
+  <StringProperty Name="EmscriptenUpstream"
+                  DisplayName="Emscripten Upstream"
+                  Description="Specify the directory where the Emscripten upstream folder is located."
+                  Category="Toolchain"
+                  Default="$(EmscriptenUpstream)"
+                  Separator=";"
+                  Subtype="folder" />
+  <StringProperty Name="EmscriptenRoot"
+                  DisplayName="Emscripten Home"
+                  Description="Specify the directory where the Emscripten emscripten folder is located."
+                  Category="Toolchain"
+                  Default="$(EmscriptenRoot)"
+                  Separator=";"
+                  Subtype="folder" />
+  <StringProperty Name="EmscriptenLLVM"
+                  DisplayName="Emscripten LLVM"
+                  Description="Specify the directory where the Emscripten LLVM folder is located."
+                  Category="Toolchain"
+                  Default="$(EmscriptenLLVM)"
+                  Separator=";"
+                  Subtype="folder" />
 </Rule>

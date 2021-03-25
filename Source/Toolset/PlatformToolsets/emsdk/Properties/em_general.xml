@@ -5,112 +5,112 @@
       Description="General"
       xmlns="http://schemas.microsoft.com/build/2009/properties">
 
-    <Rule.Categories>
-        <Category Name="General"
-                  Description="General"
-                  DisplayName="General" />
-        <Category Name="EmscriptenSDK"
-                  Description="Emscripten SDK installation paths."
-                  DisplayName="Emscripten SDK" />
-    </Rule.Categories>
-    
-    <Rule.DataSource>
-        <DataSource Label="Configuration"
-                    Persistence="ProjectFile" />
-    </Rule.DataSource>
-    
-    
-    <!-- General -->
-    <StringProperty Name="OutDir"
-                    Category="General"
-                    Default="$(SolutionDir)$(Configuration)\"
-                    Description="Specifies a relative path to the output file directory; can include environment variables."
-                    DisplayName="Output Directory"
-                    F1Keyword="VC.Project.VCConfiguration.OutputDirectory"
-                    Subtype="folder">
-        <StringProperty.DataSource>
-            <DataSource Label=""
-                        Persistence="ProjectFile" />
-        </StringProperty.DataSource>
-    </StringProperty>
-    <StringProperty Name="IntDir"
-                    Category="General"
-                    Default="$(Configuration)\"
-                    Description="Specifies a relative path to the intermediate file directory; can include environment variables."
-                    DisplayName="Intermediate Directory"
-                    F1Keyword="VC.Project.VCConfiguration.IntermediateDirectory"
-                    Subtype="folder">
-        <StringProperty.DataSource>
-            <DataSource Persistence="ProjectFile"
-                        Label="" />
-        </StringProperty.DataSource>
-    </StringProperty>
-    <StringProperty Name="TargetName"
-                    Category="General"
-                    Default="$(ProjectName)"
-                    Description="Specifies a file name that this project will generate."
-                    DisplayName="Target Name"
-                    F1Keyword="VC.Project.VCConfiguration.TargetName">
-        <StringProperty.DataSource>
-            <DataSource Persistence="ProjectFile"
-                        Label="" />
-        </StringProperty.DataSource>
-    </StringProperty>
-    <StringProperty Name="TargetExt"
-                    Category="General"
-                    Description="Specifies a file extension that this project will generate. (Example: .wasm, .js or .html)"
-                    DisplayName="Target Extension"
-                    F1Keyword="VC.Project.VCConfiguration.TargetExt"
-                    Visible="true">
-        <StringProperty.DataSource>
-            <DataSource Persistence="ProjectFile"
-                        Label="" />
-        </StringProperty.DataSource>
-    </StringProperty>
-    <StringListProperty Name="ExtensionsToDeleteOnClean"
-                        Category="General"
-                        Description="Semi-colon delimited wildcard specification for which files in the intermediate directory to delete on clean or rebuild."
-                        DisplayName="Extensions to Delete on Clean"
-                        F1Keyword="VC.Project.VCConfiguration.DeleteExtensionsOnClean"
-                        Separator=";">
-        <StringListProperty.DataSource>
-            <DataSource Persistence="ProjectFile"
-                        Label="" />
-        </StringListProperty.DataSource>
-    </StringListProperty>
-    <StringProperty Name="BuildLogFile"
-                    Category="General"
-                    Default="$(ProjectDir)\$(MSBuildProjectName).log"
-                    Description="Specifies the build log file to write to when build logging is enabled."
-                    DisplayName="Build Log File"
-                    F1Keyword="VC.Project.VCConfiguration.BuildLogFile"
-                    Subtype="file">
-        <StringProperty.DataSource>
-            <DataSource ItemType="BuildLog"
-                        PersistedName="Path"
-                        Persistence="ProjectFile" />
-        </StringProperty.DataSource>
-    </StringProperty>
-    <EnumProperty Name="PlatformToolset"
+  <Rule.Categories>
+    <Category Name="General"
+              Description="General"
+              DisplayName="General" />
+    <Category Name="EmscriptenSDK"
+              Description="Emscripten SDK installation paths."
+              DisplayName="Emscripten SDK" />
+  </Rule.Categories>
+
+  <Rule.DataSource>
+    <DataSource Label="Configuration"
+                Persistence="ProjectFile" />
+  </Rule.DataSource>
+
+
+  <!-- General -->
+  <StringProperty Name="OutDir"
                   Category="General"
-                  DisplayName="Platform Toolset">
-        <EnumValue Name="emsdk"
-                   DisplayName="Emscripten SDK" />
-    </EnumProperty>
-    <EnumProperty Name="ConfigurationType"
+                  Default="$(SolutionDir)$(Configuration)\"
+                  Description="Specifies a relative path to the output file directory; can include environment variables."
+                  DisplayName="Output Directory"
+                  F1Keyword="VC.Project.VCConfiguration.OutputDirectory"
+                  Subtype="folder">
+    <StringProperty.DataSource>
+      <DataSource Label=""
+                  Persistence="ProjectFile" />
+    </StringProperty.DataSource>
+  </StringProperty>
+  <StringProperty Name="IntDir"
                   Category="General"
-                  Description="Specifies the type of output this configuration generates."
-                  DisplayName="Configuration Type"
-                  F1Keyword="VC.Project.VCConfiguration.ConfigurationType">
-        <!-- Overriding the default 
+                  Default="$(Configuration)\"
+                  Description="Specifies a relative path to the intermediate file directory; can include environment variables."
+                  DisplayName="Intermediate Directory"
+                  F1Keyword="VC.Project.VCConfiguration.IntermediateDirectory"
+                  Subtype="folder">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  Label="" />
+    </StringProperty.DataSource>
+  </StringProperty>
+  <StringProperty Name="TargetName"
+                  Category="General"
+                  Default="$(ProjectName)"
+                  Description="Specifies a file name that this project will generate."
+                  DisplayName="Target Name"
+                  F1Keyword="VC.Project.VCConfiguration.TargetName">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  Label="" />
+    </StringProperty.DataSource>
+  </StringProperty>
+  <StringProperty Name="TargetExt"
+                  Category="General"
+                  Description="Specifies a file extension that this project will generate. (Example: .wasm, .js or .html)"
+                  DisplayName="Target Extension"
+                  F1Keyword="VC.Project.VCConfiguration.TargetExt"
+                  Visible="true">
+    <StringProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  Label="" />
+    </StringProperty.DataSource>
+  </StringProperty>
+  <StringListProperty Name="ExtensionsToDeleteOnClean"
+                      Category="General"
+                      Description="Semi-colon delimited wildcard specification for which files in the intermediate directory to delete on clean or rebuild."
+                      DisplayName="Extensions to Delete on Clean"
+                      F1Keyword="VC.Project.VCConfiguration.DeleteExtensionsOnClean"
+                      Separator=";">
+    <StringListProperty.DataSource>
+      <DataSource Persistence="ProjectFile"
+                  Label="" />
+    </StringListProperty.DataSource>
+  </StringListProperty>
+  <StringProperty Name="BuildLogFile"
+                  Category="General"
+                  Default="$(ProjectDir)\$(MSBuildProjectName).log"
+                  Description="Specifies the build log file to write to when build logging is enabled."
+                  DisplayName="Build Log File"
+                  F1Keyword="VC.Project.VCConfiguration.BuildLogFile"
+                  Subtype="file">
+    <StringProperty.DataSource>
+      <DataSource ItemType="BuildLog"
+                  PersistedName="Path"
+                  Persistence="ProjectFile" />
+    </StringProperty.DataSource>
+  </StringProperty>
+  <EnumProperty Name="PlatformToolset"
+                Category="General"
+                DisplayName="Platform Toolset">
+    <EnumValue Name="emsdk"
+               DisplayName="Emscripten SDK" />
+  </EnumProperty>
+  <EnumProperty Name="ConfigurationType"
+                Category="General"
+                Description="Specifies the type of output this configuration generates."
+                DisplayName="Configuration Type"
+                F1Keyword="VC.Project.VCConfiguration.ConfigurationType">
+    <!-- Overriding the default 
             Application, and StaticLibrary types -->
-        <EnumValue Name="Application"
-                   DisplayName="WASM Application" />
-        <EnumValue Name="StaticLibrary"
-                   DisplayName="Static Library" />
-        <EnumValue Name="HTMLApplication"
-                   DisplayName="HTML/JavaScript Application" />
-        <EnumValue Name="JavaScriptApplication"
-                   DisplayName="Node.js JavaScript Application" />
-    </EnumProperty>
+    <EnumValue Name="Application"
+               DisplayName="WASM Application" />
+    <EnumValue Name="StaticLibrary"
+               DisplayName="Static Library" />
+    <EnumValue Name="HTMLApplication"
+               DisplayName="HTML/JavaScript Application" />
+    <EnumValue Name="JavaScriptApplication"
+               DisplayName="Node.js JavaScript Application" />
+  </EnumProperty>
 </Rule>

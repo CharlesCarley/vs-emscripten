@@ -31,11 +31,24 @@ namespace EmscriptenTask
 {
     public abstract class EmTask : IEmTask
     {
+        private const int TimeOut = 30000;
+
         protected abstract string SenderName { get; }
         protected abstract string _BuildFileName { get; }
 
         public IBuildEngine BuildEngine { get; set; }
         public ITaskHost    HostObject { get; set; }
+
+        public string TrackerLogDirectory { get; set; }
+
+        public string TLogReadFiles { get; set; }
+        public string TLogWriteFiles { get; set; }
+        public bool   MinimalRebuildFromTracking { get; set; }
+
+        // Temporary extra debug properties
+        public string DebugProp1 { get; set; }
+        public string DebugProp2 { get; set; }
+        public string DebugProp3 { get; set; }
 
         /// <summary>
         /// Indicator to determine build state
@@ -106,22 +119,13 @@ namespace EmscriptenTask
             }
         }
 
-        protected void LogSeperator()
-        {
-            LogMessage(new string('=', 80));
-        }
-
         protected void LogSeperator(string message)
         {
             string a = new string('=', 35);
             string b = new string('=', 45 - message.Length);
             LogMessage($"{a} {message} {b}");
         }
-        protected void LogSeperatorShort(string message)
-        {
-            string a = new string('=', 35);
-            LogMessage($"{a} {message}");
-        }
+
         protected void LogMessage(string message)
         {
             BuildEngine.LogMessageEvent(
@@ -169,6 +173,34 @@ namespace EmscriptenTask
                     ));
         }
 
+        protected void NotifyTaskStated()
+        {
+            SkippedExecution = true;
+        }
+
+        protected void NotifyTaskFinished(bool succeeded)
+        {
+            SkippedExecution = !succeeded;
+        }
+
+        protected bool Call(string tool, string arguments)
+        {
+            if (string.IsNullOrEmpty(tool))
+                throw new ArgumentNullException(nameof(tool), "the tool argument cannot be null");
+            if (arguments == null)
+                throw new ArgumentNullException(nameof(arguments), "the arguments argument cannot be null");
+
+            IEmTask task = this;
+            return !task.Spawn(new ProcessStartInfo(tool) {
+                CreateNoWindow         = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError  = true,
+                UseShellExecute        = false,
+                WorkingDirectory       = Environment.CurrentDirectory,
+                Arguments              = arguments,
+            });
+        }
+
         bool IEmTask.Spawn(ProcessStartInfo info)
         {
             if (Verbose || EchoCommandLines)
@@ -185,15 +217,14 @@ namespace EmscriptenTask
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            /// Wait at least 30 seconds, and
-            /// if the process has not finished
+            /// Wait at least the specified TimeOut.
+            /// If the process has not finished
             /// by then, kill it and report a time out.
-            if (!process.WaitForExit(30000))
+            if (!process.WaitForExit(TimeOut))
             {
                 LogError($"the process {BaseName(info.FileName)} timed out.");
                 return false;
             }
-
             return process.ExitCode != 0;
         }
 
@@ -214,6 +245,8 @@ namespace EmscriptenTask
                 if (e.Data.Contains(_BuildFileName))
                 {
                     // >main.cpp : error : main.cpp:8:5: error: ...
+                    //                             ^   ^
+
                     Regex re    = new Regex($@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
                     var   match = re.Match(e.Data);
                     if (match.Success && match.Groups.Count == 3)
@@ -250,7 +283,12 @@ namespace EmscriptenTask
             }
             try
             {
-                return Run();
+                NotifyTaskStated();
+                if (Run())
+                {
+                    NotifyTaskFinished(true);
+                    return true;
+                }
             }
             catch (Exception ex)
             {
