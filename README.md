@@ -1,6 +1,6 @@
 # VisualStudio-EmscriptenTools
 
-This project is a major work in progress and may altogether be abandoned if an elegant solution cannot be found. The idea is to be able to redirect build calls through visual studio and pass them off to Emscripten tools. The initial idea and reference material came from the following location: [link](https://github.com/crosire/vs-toolsets). However, this project differs in that it builds its task to do the work and the source for the task is in this repository.
+This project is a major work in progress. The idea is to be able to redirect build calls through visual studio and pass them off to Emscripten tools. The initial idea and reference material came from the following location: [link](https://github.com/crosire/vs-toolsets). However, this project differs in that it builds its task to do the work and the source for the task is in this repository.
 
 It expects that the [Emscripten SDK](https://github.com/emscripten-core/emsdk) is installed and pointed to by the *`EMSDK`* environment variable. Which will manually have to be added. If normal installation instructions were followed, then EMSDK should point to the _root_ directory and the upstream directory should be located at `$(EMSDK)\upstream`.
 
