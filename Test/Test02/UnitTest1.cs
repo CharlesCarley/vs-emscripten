@@ -30,42 +30,34 @@ namespace UnitTest
     [TestClass]
     public class UnitTest1
     {
-        private string devenv;
-        private string wavm;
+        private string _devEnv;
+        private string _wavm;
 
         // This does not search for an environment variable
         // So cmake must be in the path somewhere
-        private string cmake;
+        private string _cmake;
 
-        bool SetupEnv()
+        private bool SetupEnv()
         {
-            devenv = null;
-            cmake = "cmake";
+            _devEnv   = null;
+            _cmake    = "cmake";
             var vsDir = Environment.GetEnvironmentVariable("VS2019INSTALLDIR");
             if (vsDir == null)
-            {
                 return false;
-            }
 
             var pathToDevEnv = $@"{vsDir}\Common7\IDE\devenv.exe";
             if (File.Exists(pathToDevEnv))
-            {
-                devenv = pathToDevEnv;
-            }
+                _devEnv = pathToDevEnv;
 
             var emDir = Environment.GetEnvironmentVariable("EMSDK");
             if (emDir == null)
-            {
                 return false;
-            }
 
-            var pathToWAVM = $@"{emDir}\upstream\bin\wavm.exe";
-            if (File.Exists(pathToWAVM))
-            {
-                wavm = pathToWAVM;
-            }
+            var pathToWavm = $@"{emDir}\upstream\bin\wavm.exe";
+            if (File.Exists(pathToWavm))
+                _wavm = pathToWavm;
 
-            return devenv != null && wavm != null;
+            return _devEnv != null && _wavm != null;
         }
 
         private static void LogMessage(string message)
@@ -73,40 +65,41 @@ namespace UnitTest
             Logger.LogMessage("{0}", message);
         }
 
-        string GetWorkingDirectory()
+        private static string GetWorkingDirectory()
         {
             return $@"{Environment.CurrentDirectory}\..\..\";
         }
 
-        bool ClearIfExists()
+        private static bool ClearIfExists()
         {
             var dir = GetWorkingDirectory() + "__build__";
-            if (Directory.Exists(dir))
+            if (!Directory.Exists(dir))
+                return true;
+
+            try
             {
-                try
-                {
-                    Directory.Delete(dir, true);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    LogMessage(ex.Message);
-                    return false;
-                }
+                Directory.Delete(dir, true);
+                return true;
             }
-            return true;
+            catch (Exception ex)
+            {
+                LogMessage(ex.Message);
+                return false;
+            }
         }
 
-        public int Spawn(string prog, string args, ref string output)
+        public int Spawn(string program, string args, ref string output)
         {
-            var proc = Process.Start(new ProcessStartInfo(prog)
-            {
-                CreateNoWindow = true,
+            var proc = Process.Start(new ProcessStartInfo(program) {
+                CreateNoWindow         = true,
                 RedirectStandardOutput = output != null,
-                UseShellExecute = false,
-                WorkingDirectory = GetWorkingDirectory(),
-                Arguments = args
+                UseShellExecute        = false,
+                WorkingDirectory       = GetWorkingDirectory(),
+                Arguments              = args
             });
+
+            if (proc == null)
+                return 1;
 
             if (output != null)
             {
@@ -123,23 +116,21 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv());
 
-            string output = "";
-            int rc = Spawn(cmake, "--help", ref output);
+            var output = "";
+            var rc     = Spawn(_cmake, "--help", ref output);
 
             LogMessage(output);
             Assert.AreEqual(0, rc);
         }
 
-        string GetPartialPathName(string root)
+        private static string GetPartialPathName(string root)
         {
             var enumDirs = Directory.EnumerateDirectories(root);
             foreach (var dir in enumDirs)
             {
                 var split = dir.Split('\\');
                 if (split.Length > 0 && split[split.Length - 1].StartsWith("3."))
-                {
                     return dir;
-                }
             }
             return null;
         }
@@ -149,9 +140,8 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
-            string output = "";
-
-            int rc = Spawn(cmake,
+            var output = "";
+            var rc = Spawn(_cmake,
                            $"-B __build__ -S {GetWorkingDirectory()} -G \"Visual Studio 16 2019\" -A Emscripten -T emsdk",
                            ref output);
             LogMessage(output);
@@ -159,7 +149,6 @@ namespace UnitTest
 
             var testDir = GetPartialPathName($@"{ GetWorkingDirectory()}\__build__\CMakeFiles");
             Assert.IsNotNull(testDir);
-
             Assert.IsTrue(File.Exists($@"{testDir}\CompilerIdC\CompilerIdC.wasm"));
             Assert.IsTrue(File.Exists($@"{testDir}\CompilerIdCxx\CompilerIdCxx.wasm"));
         }
@@ -169,8 +158,8 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
-            string output = "";
-            int rc = Spawn(cmake,
+            var output = "";
+            var rc     = Spawn(_cmake,
                            $"-B __build__ -S {GetWorkingDirectory()} -G \"Visual Studio 16 2019\" -A Emscripten -T emsdk",
                            ref output);
             LogMessage(output);
@@ -183,26 +172,22 @@ namespace UnitTest
             Assert.IsTrue(File.Exists($@"{testDir}\CompilerIdCxx\CompilerIdCxx.wasm"));
 
             output = "";
-
-            rc = Spawn(devenv,
-                       $"__build__/Main1.sln __build__/Main1.sln /rebuild Debug /Out __build__/build.log",
+            rc = Spawn(_devEnv,
+                       @"__build__\Main1.sln /rebuild Debug /Out __build__\output.log",
                        ref output);
             LogMessage(output);
             Assert.AreEqual(0, rc);
 
-            output = $@"{GetWorkingDirectory()}__build__\build.log";
+            output = $@"{GetWorkingDirectory()}__build__\output.log";
             output = File.ReadAllText(output);
             Assert.IsTrue(output.Contains("========== Rebuild All: 2 succeeded, 0 failed, 1 skipped =========="));
 
-
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}__build__\Debug\Main1.wasm"));
             output = string.Empty;
-            rc = Spawn(wavm, @" run __build__\Debug\Main1.wasm", ref output);
+            rc     = Spawn(_wavm, @" run __build__\Debug\Main1.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("Hello Wasm World\n", output);
             Assert.IsTrue(ClearIfExists());
-
         }
     }
-
 }

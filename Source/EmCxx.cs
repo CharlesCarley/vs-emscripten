@@ -152,7 +152,7 @@ namespace EmscriptenTask
         ///
         /// </summary>
         public string CompileAs { get; set; }
-        private bool  _IsInC => CompileAs.Equals("CompileAsC");
+        private bool  IsInC => CompileAs.Equals("CompileAsC");
 
         /// <summary>
         /// Output included files.
@@ -211,146 +211,114 @@ namespace EmscriptenTask
         /// <returns>The space separated string that should be passed to the process.</returns>
         protected string BuildSwitches()
         {
-            StringWriter builder = new StringWriter();
+            var builder = new StringWriter();
 
             if (!string.IsNullOrEmpty(CompileAs))
             {
                 if (CompileAs.Equals("CompileAsC"))
-                {
-                    builder.Write(' ');
-                    builder.Write("-x c");
-                }
+                    builder.Write(" -x c");
                 else if (!CompileAs.Equals("CompileAsCpp"))
-                {
-                    builder.Write(' ');
-                    builder.Write("-x c++");
-                }
+                    builder.Write(" -x c++");
             }
 
             if (!string.IsNullOrEmpty(ExceptionHandling))
             {
-                if (ExceptionHandling.Equals("Disabled"))
+                switch (ExceptionHandling)
                 {
-                    builder.Write(' ');
-                    builder.Write("-fno-exceptions");
-                }
-                else if (ExceptionHandling.Equals("Enabled"))
-                {
-                    builder.Write(' ');
-                    builder.Write("-fexceptions");
+                case "Disabled":
+                    builder.Write(" -fno-exceptions");
+                    break;
+                case "Enabled":
+                    builder.Write(" -fexceptions");
+                    break;
                 }
             }
 
             if (GenerateDependencyFile && !string.IsNullOrEmpty(DependencyFileName))
-            {
                 builder.Write($" -MD -MF {DependencyFileName}");
-            }
 
             if (ShowIncludes)
-            {
-                builder.Write(' ');
-                builder.Write("-H");
-            }
+                builder.Write(" -H");
 
             if (TreatWarningAsError)
-            {
-                builder.Write(' ');
-                builder.Write("-Werror");
-            }
+                builder.Write(" -Werror");
 
             if (!string.IsNullOrEmpty(WarningLevel))
             {
-                if (WarningLevel.Equals("None"))
+                switch (WarningLevel)
                 {
-                    builder.Write(' ');
-                    builder.Write("-w");
-                }
-                else if (WarningLevel.Equals("All"))
-                {
-                    builder.Write(' ');
-                    builder.Write("-Wall");
+                case "None":
+                    builder.Write(" -w");
+                    break;
+                case "All":
+                    builder.Write(" -Wall");
+                    break;
                 }
             }
 
             if (!string.IsNullOrEmpty(LanguageStandard))
             {
-                builder.Write(' ');
-                if (LanguageStandard.Equals("stdc89") && _IsInC)
+                switch (LanguageStandard)
                 {
-                    builder.Write("-std=c89");
-                }
-                else if (LanguageStandard.Equals("stdc99") && _IsInC)
-                {
-                    builder.Write("-std=c99");
-                }
-                else if (LanguageStandard.Equals("stdc11") && _IsInC)
-                {
-                    builder.Write("-std=c11");
-                }
-                else if (LanguageStandard.Equals("gnuc99") && _IsInC)
-                {
-                    builder.Write("-std=gnu99");
-                }
-                else if (LanguageStandard.Equals("gnuc11") && _IsInC)
-                {
-                    builder.Write("-std=gnu11");
-                }
-                else if (LanguageStandard.Equals("stdcpp98") && !_IsInC)
-                {
-                    builder.Write("-std=c++98");
-                }
-                else if (LanguageStandard.Equals("stdcpp03") && !_IsInC)
-                {
-                    builder.Write("-std=c++03");
-                }
-                else if (LanguageStandard.Equals("stdcpp11") && !_IsInC)
-                {
-                    builder.Write("-std=c++11");
-                }
-                else if (LanguageStandard.Equals("stdcpp14") && !_IsInC)
-                {
-                    builder.Write("-std=c++14");
-                }
-                else if (LanguageStandard.Equals("stdcpp17") && !_IsInC)
-                {
-                    builder.Write("-std=c++1z");
-                }
-                else if (LanguageStandard.Equals("gnucpp98") && !_IsInC)
-                {
-                    builder.Write("-std=gnu++98");
-                }
-                else if (LanguageStandard.Equals("gnucpp11") && !_IsInC)
-                {
-                    builder.Write("-std=gnu++11");
+                case "stdc89" when IsInC:
+                    builder.Write(" -std=c89");
+                    break;
+                case "stdc99" when IsInC:
+                    builder.Write(" -std=c99");
+                    break;
+                case "stdc11" when IsInC:
+                    builder.Write(" -std=c11");
+                    break;
+                case "gnuc99" when IsInC:
+                    builder.Write(" -std=gnu99");
+                    break;
+                case "gnuc11" when IsInC:
+                    builder.Write(" -std=gnu11");
+                    break;
+                case "stdcpp98" when !IsInC:
+                    builder.Write(" -std=c++98");
+                    break;
+                case "stdcpp03" when !IsInC:
+                    builder.Write(" -std=c++03");
+                    break;
+                case "stdcpp11" when !IsInC:
+                    builder.Write(" -std=c++11");
+                    break;
+                case "stdcpp14" when !IsInC:
+                    builder.Write(" -std=c++14");
+                    break;
+                case "stdcpp17" when !IsInC:
+                    builder.Write(" -std=c++1z");
+                    break;
+                case "gnucpp98" when !IsInC:
+                    builder.Write(" -std=gnu++98");
+                    break;
+                case "gnucpp11" when !IsInC:
+                    builder.Write(" -std=gnu++11");
+                    break;
                 }
             }
 
             if (!string.IsNullOrEmpty(DebugInformationFormat))
             {
-                builder.Write(' ');
-                if (DebugInformationFormat.Equals("FullDebug"))
+                switch (DebugInformationFormat)
                 {
-                    builder.Write("-g");
-                }
-                else if (DebugInformationFormat.Equals("None"))
-                {
-                    builder.Write("-g0");
+                case "FullDebug":
+                    builder.Write(" -g");
+                    break;
+                case "None":
+                    builder.Write(" -g0");
+                    break;
                 }
             }
 
             // EmVerbose
             if (EmVerbose)
-            {
-                builder.Write(' ');
-                builder.Write("-s VERBOSE=1");
-            }
+                builder.Write(" -s VERBOSE=1");
 
             // EmTracing
             if (EmTracing)
-            {
-                builder.Write(' ');
-                builder.Write("-s EMSCRIPTEN_TRACING=1");
-            }
+                builder.Write(" -s EMSCRIPTEN_TRACING=1");
 
             if (!string.IsNullOrEmpty(AdditionalOptions))
             {
@@ -389,11 +357,8 @@ namespace EmscriptenTask
             }
 
             // BuildFile
-            builder.Write(' ');
-            builder.Write($"-c {BuildFile}");
-
-            builder.Write(' ');
-            builder.Write($"-o {ObjectFileName}");
+            builder.Write($" -c {BuildFile}");
+            builder.Write($" -o {ObjectFileName}");
             return builder.ToString();
         }
 
@@ -401,27 +366,19 @@ namespace EmscriptenTask
         {
             // enabled by default if not set.
             if (string.IsNullOrEmpty(ExceptionHandling))
-            {
                 ExceptionHandling = "Enabled";
-            }
 
             if (Verbose)
-            {
                 LogTaskProps(GetType(), this);
-            }
 
             AdditionalIncludeDirectories  = SeparatePaths(AdditionalIncludeDirectories, ';', "-I", true);
             SystemIncludeDirectories      = SeparatePaths(SystemIncludeDirectories, ';', "-I");
             SystemPreprocessorDefinitions = SeparatePaths(SystemPreprocessorDefinitions, ';', "-D");
 
             if (!UndefineAllPreprocessorDefinitions)
-            {
                 PreprocessorDefinitions = SeparatePaths(PreprocessorDefinitions, ';', "-D");
-            }
             else
-            {
                 PreprocessorDefinitions = "";
-            }
 
             OutputFiles = new CanonicalTrackedOutputFiles(this,
                                                           GetTLogWriteFiles("CL"));
@@ -533,7 +490,7 @@ namespace EmscriptenTask
                 builder.Write('\n');
 
                 var extraDependencies = GetDependencyOutput();
-                if (!string.IsNullOrEmpty(extraDependencies)) 
+                if (!string.IsNullOrEmpty(extraDependencies))
                     builder.Write(extraDependencies);
             }
             File.AppendAllText($@"{TrackerLogDirectory}\CL.read.1.tlog", builder.ToString());

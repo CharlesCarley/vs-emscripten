@@ -30,84 +30,79 @@ namespace UnitTest
     [TestClass]
     public class UnitTest1
     {
-        private string msBuild;
-        private string wavm;
+        private string _msBuild;
+        private string _wavm;
 
-        bool SetupEnv()
+        private bool SetupEnv()
         {
-            msBuild = null;
-            wavm = null;
+            _msBuild = null;
+            _wavm    = null;
+
             var vsDir = Environment.GetEnvironmentVariable("VS2019INSTALLDIR");
             if (vsDir == null)
-            {
                 return false;
-            }
 
             var pathToMsBuild = $@"{vsDir}\MSBuild\Current\Bin\MSBuild.exe";
             if (File.Exists(pathToMsBuild))
-            {
-                msBuild = pathToMsBuild;
-            }
+                _msBuild = pathToMsBuild;
 
             var emDir = Environment.GetEnvironmentVariable("EMSDK");
             if (emDir == null)
-            {
                 return false;
-            }
 
-            var pathToWAVM = $@"{emDir}\upstream\bin\wavm.exe";
-            if (File.Exists(pathToWAVM))
-            {
-                wavm = pathToWAVM;
-            }
+            var pathToWavm = $@"{emDir}\upstream\bin\wavm.exe";
+            if (File.Exists(pathToWavm))
+                _wavm = pathToWavm;
 
-            return msBuild != null && wavm != null;
+            return _msBuild != null && _wavm != null;
         }
 
         private static void LogMessage(string message)
         {
             Logger.LogMessage("{0}", message);
         }
-        string GetWorkingDirectory()
+
+        private static string GetWorkingDirectory()
         {
             return $@"{Environment.CurrentDirectory}\..\..\";
         }
 
-        bool ClearIfExists()
+        private static bool ClearIfExists()
         {
             var dir = GetWorkingDirectory() + "Debug";
-            if (Directory.Exists(dir))
+            if (!Directory.Exists(dir))
+                return true;
+
+            try
             {
-                try
-                {
-                    Directory.Delete(dir, true);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    LogMessage(ex.Message);
-                    return false;
-                }
+                Directory.Delete(dir, true);
+                return true;
             }
-            return true;
+            catch (Exception ex)
+            {
+                LogMessage(ex.Message);
+                return false;
+            }
         }
 
         [TestMethod]
-        public void TestFindMSBuild()
+        public void TestFindMsBuild()
         {
             Assert.IsTrue(SetupEnv());
         }
 
-        public int Spawn(string prog, string args, ref string output)
+        private static int Spawn(string program, string args, ref string output)
         {
-            var proc = Process.Start(new ProcessStartInfo(prog)
-            {
-                CreateNoWindow = true,
+            var proc = Process.Start(new ProcessStartInfo(program) {
+                CreateNoWindow         = true,
                 RedirectStandardOutput = output != null,
-                UseShellExecute = false,
-                WorkingDirectory = GetWorkingDirectory(),
-                Arguments = args
+                UseShellExecute        = false,
+                WorkingDirectory       = GetWorkingDirectory(),
+                Arguments              = args
             });
+
+            if (proc == null)
+                return 1;
 
             if (output != null)
             {
@@ -120,12 +115,12 @@ namespace UnitTest
         }
 
         [TestMethod]
-        public void CanMSBuildExec()
+        public void CanMsBuildExec()
         {
             Assert.IsTrue(SetupEnv());
 
-            string output = "";
-            int rc = Spawn(msBuild, "/?", ref output);
+            var output = "";
+            var rc     = Spawn(_msBuild, "/?", ref output);
             LogMessage(output);
             Assert.AreEqual(0, rc);
         }
@@ -135,15 +130,16 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
-            string output = string.Empty;
-            int rc = Spawn(msBuild, "Test1", ref output);
+            var output = string.Empty;
+
+            var rc = Spawn(_msBuild, "Test1", ref output);
             Assert.AreEqual(0, rc);
 
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main.cpp.o"));
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test1.wasm"));
 
             output = string.Empty;
-            rc = Spawn(wavm, @" run Debug\Test1.wasm", ref output);
+            rc     = Spawn(_wavm, @" run Debug\Test1.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("Main.cpp Hello WASM World!\n", output);
             Assert.IsTrue(ClearIfExists());
@@ -154,15 +150,15 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
-            string output = string.Empty;
-            int rc = Spawn(msBuild, "Test2", ref output);
-            Assert.AreEqual(0, rc);
+            var output = string.Empty;
+            var rc     = Spawn(_msBuild, "Test2", ref output);
 
+            Assert.AreEqual(0, rc);
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main.abcdefg"));
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test2.wasm"));
 
             output = string.Empty;
-            rc = Spawn(wavm, @" run Debug\Test2.wasm", ref output);
+            rc     = Spawn(_wavm, @" run Debug\Test2.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("Main.cpp Hello WASM World!\n", output);
             Assert.IsTrue(ClearIfExists());
@@ -173,15 +169,15 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
-            string output = string.Empty;
-            int rc = Spawn(msBuild, "Test3", ref output);
+            var output = string.Empty;
+            var rc     = Spawn(_msBuild, "Test3", ref output);
             Assert.AreEqual(0, rc);
 
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main.c.o"));
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test3.wasm"));
 
             output = string.Empty;
-            rc = Spawn(wavm, @" run Debug\Test3.wasm", ref output);
+            rc     = Spawn(_wavm, @" run Debug\Test3.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("main.c Hello WASM World!\n", output);
             Assert.IsTrue(ClearIfExists());
@@ -192,8 +188,8 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
-            string output = string.Empty;
-            int rc = Spawn(msBuild, "Test4", ref output);
+            var output = string.Empty;
+            var rc     = Spawn(_msBuild, "Test4", ref output);
             Assert.AreEqual(0, rc);
 
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main2.c.o"));
@@ -203,7 +199,7 @@ namespace UnitTest
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test4.wasm"));
 
             output = string.Empty;
-            rc = Spawn(wavm, @" run Debug\Test4.wasm", ref output);
+            rc     = Spawn(_wavm, @" run Debug\Test4.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("Main2--------------------------------Hello WASM World!\n", output);
             Assert.IsTrue(ClearIfExists());
@@ -214,8 +210,8 @@ namespace UnitTest
         {
             Assert.IsTrue(SetupEnv() && ClearIfExists());
 
-            string output = string.Empty;
-            int rc = Spawn(msBuild, "Test5", ref output);
+            var output = string.Empty;
+            var rc     = Spawn(_msBuild, "Test5", ref output);
             Assert.AreEqual(0, rc);
 
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\main2.c.o"));
@@ -226,11 +222,10 @@ namespace UnitTest
             Assert.IsTrue(File.Exists($@"{GetWorkingDirectory()}\Debug\Test5.wasm"));
 
             output = string.Empty;
-            rc = Spawn(wavm, @" run Debug\Test5.wasm", ref output);
+            rc     = Spawn(_wavm, @" run Debug\Test5.wasm", ref output);
             Assert.AreEqual(0, rc);
             Assert.AreEqual("Main2--------------------------------Hello WASM World!\n", output);
             Assert.IsTrue(ClearIfExists());
         }
     }
-
 }

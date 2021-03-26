@@ -43,32 +43,30 @@ namespace EmscriptenTask
             return path;
         }
 
-        public static bool ValidateSDK()
+        public static bool ValidateSdk()
         {
-            if (EmccTool == null)
+            if (EmccTool != null) 
+                return true;
+            
+            var emsdk = Sanitize(Environment.GetEnvironmentVariable("EMSDK"));
+            if (emsdk is null)
+                throw new DirectoryNotFoundException("The environment variable EMSDK was not found");
+
+            if (!Directory.Exists($"{emsdk}\\upstream\\emscripten"))
             {
-                var emsdk = Sanitize(Environment.GetEnvironmentVariable("EMSDK"));
-                if (emsdk is null)
-                {
-                    throw new DirectoryNotFoundException("The environment variable EMSDK was not found");
-                }
-
-                if (!Directory.Exists($"{emsdk}\\upstream\\emscripten"))
-                {
-                    throw new DirectoryNotFoundException(
-                        $"The upstream\\emscripten directory was not found in ${emsdk}");
-                }
-
-                if (!File.Exists($"{emsdk}\\upstream\\emscripten\\emcc.bat"))
-                {
-                    throw new FileNotFoundException(
-                        $"The emcc.bat batch file was not found in ${emsdk}\\upstream\\emscripten");
-                }
-
-                EmscriptenDirectory = $"{emsdk}\\upstream\\emscripten";
-
-                EmccTool = $"{EmscriptenDirectory}\\emcc.bat";
+                throw new DirectoryNotFoundException(
+                    $"The upstream\\emscripten directory was not found in ${emsdk}");
             }
+
+            if (!File.Exists($"{emsdk}\\upstream\\emscripten\\emcc.bat"))
+            {
+                throw new FileNotFoundException(
+                    $"The emcc.bat batch file was not found in ${emsdk}\\upstream\\emscripten");
+            }
+
+            EmscriptenDirectory = $"{emsdk}\\upstream\\emscripten";
+
+            EmccTool = $"{EmscriptenDirectory}\\emcc.bat";
             return true;
         }
 
@@ -77,7 +75,7 @@ namespace EmscriptenTask
             return !Path.IsPathRooted(path) ? $@"{Environment.CurrentDirectory}\{path}" : path;
         }
 
-        public static string GetSeparatedSource(char csep, ITaskItem[] input)
+        public static string GetSeparatedSource(char charSeparator, ITaskItem[] input)
         {
             if (input is null)
             {
@@ -88,7 +86,7 @@ namespace EmscriptenTask
             var builder = new StringWriter();
             foreach (var inp in input)
             {
-                builder.Write(csep);
+                builder.Write(charSeparator);
                 builder.Write(inp.ItemSpec);
             }
             return builder.ToString();
@@ -99,12 +97,7 @@ namespace EmscriptenTask
             path = Sanitize(path);
 
             var splits = path.Split('\\');
-            if (splits.Length > 0)
-            {
-                return splits[splits.Length - 1];
-            }
-
-            return path;
+            return splits.Length > 0 ? splits[splits.Length - 1] : path;
         }
 
         public static bool IsFileOrDirectory(string filePath)

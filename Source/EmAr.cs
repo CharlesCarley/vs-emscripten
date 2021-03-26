@@ -35,9 +35,7 @@ namespace EmscriptenTask
         protected void TaskStarted()
         {
             if (Verbose)
-            {
                 LogTaskProps(GetType(), this);
-            }
         }
 
         public bool RunAr()

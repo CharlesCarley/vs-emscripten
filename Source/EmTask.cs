@@ -108,7 +108,7 @@ namespace EmscriptenTask
         protected void LogTaskProps(Type type, object inst)
         {
             var fields = type.GetProperties();
-            int maxLen = 0;
+            var maxLen = 0;
             foreach (var field in fields)
             {
                 if (field.CanRead)
@@ -119,12 +119,17 @@ namespace EmscriptenTask
                     }
                 }
             }
+
             LogSeparator(SenderName);
             foreach (var field in fields)
             {
                 if (field.CanRead)
                 {
-                    string ws = new string(' ', (maxLen + 1) - field.Name.Length);
+                    var nameLen = maxLen + 1 - field.Name.Length;
+                    var ws = string.Empty;
+                    if (nameLen > 0)
+                        ws = new string(' ', nameLen);
+
                     LogMessage($"{field.Name}{ws}: {field.GetValue(inst)}");
                 }
             }
@@ -270,46 +275,43 @@ namespace EmscriptenTask
         private void OnMessageDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (e.Data != null)
-            {
                 LogMessage(e.Data);
-            }
         }
 
         private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (e.Data != null)
+            if (e.Data == null) 
+                return;
+
+            var line    = 0;
+            var column  = 0;
+            var matched = false;
+
+            if (e.Data.Contains(_BuildFileName))
             {
-                var line    = 0;
-                var column  = 0;
-                var matched = false;
-
-                if (e.Data.Contains(_BuildFileName))
+                // >main.cpp : error : main.cpp:8:5: error: ...
+                //                             ^   ^
+                var re    = new Regex($@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
+                var match = re.Match(e.Data);
+                if (match.Success && match.Groups.Count == 3)
                 {
-                    // >main.cpp : error : main.cpp:8:5: error: ...
-                    //                             ^   ^
+                    matched = true;
+                    if (int.TryParse(match.Groups[1].Value, out var pLine))
+                        line = pLine;
 
-                    var re    = new Regex($@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
-                    var match = re.Match(e.Data);
-                    if (match.Success && match.Groups.Count == 3)
-                    {
-                        matched = true;
-                        if (int.TryParse(match.Groups[1].Value, out int pline))
-                            line = pline;
-
-                        if (int.TryParse(match.Groups[2].Value, out int pcolumn))
-                            column = pcolumn;
-                    }
+                    if (int.TryParse(match.Groups[2].Value, out var pColumn))
+                        column = pColumn;
                 }
+            }
 
-                if (e.Data.Contains("error:"))
-                    LogError(e.Data, line, column);
+            if (e.Data.Contains("error:"))
+                LogError(e.Data, line, column);
+            else
+            {
+                if (matched)
+                    LogWarning(e.Data, line, column);
                 else
-                {
-                    if (matched)
-                        LogWarning(e.Data, line, column);
-                    else
-                        LogMessage(e.Data);
-                }
+                    LogMessage(e.Data);
             }
         }
 
@@ -353,7 +355,7 @@ namespace EmscriptenTask
         public bool Execute()
         {
             OnStart();
-            if (!ValidateSDK())
+            if (!ValidateSdk())
             {
                 LogError("Failed to resolve the EMSDK root environment variable");
                 LogError("emcc was not found");
@@ -362,6 +364,7 @@ namespace EmscriptenTask
             try
             {
                 NotifyTaskStated();
+
                 if (Run())
                 {
                     NotifyTaskFinished(true);
