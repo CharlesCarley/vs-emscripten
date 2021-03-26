@@ -19,8 +19,8 @@
   3. This notice may not be removed or altered from any source distribution.
 -------------------------------------------------------------------------------
 */
-using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -39,23 +39,31 @@ namespace UnitTest
 
         bool SetupEnv()
         {
-            devenv    = null;
-            cmake     = "cmake";
+            devenv = null;
+            cmake = "cmake";
             var vsDir = Environment.GetEnvironmentVariable("VS2019INSTALLDIR");
             if (vsDir == null)
+            {
                 return false;
+            }
 
             var pathToDevEnv = $@"{vsDir}\Common7\IDE\devenv.exe";
             if (File.Exists(pathToDevEnv))
+            {
                 devenv = pathToDevEnv;
+            }
 
             var emDir = Environment.GetEnvironmentVariable("EMSDK");
             if (emDir == null)
+            {
                 return false;
+            }
 
             var pathToWAVM = $@"{emDir}\upstream\bin\wavm.exe";
             if (File.Exists(pathToWAVM))
+            {
                 wavm = pathToWAVM;
+            }
 
             return devenv != null && wavm != null;
         }
@@ -91,12 +99,13 @@ namespace UnitTest
 
         public int Spawn(string prog, string args, ref string output)
         {
-            var proc = Process.Start(new ProcessStartInfo(prog) {
-                CreateNoWindow         = true,
+            var proc = Process.Start(new ProcessStartInfo(prog)
+            {
+                CreateNoWindow = true,
                 RedirectStandardOutput = output != null,
-                UseShellExecute        = false,
-                WorkingDirectory       = GetWorkingDirectory(),
-                Arguments              = args
+                UseShellExecute = false,
+                WorkingDirectory = GetWorkingDirectory(),
+                Arguments = args
             });
 
             if (output != null)
@@ -115,7 +124,7 @@ namespace UnitTest
             Assert.IsTrue(SetupEnv());
 
             string output = "";
-            int    rc     = Spawn(cmake, "--help", ref output);
+            int rc = Spawn(cmake, "--help", ref output);
 
             LogMessage(output);
             Assert.AreEqual(0, rc);
@@ -128,7 +137,9 @@ namespace UnitTest
             {
                 var split = dir.Split('\\');
                 if (split.Length > 0 && split[split.Length - 1].StartsWith("3."))
+                {
                     return dir;
+                }
             }
             return null;
         }

@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<UsingTask TaskName="EmCxx" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
-	<UsingTask TaskName="EmLink" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
-	<Target Name="Build">
+  <UsingTask TaskName="EmCxx"
+             AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+  <UsingTask TaskName="EmLink"
+             AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+  <Target Name="Build">
 
-        <PropertyGroup>
-            <DoVerbose>true</DoVerbose>
-            <Idir>Debug</Idir>
-            <FileName>main.c</FileName>
-            <FileExt>.o</FileExt>
-            <OutDir>$(Idir)</OutDir>
-        </PropertyGroup>
+    <PropertyGroup>
+      <DoVerbose>true</DoVerbose>
+      <Idir>Debug</Idir>
+      <FileName>main.c</FileName>
+      <FileExt>.o</FileExt>
+      <OutDir>$(Idir)</OutDir>
+    </PropertyGroup>
 
-		<EmCxx Sources="$(FileName)" 
-		      Verbose="$(DoVerbose)" 
-			  ObjectFileName="$(Idir)\$(FileName)$(FileExt)"
-		      />
-
-		<EmLink Sources="$(Idir)\$(FileName)$(FileExt)"
-		        Verbose="$(DoVerbose)"
-		        OutputFile="$(OutDir)\Test3.wasm"/>
-
-		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run $(OutDir)\Test3.wasm"/>
-	</Target>
+    <EmCxx Sources               ="$(FileName)"
+           TrackerLogDirectory   ="Debug"
+           Verbose               ="$(DoVerbose)"
+           ObjectFileName        ="$(Idir)\$(FileName)$(FileExt)"/>
+    <EmLink Sources               ="$(Idir)\$(FileName)$(FileExt)"
+            TrackerLogDirectory   ="Debug"
+            Verbose               ="$(DoVerbose)"
+            OutputFile            ="$(OutDir)\Test3.wasm"/>
+    <Exec Command="$(EMSDK)\upstream\bin\wavm.exe run $(OutDir)\Test3.wasm"/>
+  </Target>
 </Project>

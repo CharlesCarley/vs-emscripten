@@ -19,19 +19,12 @@
   3. This notice may not be removed or altered from any source distribution.
 -------------------------------------------------------------------------------
 */
-using Microsoft.Build.Framework;
-using System;
-using System.IO;
-using System.Diagnostics;
-using System.Collections.Generic;
-using Microsoft.Build.Utilities;
 
 namespace EmscriptenTask
 {
     public class EmAr : EmTask
     {
-        protected override string SenderName => nameof(EmAr);
-
+        protected override string SenderName     => nameof(EmAr);
         protected override string _BuildFileName => OutputFile;
 
         /// <summary>
@@ -42,14 +35,16 @@ namespace EmscriptenTask
         protected void TaskStarted()
         {
             if (Verbose)
+            {
                 LogTaskProps(GetType(), this);
+            }
         }
 
         public bool RunAr()
         {
             var tool = EmccTool;
             tool     = tool.Replace("emcc.bat", "emar.bat");
-            return Call(tool, $"qc {OutputFile} {EmUtils.GetSeperatedSource(' ', Sources)}");
+            return Call(tool, $"qc {OutputFile} {EmUtils.GetSeparatedSource(' ', Sources)}");
         }
 
         public bool RunRanlib()
@@ -61,7 +56,7 @@ namespace EmscriptenTask
 
         public override bool Run()
         {
-            bool result = RunAr();
+            var result = RunAr();
             if (result)
                 result = RunRanlib();
             return result;
@@ -71,6 +66,5 @@ namespace EmscriptenTask
         {
             OnTaskStarted += TaskStarted;
         }
-
     }
 }

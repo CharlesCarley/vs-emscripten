@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<UsingTask TaskName="EmCxx" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
-	<UsingTask TaskName="EmLink" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
-	<PropertyGroup>
-		<DoVerbose>true</DoVerbose>
-	</PropertyGroup>
-	<Target Name="Build">
-		<EmCxx Sources="main.cpp" 
-		      Verbose="$(DoVerbose)" 
-              EmVerbose="$(DoVerbose)"
-              EchoCommandLines="$(DoVerbose)"
-		      AdditionalIncludeDirectories="$(EMSDK);.;../"
-		      ObjectFileName="Debug\main.cpp.o"/>
-		
-		<EmLink Sources="Debug\main.cpp.o"
-		        Verbose="$(DoVerbose)" 
-		        EchoCommandLines="$(DoVerbose)"
-		        OutputFile="Debug\Test1.wasm"/>
-		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run Debug\Test1.wasm"/>
-	</Target>
+  <UsingTask TaskName="EmCxx"
+             AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+  <UsingTask TaskName="EmLink"
+             AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+  <PropertyGroup>
+    <DoVerbose>true</DoVerbose>
+  </PropertyGroup>
+  <Target Name="Build">
+    <EmCxx Sources                       ="main.cpp"
+           TrackerLogDirectory            ="Debug"
+           Verbose                        ="$(DoVerbose)"
+           EmVerbose                      ="$(DoVerbose)"
+           EchoCommandLines               ="$(DoVerbose)"
+           AdditionalIncludeDirectories   =".;../"
+           ObjectFileName                 ="Debug\main.cpp.o"/>
+    <EmLink Sources                 ="Debug\main.cpp.o"
+            TrackerLogDirectory     ="Debug"
+            Verbose                 ="$(DoVerbose)"
+            EchoCommandLines        ="$(DoVerbose)"
+            OutputFile              ="Debug\Test1.wasm"/>
+    <Exec Command="$(EMSDK)\upstream\bin\wavm.exe run Debug\Test1.wasm"/>
+  </Target>
 </Project>

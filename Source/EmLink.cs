@@ -19,12 +19,9 @@
   3. This notice may not be removed or altered from any source distribution.
 -------------------------------------------------------------------------------
 */
-using Microsoft.Build.Framework;
+
 using System;
 using System.IO;
-using System.Diagnostics;
-using System.Collections.Generic;
-using Microsoft.Build.Utilities;
 
 namespace EmscriptenTask
 {
@@ -48,8 +45,6 @@ namespace EmscriptenTask
         /// Extra library search paths.
         /// </summary>
         public string AdditionalLibraryDirectories { get; set; }
-
-        public string CurrentConfig { get; set; }
 
         /// <summary>
         /// Settings.js conversion, the EXPORT_NAME option
@@ -76,61 +71,63 @@ namespace EmscriptenTask
         protected string BuildSwitches()
         {
             if (string.IsNullOrEmpty(OutputFile))
-                throw new ArgumentNullException("Missing OutputFile");
+                throw new ArgumentNullException(nameof(OutputFile), "Missing OutputFile");
 
-            StringWriter builder = new StringWriter();
+            var builder = new StringWriter();
 
             if (!string.IsNullOrEmpty(EmWasmMode))
             {
-                if (EmWasmMode.Equals("EmWasmOnlyJS"))
+                switch (EmWasmMode)
+                {
+                case "EmWasmOnlyJS":
                     builder.Write("-s WASM=0");
-                else if (EmWasmMode.Equals("EmWasmBoth"))
+                    break;
+                case "EmWasmBoth":
                     builder.Write("-s WASM=2");
-                else
+                    break;
+                default:
                     builder.Write("-s WASM=1");  // only WebAssembly
+                    break;
+                }
             }
             else
                 builder.Write("-s WASM=1");
 
             if (EmUseFullOpenGLES3)
-            {
-                builder.Write(' ');
-                builder.Write("-s FULL_ES3=1");
-            }
+                builder.Write(" -s FULL_ES3=1");
 
             if (!string.IsNullOrEmpty(EmSDLVersion))
             {
-                int SDLVer;
-                int.TryParse(EmSDLVersion, out SDLVer);
+                int.TryParse(EmSDLVersion, out var sdlVersion);
 
-                switch (SDLVer)
+                switch (sdlVersion)
                 {
                 case 1:
                 case 2:
-                    builder.Write(' ');
-                    builder.Write("-s USE_SDL=");
-                    builder.Write(SDLVer);
+                    builder.Write(" -s USE_SDL=");
+                    builder.Write(sdlVersion);
                     break;
                 default:
-                    throw new ArgumentException($"Invalid SDL version supplied {SDLVer}");
+                    throw new ArgumentException($"Invalid SDL version supplied {sdlVersion}");
                 }
             }
 
             // write the input objects as a WS separated list
-            var objects = EmUtils.GetSeperatedSource(' ', Sources);
+            var objects = EmUtils.GetSeparatedSource(' ', Sources);
+
             builder.Write(' ');
             builder.Write(objects);
 
             if (!string.IsNullOrEmpty(AdditionalLibraryDirectories))
             {
-                var dirs = EmUtils.SeperatePaths(AdditionalLibraryDirectories, ';', "-L", true);
+                var dirs = EmUtils.SeparatePaths(AdditionalLibraryDirectories, ';', "-L", true);
                 builder.Write(' ');
                 builder.Write(dirs);
             }
 
             if (!string.IsNullOrEmpty(AdditionalDependencies))
             {
-                var libraries = EmUtils.SeperatePaths(AdditionalDependencies, ';', " ", true);
+                var libraries = EmUtils.SeparatePaths(AdditionalDependencies, ';', " ", true);
                 builder.Write(' ');
                 builder.Write(libraries);
             }
@@ -145,7 +142,9 @@ namespace EmscriptenTask
         protected void TaskStarted()
         {
             if (Verbose)
+            {
                 LogTaskProps(GetType(), this);
+            }
         }
 
         public override bool Run()

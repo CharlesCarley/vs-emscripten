@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<UsingTask TaskName="EmCxx" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
-	<UsingTask TaskName="EmAr" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
-	<UsingTask TaskName="EmLink" AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+  <UsingTask TaskName="EmCxx"
+             AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+  <UsingTask TaskName="EmAr"
+             AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
+  <UsingTask TaskName="EmLink"
+             AssemblyFile="..\..\Bin\EmscriptenTask.dll"/>
 
-	<Target Name="Build">
+  <Target Name="Build">
 
-        <PropertyGroup>
-            <DoVerbose>true</DoVerbose>
-        </PropertyGroup>
+    <PropertyGroup>
+      <DoVerbose>true</DoVerbose>
+    </PropertyGroup>
 
-
-
-		<EmCxx Sources="main2.c;fn1.c;fn2.c;fn3.c" 
-		      Verbose="$(DoVerbose)" 
-			  ObjectFileName="Debug\fnLib.a"
-		      />
-
-
-        <EmAr Sources="Debug\fn1.c.o;Debug\fn2.c.o;Debug\fn3.c.o"
-               Verbose="$(DoVerbose)"
-		       OutputFile="Debug\fnLib.a"/>
-
-        
-        <EmLink Sources="Debug\fnLib.a;Debug\main2.c.o"
-                Verbose="$(DoVerbose)"
-                OutputFile="Debug\Test5.wasm"/>
-		<Exec Command="$(EMSDK)\upstream\bin\wavm.exe run Debug\Test5.wasm"/>
-	</Target>
+    <EmCxx Sources               ="main2.c;fn1.c;fn2.c;fn3.c"
+           TrackerLogDirectory   ="Debug"
+           Verbose               ="$(DoVerbose)"
+           ObjectFileName        ="Debug\fnLib.a"/>
+    <EmAr Sources               ="Debug\fn1.c.o;Debug\fn2.c.o;Debug\fn3.c.o"
+          TrackerLogDirectory   ="Debug"
+          Verbose               ="$(DoVerbose)"
+          OutputFile            ="Debug\fnLib.a"/>
+    <EmLink Sources             ="Debug\fnLib.a;Debug\main2.c.o"
+            TrackerLogDirectory ="Debug"
+            Verbose             ="$(DoVerbose)"
+            OutputFile          ="Debug\Test5.wasm"/>
+    <Exec Command="$(EMSDK)\upstream\bin\wavm.exe run Debug\Test5.wasm"/>
+  </Target>
 </Project>

@@ -6,4 +6,4 @@ add_library(MockAPI
    MockLibAPI_impl.cpp	   
 )
 
-set_target_properties(MockAPI PROPERTIES VS_GLOBAL_VerboseOutput VerboseOutputMode)
+#set_target_properties(MockAPI PROPERTIES VS_GLOBAL_VerboseOutput VerboseOutputMode)

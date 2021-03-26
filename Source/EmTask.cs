@@ -20,12 +20,11 @@
 -------------------------------------------------------------------------------
 */
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using System;
-using System.IO;
 using System.Diagnostics;
-using System.Collections.Generic;
-using static EmscriptenTask.EmUtils;
 using System.Text.RegularExpressions;
+using static EmscriptenTask.EmUtils;
 
 namespace EmscriptenTask
 {
@@ -34,26 +33,36 @@ namespace EmscriptenTask
         private const int TimeOut = 30000;
 
         protected abstract string SenderName { get; }
+
+        /// <summary>
+        /// Internal access to the current input file for logging.
+        /// </summary>
         protected abstract string _BuildFileName { get; }
 
         public IBuildEngine BuildEngine { get; set; }
         public ITaskHost    HostObject { get; set; }
 
-        public string TrackerLogDirectory { get; set; }
-
+        // ========================= Tracking ======================================
+        [Required] public string TrackerLogDirectory { get; set; }
         public ITaskItem[] TLogReadFiles { get; set; }
         public ITaskItem[] TLogWriteFiles { get; set; }
-        protected ITaskItem[] SourceFiles { get; set; }
-
+        [Required] public ITaskItem[] Sources { get; set; }
         public bool MinimalRebuildFromTracking { get; set; }
+
+        protected CanonicalTrackedInputFiles  InputFiles { get; set; }
+        protected CanonicalTrackedOutputFiles OutputFiles { get; set; }
+
+        // ========================= Temporary  ====================================
 
         // Temporary extra debug properties
         public string DebugProp1 { get; set; }
         public string DebugProp2 { get; set; }
         public string DebugProp3 { get; set; }
 
+        // ========================== General ======================================
+
         /// <summary>
-        /// Indicator to determine build state
+        /// Indicator to determine build state. Used in Toolset.targets
         /// </summary>
         [Output] public bool SkippedExecution { get; set; }
 
@@ -73,17 +82,12 @@ namespace EmscriptenTask
         public bool Verbose { get; set; }
 
         /// <summary>
-        /// This should contain the list of source files to build.
-        /// </summary>
-        public string Sources { get; set; }
-
-        /// <summary>
         /// If this is set to true, the contents of the command line should be
         /// logged to stdout.
         /// </summary>
         public bool EchoCommandLines { get; set; } = false;
 
-        // =====================================================================================
+        // ========================= Settings.js ==================================
 
         /// <summary>
         /// When set to 1, will generate more verbose output during compilation.
@@ -95,8 +99,12 @@ namespace EmscriptenTask
         /// </summary>
         public bool EmTracing { get; set; } = false;
 
-        // =====================================================================================
-
+        /// <summary>
+        /// The main verbose log function.
+        /// Outputs the value of all readable properties.
+        /// </summary>
+        /// <param name="type">The class type to log.</param>
+        /// <param name="inst">The current instance of the type. </param>
         protected void LogTaskProps(Type type, object inst)
         {
             var fields = type.GetProperties();
@@ -106,11 +114,12 @@ namespace EmscriptenTask
                 if (field.CanRead)
                 {
                     if (maxLen < field.Name.Length)
+                    {
                         maxLen = field.Name.Length;
+                    }
                 }
             }
-
-            LogSeperator(SenderName);
+            LogSeparator(SenderName);
             foreach (var field in fields)
             {
                 if (field.CanRead)
@@ -121,7 +130,7 @@ namespace EmscriptenTask
             }
         }
 
-        protected void LogSeperator(string message)
+        protected void LogSeparator(string message)
         {
             string a = new string('=', 35);
             string b = new string('=', 45 - message.Length);
@@ -211,6 +220,7 @@ namespace EmscriptenTask
         {
             if (string.IsNullOrEmpty(tool))
                 throw new ArgumentNullException(nameof(tool), "the tool argument cannot be null");
+
             if (arguments == null)
                 arguments = string.Empty;
 
@@ -235,15 +245,20 @@ namespace EmscriptenTask
             info.RedirectStandardError  = true;
 
             var process = Process.Start(info);
+            if (process == null)
+            {
+                LogError($"{info.FileName} failed to start");
+                return true;
+            }
 
-            process.OutputDataReceived += OnMessageDataRecieved;
-            process.ErrorDataReceived += OnErrorDataRecieved;
+            process.OutputDataReceived += OnMessageDataReceived;
+            process.ErrorDataReceived += OnErrorDataReceived;
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            /// Wait at least the specified TimeOut.
-            /// If the process has not finished
-            /// by then, kill it and report a time out.
+            // Wait at least the specified TimeOut.
+            // If the process has not finished
+            // by then, kill it and report a time out.
             if (!process.WaitForExit(TimeOut))
             {
                 LogError($"the process {BaseName(info.FileName)} timed out.");
@@ -252,32 +267,35 @@ namespace EmscriptenTask
             return process.ExitCode != 0;
         }
 
-        private void OnMessageDataRecieved(object sender, DataReceivedEventArgs e)
-        {
-            if (e.Data != null)
-                LogMessage(e.Data);
-        }
-
-        private void OnErrorDataRecieved(object sender, DataReceivedEventArgs e)
+        private void OnMessageDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (e.Data != null)
             {
-                int  line    = 0;
-                int  column  = 0;
-                bool matched = false;
+                LogMessage(e.Data);
+            }
+        }
+
+        private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data != null)
+            {
+                var line    = 0;
+                var column  = 0;
+                var matched = false;
 
                 if (e.Data.Contains(_BuildFileName))
                 {
                     // >main.cpp : error : main.cpp:8:5: error: ...
                     //                             ^   ^
 
-                    Regex re    = new Regex($@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
-                    var   match = re.Match(e.Data);
+                    var re    = new Regex($@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
+                    var match = re.Match(e.Data);
                     if (match.Success && match.Groups.Count == 3)
                     {
                         matched = true;
                         if (int.TryParse(match.Groups[1].Value, out int pline))
                             line = pline;
+
                         if (int.TryParse(match.Groups[2].Value, out int pcolumn))
                             column = pcolumn;
                     }
@@ -293,6 +311,28 @@ namespace EmscriptenTask
                         LogMessage(e.Data);
                 }
             }
+        }
+
+        protected ITaskItem[] GetTLogWriteFiles(string context)
+        {
+            if (TLogWriteFiles == null || TLogWriteFiles.Length <= 0)
+            {
+                TLogWriteFiles = new ITaskItem[] {
+                    new TaskItem($@"{TrackerLogDirectory}\{context}.write.1.tlog")
+                };
+            }
+            return TLogWriteFiles;
+        }
+
+        protected ITaskItem[] GetTLogReadFiles(string context)
+        {
+            if (TLogReadFiles == null || TLogReadFiles.Length <= 0)
+            {
+                TLogReadFiles = new ITaskItem[] {
+                    new TaskItem($@"{TrackerLogDirectory}\{context}.read.1.tlog")
+                };
+            }
+            return TLogReadFiles;
         }
 
         /// <summary>
@@ -319,7 +359,6 @@ namespace EmscriptenTask
                 LogError("emcc was not found");
                 return false;
             }
-
             try
             {
                 NotifyTaskStated();

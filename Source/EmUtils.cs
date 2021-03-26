@@ -22,8 +22,6 @@
 using Microsoft.Build.Framework;
 using System;
 using System.IO;
-using System.Diagnostics;
-using System.Collections.Generic;
 
 namespace EmscriptenTask
 {
@@ -49,9 +47,11 @@ namespace EmscriptenTask
         {
             if (EmccTool == null)
             {
-                string emsdk = Sanitize(Environment.GetEnvironmentVariable("EMSDK"));
+                var emsdk = Sanitize(Environment.GetEnvironmentVariable("EMSDK"));
                 if (emsdk is null)
+                {
                     throw new DirectoryNotFoundException("The environment variable EMSDK was not found");
+                }
 
                 if (!Directory.Exists($"{emsdk}\\upstream\\emscripten"))
                 {
@@ -72,12 +72,12 @@ namespace EmscriptenTask
             return true;
         }
 
-        public static string AbsoultePath(string path)
+        public static string AbsolutePath(string path)
         {
-            return $"{Environment.CurrentDirectory}\\{path}";
+            return !Path.IsPathRooted(path) ? $@"{Environment.CurrentDirectory}\{path}" : path;
         }
 
-        public static string GetSeperatedSource(char csep, string[] input)
+        public static string GetSeparatedSource(char csep, ITaskItem[] input)
         {
             if (input is null)
             {
@@ -85,23 +85,13 @@ namespace EmscriptenTask
                     "The supplied input variable cannot be null or empty");
             }
 
-            StringWriter builder = new StringWriter();
-            foreach (string inp in input)
+            var builder = new StringWriter();
+            foreach (var inp in input)
             {
                 builder.Write(csep);
-                builder.Write(inp);
+                builder.Write(inp.ItemSpec);
             }
             return builder.ToString();
-        }
-        public static string GetSeperatedSource(char csep, string input)
-        {
-            if (input is null)
-            {
-                throw new NullReferenceException(
-                    "The supplied input variable cannot be null or empty");
-            }
-
-            return GetSeperatedSource(csep, input.Split(';'));
         }
 
         public static string BaseName(string path)
@@ -110,12 +100,14 @@ namespace EmscriptenTask
 
             var splits = path.Split('\\');
             if (splits.Length > 0)
+            {
                 return splits[splits.Length - 1];
+            }
 
             return path;
         }
 
-        static bool IsFileOrDirectory(string filePath)
+        public static bool IsFileOrDirectory(string filePath)
         {
             return Directory.Exists(filePath) || File.Exists(filePath);
         }
@@ -125,31 +117,29 @@ namespace EmscriptenTask
         /// </summary>
         /// <param name="paths">The original string.</param>
         /// <param name="originalSeparator">The original separator - mainly a semicolon ';' </param>
-        /// <param name="tagSeperation">The string to insert in place of the separator</param>
+        /// <param name="tagSeparation">The string to insert in place of the separator</param>
         /// <param name="needsValidation">if this is set to true, the separation will be
         /// skipped if it is not a valid file or directory</param>
         /// <returns>returns the result of the operation.</returns>
-        public static string SeperatePaths(string paths,
-                                           char   originalSeparator,
-                                           string tagSeperation,
-                                           bool   needsValidation = false)
+        public static string SeparatePaths(string paths,
+                                           char originalSeparator,
+                                           string tagSeparation,
+                                           bool needsValidation = false)
         {
-            if (string.IsNullOrEmpty(paths) || string.IsNullOrEmpty(tagSeperation))
+            if (string.IsNullOrEmpty(paths) || string.IsNullOrEmpty(tagSeparation))
                 return string.Empty;
 
-            string[] splitPath   = paths.Split(originalSeparator);
-            StringWriter builder = new StringWriter();
-            foreach (string path in splitPath)
+            var splitPath = paths.Split(originalSeparator);
+            var builder = new StringWriter();
+            foreach (var path in splitPath)
             {
-                if (!string.IsNullOrEmpty(path) && !string.IsNullOrWhiteSpace(path))
-                {
-                    var sanitizedPath = Sanitize(path);
-                    if (!needsValidation || IsFileOrDirectory(sanitizedPath))
-                    {
-                        builder.Write(' ');
-                        builder.Write($"{tagSeperation} {sanitizedPath}");
-                    }
-                }
+                if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path)) 
+                    continue;
+
+                var sanitizedPath = Sanitize(path);
+                if (needsValidation && !IsFileOrDirectory(sanitizedPath)) 
+                    continue;
+                builder.Write($" {tagSeparation} {sanitizedPath}");
             }
             return builder.ToString();
         }

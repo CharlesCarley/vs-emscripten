@@ -23,8 +23,6 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System;
 using System.IO;
-using System.Diagnostics;
-using System.Collections.Generic;
 using static EmscriptenTask.EmUtils;
 
 namespace EmscriptenTask
@@ -33,9 +31,6 @@ namespace EmscriptenTask
     {
         protected override string SenderName     => nameof(EmCxx);
         protected override string _BuildFileName => BuildFile;
-
-        private CanonicalTrackedInputFiles  InputFiles { get; set; }
-        private CanonicalTrackedOutputFiles OutputFiles { get; set; }
 
         /// <summary>
         /// An internal property that is set per source file right
@@ -130,7 +125,7 @@ namespace EmscriptenTask
         /// <summary>
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
-        public string ObjectFileName { get; set; } = null;
+        public string ObjectFileName { get; set; }
 
         public bool GenerateDependencyFile { get; set; }
 
@@ -177,41 +172,37 @@ namespace EmscriptenTask
         /// True if the file should be compiled as c. Internally sets the CompileAs
         /// property to CompileAsC or CompileAsCpp
         /// </returns>
-        bool TestCompileAsC()
+        private bool TestCompileAsC()
         {
+            // use own test.
+            var result = false;
+
             if (!string.IsNullOrEmpty(CompileAs))
             {
                 if (CompileAs.Equals("Default"))
                 {
-                    // use our own test.
-                    bool result = false;
                     if (BuildFile != null)
                     {
                         result = BuildFile.EndsWith(".c");
                         if (result)
+                        {
                             CompileAs = "CompileAsC";
+                        }
                     }
                     return result;
                 }
-                else if (CompileAs.Equals("CompileAsC"))
+
+                if (CompileAs.Equals("CompileAsC"))
                     return true;
-                else
-                    return false;
+                return false;
             }
-            else
+
+            if (BuildFile != null)
             {
-                // use own test.
-                bool result = false;
-                if (BuildFile != null)
-                {
-                    result = BuildFile.EndsWith(".c");
-                    if (result)
-                        CompileAs = "CompileAsC";
-                    else
-                        CompileAs = "Default";
-                }
-                return result;
+                result    = BuildFile.EndsWith(".c");
+                CompileAs = result ? "CompileAsC" : "Default";
             }
+            return result;
         }
 
         /// <summary>
@@ -251,7 +242,9 @@ namespace EmscriptenTask
             }
 
             if (GenerateDependencyFile && !string.IsNullOrEmpty(DependencyFileName))
+            {
                 builder.Write($" -MD -MF {DependencyFileName}");
+            }
 
             if (ShowIncludes)
             {
@@ -283,38 +276,66 @@ namespace EmscriptenTask
             {
                 builder.Write(' ');
                 if (LanguageStandard.Equals("stdc89") && _IsInC)
+                {
                     builder.Write("-std=c89");
+                }
                 else if (LanguageStandard.Equals("stdc99") && _IsInC)
+                {
                     builder.Write("-std=c99");
+                }
                 else if (LanguageStandard.Equals("stdc11") && _IsInC)
+                {
                     builder.Write("-std=c11");
+                }
                 else if (LanguageStandard.Equals("gnuc99") && _IsInC)
+                {
                     builder.Write("-std=gnu99");
+                }
                 else if (LanguageStandard.Equals("gnuc11") && _IsInC)
+                {
                     builder.Write("-std=gnu11");
+                }
                 else if (LanguageStandard.Equals("stdcpp98") && !_IsInC)
+                {
                     builder.Write("-std=c++98");
+                }
                 else if (LanguageStandard.Equals("stdcpp03") && !_IsInC)
+                {
                     builder.Write("-std=c++03");
+                }
                 else if (LanguageStandard.Equals("stdcpp11") && !_IsInC)
+                {
                     builder.Write("-std=c++11");
+                }
                 else if (LanguageStandard.Equals("stdcpp14") && !_IsInC)
+                {
                     builder.Write("-std=c++14");
+                }
                 else if (LanguageStandard.Equals("stdcpp17") && !_IsInC)
+                {
                     builder.Write("-std=c++1z");
+                }
                 else if (LanguageStandard.Equals("gnucpp98") && !_IsInC)
+                {
                     builder.Write("-std=gnu++98");
+                }
                 else if (LanguageStandard.Equals("gnucpp11") && !_IsInC)
+                {
                     builder.Write("-std=gnu++11");
+                }
             }
 
             if (!string.IsNullOrEmpty(DebugInformationFormat))
             {
                 builder.Write(' ');
                 if (DebugInformationFormat.Equals("FullDebug"))
+                {
                     builder.Write("-g");
+                }
                 else if (DebugInformationFormat.Equals("None"))
+                {
                     builder.Write("-g0");
+                }
             }
 
             // EmVerbose
@@ -380,43 +401,47 @@ namespace EmscriptenTask
         {
             // enabled by default if not set.
             if (string.IsNullOrEmpty(ExceptionHandling))
+            {
                 ExceptionHandling = "Enabled";
+            }
 
             if (Verbose)
+            {
                 LogTaskProps(GetType(), this);
+            }
 
-            AdditionalIncludeDirectories  = SeperatePaths(AdditionalIncludeDirectories, ';', "-I", true);
-            SystemIncludeDirectories      = SeperatePaths(SystemIncludeDirectories, ';', "-I", false);
-            SystemPreprocessorDefinitions = SeperatePaths(SystemPreprocessorDefinitions, ';', "-D");
+            AdditionalIncludeDirectories  = SeparatePaths(AdditionalIncludeDirectories, ';', "-I", true);
+            SystemIncludeDirectories      = SeparatePaths(SystemIncludeDirectories, ';', "-I");
+            SystemPreprocessorDefinitions = SeparatePaths(SystemPreprocessorDefinitions, ';', "-D");
 
             if (!UndefineAllPreprocessorDefinitions)
-                PreprocessorDefinitions = SeperatePaths(PreprocessorDefinitions, ';', "-D");
+            {
+                PreprocessorDefinitions = SeparatePaths(PreprocessorDefinitions, ';', "-D");
+            }
             else
+            {
                 PreprocessorDefinitions = "";
-
-            if (TLogWriteFiles == null)
-            {
-                TLogWriteFiles = new EmSource[] {
-                    new EmSource($@"{TrackerLogDirectory}\CL.write.1.tlog")
-                };
-            }
-            if (TLogReadFiles == null)
-            {
-                TLogReadFiles = new EmSource[] {
-                    new EmSource($@"{TrackerLogDirectory}\CL.read.1.tlog")
-                };
             }
 
-            OutputFiles = new CanonicalTrackedOutputFiles(TLogWriteFiles);
-            InputFiles  = new CanonicalTrackedInputFiles(TLogReadFiles, CompileSourceFileList(), OutputFiles, MinimalRebuildFromTracking, true);
+            OutputFiles = new CanonicalTrackedOutputFiles(this,
+                                                          GetTLogWriteFiles("CL"));
+
+            InputFiles = new CanonicalTrackedInputFiles(this,
+                                                        GetTLogReadFiles("CL"),
+                                                        Sources,
+                                                        null,
+                                                        OutputFiles,
+                                                        MinimalRebuildFromTracking,
+                                                        true);
         }
 
-        private void TaskStopped(bool succeded)
+        private void TaskStopped(bool succeeded)
         {
-            if (succeded)
-            {
-                OutputFiles.SaveTlog();
-            }
+            if (!succeeded)
+                return;
+
+            SaveTLogRead();
+            OutputFiles.SaveTlog();
         }
 
         protected ITaskItem[] GetFileList()
@@ -426,38 +451,41 @@ namespace EmscriptenTask
 
         /// <summary>
         /// Makes sure that the output file name is absolute
-        /// and that the intermediate directory exists. 
+        /// and that the intermediate directory exists.
         /// </summary>
         public void ValidateOutputFile()
         {
             var baseName = BaseName(ObjectFileName);
             var basePath = ObjectFileName.Replace(baseName, "");
 
-            ObjectFileName = AbsoultePath($"{basePath}{baseName}");
+            if (Sources.Length > 1)
+                ObjectFileName = AbsolutePath($"{basePath}{BaseName(BuildFile)}.o");
+            else
+                ObjectFileName = AbsolutePath($"{basePath}{baseName}");
 
-            if (!string.IsNullOrEmpty(basePath))
+            if (string.IsNullOrEmpty(basePath))
+                return;
+
+            try
             {
-                try
-                {
-                    if (!Directory.Exists(basePath))
-                        Directory.CreateDirectory(basePath);
-                }
-                catch (Exception ex)
-                {
-                    LogMessage(ex.Message);
-                }
+                if (!Directory.Exists(basePath))
+                    Directory.CreateDirectory(basePath);
+            }
+            catch (Exception ex)
+            {
+                LogMessage(ex.Message);
             }
         }
 
         protected bool ProcessFile(ITaskItem file)
         {
-            BuildFile = file.GetMetadata("FullPath");
+            BuildFile = AbsolutePath(file.ItemSpec);
+            ValidateOutputFile();
 
             // Reflect the BaseName of the file currently being compiled.
             LogMessage(BaseName(BuildFile));
 
-            OutputFiles.AddComputedOutputForSourceRoot(BuildFile.ToUpperInvariant(), file.GetMetadata("OutputFile"));
-
+            OutputFiles.AddComputedOutputForSourceRoot(BuildFile.ToUpperInvariant(), ObjectFileName);
 
             var tool = EmccTool;
             if (!TestCompileAsC())
@@ -466,34 +494,49 @@ namespace EmscriptenTask
             return Call(tool, BuildSwitches());
         }
 
-        private ITaskItem[] CompileSourceFileList()
+        /// <summary>
+        /// Makes use of the dependency file output from -MD -MF - if it is available.
+        /// </summary>
+        /// <returns></returns>
+        private string GetDependencyOutput()
         {
-            if (SourceFiles != null)
-                return SourceFiles;
-
-            var sourceFiles = Sources.Split(';');
-            if (sourceFiles.Length <= 0)
+            if (!GenerateDependencyFile || string.IsNullOrEmpty(DependencyFileName))
                 return null;
 
-            SourceFiles = new ITaskItem[sourceFiles.Length];
+            var depFile = AbsolutePath(DependencyFileName);
+            if (!File.Exists(depFile))
+                return null;
 
-            StringWriter builder = new StringWriter();
-            int          i       = 0;
+            var builder = new StringWriter();
+
+            var depFileLines = File.ReadAllLines(depFile);
+            foreach (var depFileLine in depFileLines)
+            {
+                var cleanLine = depFileLine.TrimEnd("\\".ToCharArray()).Trim();
+
+                if (!cleanLine.EndsWith(".o:"))
+                    builder.WriteLine(cleanLine.ToUpperInvariant());
+            }
+            return builder.ToString();
+        }
+
+        private void SaveTLogRead()
+        {
+            var sourceFiles = GetFileList();
+            if (sourceFiles == null || sourceFiles.Length <= 0)
+                return;
+
+            var builder = new StringWriter();
             foreach (var source in sourceFiles)
             {
-                BuildFile = AbsoultePath(source);
-                ValidateOutputFile();
-
-
-                var sourceFile = new EmSource(BuildFile, ObjectFileName);
-                SourceFiles[i++] = sourceFile;
-
-                builder.Write(sourceFile.GetMetadata("RootedFullPath"));
+                builder.Write($"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant());
                 builder.Write('\n');
-            }
 
-            File.WriteAllText($@"{TrackerLogDirectory}\CL.read.1.tlog", builder.ToString());
-            return SourceFiles;
+                var extraDependencies = GetDependencyOutput();
+                if (!string.IsNullOrEmpty(extraDependencies)) 
+                    builder.Write(extraDependencies);
+            }
+            File.AppendAllText($@"{TrackerLogDirectory}\CL.read.1.tlog", builder.ToString());
         }
 
         public override bool Run()

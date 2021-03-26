@@ -21,9 +21,9 @@
 */
 using Microsoft.Build.Framework;
 using System;
-using System.IO;
-using System.Diagnostics;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 
 namespace EmscriptenTask
 {
@@ -48,7 +48,7 @@ namespace EmscriptenTask
         /// <summary>
         /// This should contain the list of source files to build.
         /// </summary>
-        string Sources { get; set; }
+        ITaskItem[] Sources { get; set; }
 
         /// <summary>
         /// If this is set to true, the contents of the command line should be
