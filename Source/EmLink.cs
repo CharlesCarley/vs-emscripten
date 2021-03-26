@@ -22,6 +22,8 @@
 
 using System;
 using System.IO;
+using Microsoft.Build.Utilities;
+using static EmscriptenTask.EmUtils;
 
 namespace EmscriptenTask
 {
@@ -35,6 +37,8 @@ namespace EmscriptenTask
         /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
         /// </summary>
         public string OutputFile { get; set; }
+
+        public string ConfigurationType { get; set; }
 
         /// <summary>
         /// User supplied libraries.
@@ -113,21 +117,21 @@ namespace EmscriptenTask
             }
 
             // write the input objects as a WS separated list
-            var objects = EmUtils.GetSeparatedSource(' ', Sources);
+            var objects = GetSeparatedSource(' ', Sources);
 
             builder.Write(' ');
             builder.Write(objects);
 
             if (!string.IsNullOrEmpty(AdditionalLibraryDirectories))
             {
-                var dirs = EmUtils.SeparatePaths(AdditionalLibraryDirectories, ';', "-L", true);
+                var dirs = SeparatePaths(AdditionalLibraryDirectories, ';', "-L", true);
                 builder.Write(' ');
                 builder.Write(dirs);
             }
 
             if (!string.IsNullOrEmpty(AdditionalDependencies))
             {
-                var libraries = EmUtils.SeparatePaths(AdditionalDependencies, ';', " ", true);
+                var libraries = SeparatePaths(AdditionalDependencies, ';', " ", true);
                 builder.Write(' ');
                 builder.Write(libraries);
             }
@@ -139,12 +143,83 @@ namespace EmscriptenTask
             return builder.ToString();
         }
 
+        private void SaveTLogRead()
+        {
+            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
+            if (sourceFiles == null || sourceFiles.Length <= 0)
+                return;
+
+            var filePath = TLogReadPathName;
+
+            var text = string.Empty;
+            if (File.Exists(filePath))
+                text = File.ReadAllText(filePath);
+
+            var builder = new StringWriter();
+            foreach (var source in sourceFiles)
+            {
+                var tracked = $"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant();
+                if (text.Contains(tracked))
+                    continue;
+
+                builder.Write(tracked);
+                builder.Write('\n');
+            }
+
+            File.AppendAllText(filePath, builder.ToString());
+        }
+
         protected void TaskStarted()
         {
             if (Verbose)
-            {
                 LogTaskProps(GetType(), this);
+            OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
+
+            InputFiles = new CanonicalTrackedInputFiles(this,
+                                                        TLogWriteFiles,
+                                                        Sources,
+                                                        null,
+                                                        OutputFiles,
+                                                        MinimalRebuildFromTracking,
+                                                        true);
+
+            OutputFile = AbsolutePath(OutputFile);
+        }
+
+        private void TaskFinished(bool succeeded)
+        {
+            if (!succeeded)
+                return;
+
+            SaveTLogRead();
+
+            var input = InputFiles.ComputeSourcesNeedingCompilation();
+            foreach (var inputFile in input)
+            {
+                var fileName   = inputFile.ItemSpec;
+                var sourceRoot = OutputFile.ToUpperInvariant();
+                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, fileName);
             }
+
+            switch (ConfigurationType)
+            {
+            case "Application":
+            {
+                var swapName = FileNameWithoutExtension(OutputFile);
+                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.wasm");
+                break;
+            }
+            case "HTMLApplication":
+            {
+                var swapName = FileNameWithoutExtension(OutputFile);
+                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.wasm");
+                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.html");
+                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.js");
+                break;
+            }
+            }
+
+            OutputFiles.SaveTlog();
         }
 
         public override bool Run()
@@ -156,6 +231,7 @@ namespace EmscriptenTask
         public override void OnStart()
         {
             OnTaskStarted += TaskStarted;
+            OnTaskStopped += TaskFinished;
         }
     }
 }

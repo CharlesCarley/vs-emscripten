@@ -274,6 +274,7 @@
 
     <EmLink OutputFile="%(Link.OutputFile)"
             AdditionalDependencies         ="%(Link.AdditionalDependencies)"
+            ConfigurationType              ="$(ConfigurationType)"
             AdditionalLibraryDirectories   ="%(Link.AdditionalLibraryDirectories)"
             TrackerLogDirectory            ="%(Link.TrackerLogDirectory)"
             TLogReadFiles                  ="@(LinkTLogReadFiles)"

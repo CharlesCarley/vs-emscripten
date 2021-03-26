@@ -43,9 +43,46 @@ namespace EmscriptenTask
         public ITaskHost    HostObject { get; set; }
 
         // ========================= Tracking ======================================
+        private ITaskItem[] _tLogReadFiles;
+        private ITaskItem[] _tLogWriteFiles;
+
+        protected string TLogWritePathName => $@"{TrackerLogDirectory}\{SenderName}.write.1.tlog";
+        protected string TLogReadPathName => $@"{TrackerLogDirectory}\{SenderName}.read.1.tlog";
+        protected string TLogCommandPathName => $@"{TrackerLogDirectory}\{SenderName}.command.1.tlog";
+
+
         [Required] public string TrackerLogDirectory { get; set; }
-        public ITaskItem[] TLogReadFiles { get; set; }
-        public ITaskItem[] TLogWriteFiles { get; set; }
+        public ITaskItem[] TLogReadFiles {
+            get
+            {
+                if (_tLogReadFiles == null || _tLogReadFiles.Length <= 0)
+                {
+                    _tLogReadFiles = new ITaskItem[] {
+                        new TaskItem(TLogReadPathName)
+                    };
+                }
+
+                return _tLogReadFiles;
+            }
+            set => _tLogReadFiles = value;
+        }
+
+        public ITaskItem[] TLogWriteFiles
+        {
+            get
+            {
+                if (_tLogWriteFiles == null || _tLogWriteFiles.Length <= 0)
+                {
+                    _tLogWriteFiles = new ITaskItem[] {
+                        new TaskItem(TLogWritePathName)
+                    };
+                }
+
+                return _tLogWriteFiles;
+            }
+            set => _tLogWriteFiles = value;
+        }
+
         [Required] public ITaskItem[] Sources { get; set; }
         public bool MinimalRebuildFromTracking { get; set; }
 
@@ -126,7 +163,7 @@ namespace EmscriptenTask
                 if (field.CanRead)
                 {
                     var nameLen = maxLen + 1 - field.Name.Length;
-                    var ws = string.Empty;
+                    var ws      = string.Empty;
                     if (nameLen > 0)
                         ws = new string(' ', nameLen);
 
@@ -280,7 +317,7 @@ namespace EmscriptenTask
 
         private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            if (e.Data == null) 
+            if (e.Data == null)
                 return;
 
             var line    = 0;
@@ -315,27 +352,6 @@ namespace EmscriptenTask
             }
         }
 
-        protected ITaskItem[] GetTLogWriteFiles(string context)
-        {
-            if (TLogWriteFiles == null || TLogWriteFiles.Length <= 0)
-            {
-                TLogWriteFiles = new ITaskItem[] {
-                    new TaskItem($@"{TrackerLogDirectory}\{context}.write.1.tlog")
-                };
-            }
-            return TLogWriteFiles;
-        }
-
-        protected ITaskItem[] GetTLogReadFiles(string context)
-        {
-            if (TLogReadFiles == null || TLogReadFiles.Length <= 0)
-            {
-                TLogReadFiles = new ITaskItem[] {
-                    new TaskItem($@"{TrackerLogDirectory}\{context}.read.1.tlog")
-                };
-            }
-            return TLogReadFiles;
-        }
 
         /// <summary>
         /// The main task function for tasks that derive from

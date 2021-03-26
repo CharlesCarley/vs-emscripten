@@ -19,6 +19,9 @@
   3. This notice may not be removed or altered from any source distribution.
 -------------------------------------------------------------------------------
 */
+using System.IO;
+using Microsoft.Build.Utilities;
+using static EmscriptenTask.EmUtils;
 
 namespace EmscriptenTask
 {
@@ -36,19 +39,72 @@ namespace EmscriptenTask
         {
             if (Verbose)
                 LogTaskProps(GetType(), this);
+
+            OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
+
+            InputFiles = new CanonicalTrackedInputFiles(this,
+                                                        TLogWriteFiles,
+                                                        Sources,
+                                                        null,
+                                                        OutputFiles,
+                                                        MinimalRebuildFromTracking,
+                                                        true);
+            OutputFile = AbsolutePath(OutputFile);
+        }
+
+        private void SaveTLogRead()
+        {
+            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
+            if (sourceFiles == null || sourceFiles.Length <= 0)
+                return;
+
+            var filePath = TLogReadPathName;
+
+            var text = string.Empty;
+            if (File.Exists(filePath))
+                text = File.ReadAllText(filePath);
+
+            var builder = new StringWriter();
+            foreach (var source in sourceFiles)
+            {
+                var tracked = $"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant();
+                if (text.Contains(tracked))
+                    continue;
+
+                builder.Write(tracked);
+                builder.Write('\n');
+            }
+            
+            File.AppendAllText(filePath, builder.ToString());
+        }
+
+        private void TaskFinished(bool succeeded)
+        {
+            if (!succeeded)
+                return;
+
+            SaveTLogRead();
+            OutputFiles.SaveTlog();
         }
 
         public bool RunAr()
         {
             var tool = EmccTool;
-            tool     = tool.Replace("emcc.bat", "emar.bat");
-            return Call(tool, $"qc {OutputFile} {EmUtils.GetSeparatedSource(' ', Sources)}");
+
+            tool = tool.Replace("emcc.bat", "emar.bat");
+
+            var input = InputFiles.ComputeSourcesNeedingCompilation();
+            OutputFiles.AddComputedOutputsForSourceRoot(OutputFile.ToUpperInvariant(), input);
+
+            return Call(tool, $"qc {OutputFile} {GetSeparatedSource(' ', input)}");
         }
 
         public bool RunRanlib()
         {
             var tool = EmccTool;
-            tool     = tool.Replace("emcc.bat", "emranlib.bat");
+            OutputFiles.AddComputedOutputForSourceRoot(OutputFile.ToUpperInvariant(), OutputFile);
+
+            tool = tool.Replace("emcc.bat", "emranlib.bat");
             return Call(tool, OutputFile);
         }
 
@@ -63,6 +119,7 @@ namespace EmscriptenTask
         public override void OnStart()
         {
             OnTaskStarted += TaskStarted;
+            OnTaskStopped += TaskFinished;
         }
     }
 }

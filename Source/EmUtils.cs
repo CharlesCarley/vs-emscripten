@@ -45,9 +45,9 @@ namespace EmscriptenTask
 
         public static bool ValidateSdk()
         {
-            if (EmccTool != null) 
+            if (EmccTool != null)
                 return true;
-            
+
             var emsdk = Sanitize(Environment.GetEnvironmentVariable("EMSDK"));
             if (emsdk is null)
                 throw new DirectoryNotFoundException("The environment variable EMSDK was not found");
@@ -92,6 +92,8 @@ namespace EmscriptenTask
             return builder.ToString();
         }
 
+        /// <param name="path">The input file system path.</param>
+        /// <returns> Returns the text at the end of the last directory separator. </returns>
         public static string BaseName(string path)
         {
             path = Sanitize(path);
@@ -100,9 +102,37 @@ namespace EmscriptenTask
             return splits.Length > 0 ? splits[splits.Length - 1] : path;
         }
 
-        public static bool IsFileOrDirectory(string filePath)
+        public static string FileNameWithoutExtension(string path)
         {
-            return Directory.Exists(filePath) || File.Exists(filePath);
+            path = Sanitize(path);
+
+            var splits = path.Split('\\');
+            // is the last split
+            var fileName = splits.Length > 0 ? splits[splits.Length - 1] : path;
+
+            // is the first split
+            var dotSplits = fileName.Split('.');
+            var baseName  = dotSplits.Length > 0 ? dotSplits[0] : fileName;
+
+            // recombine
+
+            var builder = new StringWriter();
+
+            for (var i = 0; i < splits.Length - 1; ++i)
+            {
+                builder.Write(splits[i]);
+                builder.Write('\\');
+            }
+
+            builder.Write(baseName);
+            return builder.ToString();
+        }
+
+        /// <param name="path">The input file system path.</param>
+        /// <returns>Returns true if the supplied path is a file or directory.</returns>
+        public static bool IsFileOrDirectory(string path)
+        {
+            return Directory.Exists(path) || File.Exists(path);
         }
 
         /// <summary>
@@ -115,22 +145,22 @@ namespace EmscriptenTask
         /// skipped if it is not a valid file or directory</param>
         /// <returns>returns the result of the operation.</returns>
         public static string SeparatePaths(string paths,
-                                           char originalSeparator,
+                                           char   originalSeparator,
                                            string tagSeparation,
-                                           bool needsValidation = false)
+                                           bool   needsValidation = false)
         {
             if (string.IsNullOrEmpty(paths) || string.IsNullOrEmpty(tagSeparation))
                 return string.Empty;
 
             var splitPath = paths.Split(originalSeparator);
-            var builder = new StringWriter();
+            var builder   = new StringWriter();
             foreach (var path in splitPath)
             {
-                if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path)) 
+                if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
                     continue;
 
                 var sanitizedPath = Sanitize(path);
-                if (needsValidation && !IsFileOrDirectory(sanitizedPath)) 
+                if (needsValidation && !IsFileOrDirectory(sanitizedPath))
                     continue;
                 builder.Write($" {tagSeparation} {sanitizedPath}");
             }

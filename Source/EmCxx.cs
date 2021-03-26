@@ -380,11 +380,10 @@ namespace EmscriptenTask
             else
                 PreprocessorDefinitions = "";
 
-            OutputFiles = new CanonicalTrackedOutputFiles(this,
-                                                          GetTLogWriteFiles("CL"));
+            OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
 
             InputFiles = new CanonicalTrackedInputFiles(this,
-                                                        GetTLogReadFiles("CL"),
+                                                        TLogReadFiles,
                                                         Sources,
                                                         null,
                                                         OutputFiles,
@@ -397,14 +396,11 @@ namespace EmscriptenTask
             if (!succeeded)
                 return;
 
+            SaveTLogCommand();
             SaveTLogRead();
             OutputFiles.SaveTlog();
         }
-
-        protected ITaskItem[] GetFileList()
-        {
-            return InputFiles.ComputeSourcesNeedingCompilation();
-        }
+        
 
         /// <summary>
         /// Makes sure that the output file name is absolute
@@ -479,7 +475,7 @@ namespace EmscriptenTask
 
         private void SaveTLogRead()
         {
-            var sourceFiles = GetFileList();
+            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
             if (sourceFiles == null || sourceFiles.Length <= 0)
                 return;
 
@@ -493,12 +489,32 @@ namespace EmscriptenTask
                 if (!string.IsNullOrEmpty(extraDependencies))
                     builder.Write(extraDependencies);
             }
-            File.AppendAllText($@"{TrackerLogDirectory}\CL.read.1.tlog", builder.ToString());
+            File.AppendAllText(TLogReadPathName, builder.ToString());
+        }
+
+        private void SaveTLogCommand()
+        {
+            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
+            if (sourceFiles == null || sourceFiles.Length <= 0)
+                return;
+
+            var builder = new StringWriter();
+            foreach (var source in sourceFiles)
+            {
+                builder.Write($"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant());
+                builder.Write('\n');
+
+                BuildFile = AbsolutePath(source.ItemSpec);
+                ValidateOutputFile();
+                builder.WriteLine(BuildSwitches());
+            }
+
+            File.AppendAllText(TLogCommandPathName, builder.ToString());
         }
 
         public override bool Run()
         {
-            var list = GetFileList();
+            var list = InputFiles.ComputeSourcesNeedingCompilation();
             foreach (var file in list)
             {
                 if (!string.IsNullOrEmpty(file.ItemSpec))
