@@ -7,3 +7,4 @@ add_library(MockAPI
 )
 
 #set_target_properties(MockAPI PROPERTIES VS_GLOBAL_VerboseOutput VerboseOutputMode)
+#set_target_properties(MockAPI PROPERTIES VS_GLOBAL_DebugTask true)

@@ -37,24 +37,26 @@ namespace EmscriptenTask
         /// <summary>
         /// Internal access to the current input file for logging.
         /// </summary>
-        protected abstract string _BuildFileName { get; }
+        protected abstract string BuildFileName { get; }
 
         public IBuildEngine BuildEngine { get; set; }
-        public ITaskHost    HostObject { get; set; }
+
+        public ITaskHost HostObject { get; set; }
 
         // ========================= Tracking ======================================
         private ITaskItem[] _tLogReadFiles;
         private ITaskItem[] _tLogWriteFiles;
 
-        protected string TLogWritePathName => $@"{TrackerLogDirectory}\{SenderName}.write.1.tlog";
-        protected string TLogReadPathName => $@"{TrackerLogDirectory}\{SenderName}.read.1.tlog";
+        protected string TLogWritePathName   => $@"{TrackerLogDirectory}\{SenderName}.write.1.tlog";
+        protected string TLogReadPathName    => $@"{TrackerLogDirectory}\{SenderName}.read.1.tlog";
         protected string TLogCommandPathName => $@"{TrackerLogDirectory}\{SenderName}.command.1.tlog";
 
+        [Required]
+        public string TrackerLogDirectory { get; set; }
 
-        [Required] public string TrackerLogDirectory { get; set; }
-        public ITaskItem[] TLogReadFiles {
-            get
-            {
+        public ITaskItem[] TLogReadFiles
+        {
+            get {
                 if (_tLogReadFiles == null || _tLogReadFiles.Length <= 0)
                 {
                     _tLogReadFiles = new ITaskItem[] {
@@ -69,8 +71,7 @@ namespace EmscriptenTask
 
         public ITaskItem[] TLogWriteFiles
         {
-            get
-            {
+            get {
                 if (_tLogWriteFiles == null || _tLogWriteFiles.Length <= 0)
                 {
                     _tLogWriteFiles = new ITaskItem[] {
@@ -83,7 +84,11 @@ namespace EmscriptenTask
             set => _tLogWriteFiles = value;
         }
 
+        /// <summary>
+        /// The input source files.
+        /// </summary>
         [Required] public ITaskItem[] Sources { get; set; }
+
         public bool MinimalRebuildFromTracking { get; set; }
 
         protected CanonicalTrackedInputFiles  InputFiles { get; set; }
@@ -94,7 +99,7 @@ namespace EmscriptenTask
         // Temporary extra debug properties
         public string DebugProp1 { get; set; }
         public string DebugProp2 { get; set; }
-        public string DebugProp3 { get; set; }
+        public bool   DebugProp3 { get; set; }
 
         // ========================== General ======================================
 
@@ -129,11 +134,13 @@ namespace EmscriptenTask
         /// <summary>
         /// When set to 1, will generate more verbose output during compilation.
         /// </summary>
+        [BoolSwitch("-s VERBOSE=1")]
         public bool EmVerbose { get; set; } = false;
 
         /// <summary>
         /// Add some calls to emscripten tracing APIs.
         /// </summary>
+        [BoolSwitch("-s EMSCRIPTEN_TRACING=1")]
         public bool EmTracing { get; set; } = false;
 
         /// <summary>
@@ -148,34 +155,35 @@ namespace EmscriptenTask
             var maxLen = 0;
             foreach (var field in fields)
             {
-                if (field.CanRead)
-                {
-                    if (maxLen < field.Name.Length)
-                    {
-                        maxLen = field.Name.Length;
-                    }
-                }
+                if (!field.CanRead) continue;
+
+                if (maxLen < field.Name.Length)
+                    maxLen = field.Name.Length;
             }
 
             LogSeparator(SenderName);
+
             foreach (var field in fields)
             {
-                if (field.CanRead)
-                {
-                    var nameLen = maxLen + 1 - field.Name.Length;
-                    var ws      = string.Empty;
-                    if (nameLen > 0)
-                        ws = new string(' ', nameLen);
+                if (!field.CanRead) continue;
 
-                    LogMessage($"{field.Name}{ws}: {field.GetValue(inst)}");
-                }
+                var nameLen = maxLen + 1 - field.Name.Length;
+                var ws      = string.Empty;
+                if (nameLen > 0)
+                    ws = new string(' ', nameLen);
+
+                LogMessage($"{field.Name}{ws}: {field.GetValue(inst)}");
             }
         }
 
         protected void LogSeparator(string message)
         {
-            string a = new string('=', 35);
-            string b = new string('=', 45 - message.Length);
+            // provide a guard for the 
+            if (message.Length > 45)
+                message = message.Substring(0, 20);
+
+            var a = new string('=', 35);
+            var b = new string('=', 45 - message.Length);
             LogMessage($"{a} {message} {b}");
         }
 
@@ -195,9 +203,9 @@ namespace EmscriptenTask
         {
             BuildEngine.LogWarningEvent(
                 new BuildWarningEventArgs(
-                    string.Empty,       // subcategory
+                    SenderName,       // subcategory
                     string.Empty,       // code
-                    _BuildFileName,     // file
+                    BuildFileName,      // file
                     line,               // line number
                     column,             // column number
                     0,                  // end line number
@@ -212,9 +220,9 @@ namespace EmscriptenTask
         {
             BuildEngine.LogErrorEvent(
                 new BuildErrorEventArgs(
-                    string.Empty,       // subcategory
+                    SenderName,       // subcategory
                     string.Empty,       // code
-                    _BuildFileName,     // file
+                    BuildFileName,      // file
                     line,               // line number
                     column,             // column number
                     0,                  // end line number
@@ -306,6 +314,7 @@ namespace EmscriptenTask
                 LogError($"the process {BaseName(info.FileName)} timed out.");
                 return false;
             }
+
             return process.ExitCode != 0;
         }
 
@@ -324,7 +333,7 @@ namespace EmscriptenTask
             var column  = 0;
             var matched = false;
 
-            if (e.Data.Contains(_BuildFileName))
+            if (e.Data.Contains(BuildFileName))
             {
                 // >main.cpp : error : main.cpp:8:5: error: ...
                 //                             ^   ^
@@ -351,8 +360,7 @@ namespace EmscriptenTask
                     LogMessage(e.Data);
             }
         }
-
-
+        
         /// <summary>
         /// The main task function for tasks that derive from
         /// the EmTask base class.
@@ -370,30 +378,34 @@ namespace EmscriptenTask
 
         public bool Execute()
         {
+            if (DebugProp3)
+            {
+                if (!Debugger.IsAttached)
+                    Debugger.Launch();
+            }
+
             OnStart();
+
             if (!ValidateSdk())
             {
                 LogError("Failed to resolve the EMSDK root environment variable");
                 LogError("emcc was not found");
                 return false;
             }
+
+            var result = false;
+
             try
             {
                 NotifyTaskStated();
-
-                if (Run())
-                {
-                    NotifyTaskFinished(true);
-                    return true;
-                }
+                result = Run();
+                NotifyTaskFinished(result);
             }
             catch (Exception ex)
             {
                 LogError(ex.Message);
             }
-
-            NotifyTaskFinished(false);
-            return false;
+            return result;
         }
     }
 }

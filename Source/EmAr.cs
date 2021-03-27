@@ -27,8 +27,8 @@ namespace EmscriptenTask
 {
     public class EmAr : EmTask
     {
-        protected override string SenderName     => nameof(EmAr);
-        protected override string _BuildFileName => OutputFile;
+        protected override string SenderName    => nameof(EmAr);
+        protected override string BuildFileName => OutputFile;
 
         /// <summary>
         /// Output file name parameter $(OutDir)%(Filename).o
@@ -43,7 +43,7 @@ namespace EmscriptenTask
             OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
 
             InputFiles = new CanonicalTrackedInputFiles(this,
-                                                        TLogWriteFiles,
+                                                        TLogReadFiles,
                                                         Sources,
                                                         null,
                                                         OutputFiles,
@@ -74,7 +74,7 @@ namespace EmscriptenTask
                 builder.Write(tracked);
                 builder.Write('\n');
             }
-            
+
             File.AppendAllText(filePath, builder.ToString());
         }
 
@@ -89,11 +89,13 @@ namespace EmscriptenTask
 
         public bool RunAr()
         {
-            var tool = EmccTool;
+            var input = InputFiles.ComputeSourcesNeedingCompilation();
+            if (input == null || input.Length <= 0)
+                return true;
 
+            var tool = EmccTool;
             tool = tool.Replace("emcc.bat", "emar.bat");
 
-            var input = InputFiles.ComputeSourcesNeedingCompilation();
             OutputFiles.AddComputedOutputsForSourceRoot(OutputFile.ToUpperInvariant(), input);
 
             return Call(tool, $"qc {OutputFile} {GetSeparatedSource(' ', input)}");
@@ -101,6 +103,10 @@ namespace EmscriptenTask
 
         public bool RunRanlib()
         {
+            var input = InputFiles.ComputeSourcesNeedingCompilation();
+            if (input == null || input.Length <= 0)
+                return true;
+
             var tool = EmccTool;
             OutputFiles.AddComputedOutputForSourceRoot(OutputFile.ToUpperInvariant(), OutputFile);
 

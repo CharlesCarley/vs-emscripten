@@ -29,27 +29,31 @@ namespace EmscriptenTask
 {
     public class EmCxx : EmTask
     {
-        protected override string SenderName     => nameof(EmCxx);
-        protected override string _BuildFileName => BuildFile;
+        protected override string SenderName    => nameof(EmCxx);
+        protected override string BuildFileName => BuildFile;
+
+        // clang-format off
 
         /// <summary>
         /// An internal property that is set per source file right
         /// before calling ProcessFile.
         /// </summary>
-        protected string BuildFile { get; set; }
-
-        // ================================ General ================================
-
+        [StringSwitch("-c")]
+        public string BuildFile { get; set; }
+        
         /// <summary>
         /// Provides any extra user supplied include directories.
         /// </summary>
+        [SeparatedStringSwitch("-I", true)]
         public string AdditionalIncludeDirectories { get; set; }
 
+        [SeparatedStringSwitch("-I")]
         public string SystemIncludeDirectories { get; set; }
 
         /// <summary>
         /// Debug info options.
         /// </summary>
+        [EnumSwitch("None,FullDebug", "-g0,-g")]
         public string DebugInformationFormat { get; set; }
 
         /// <summary>
@@ -57,17 +61,22 @@ namespace EmscriptenTask
         /// A value of Default will do nothing and let the compiler emit the default messages.
         /// A value of None will pass -w.
         /// A value of All will pass -Wall.
-        ///
         /// </summary>
+        [EnumSwitch("None,All", "-w,-Wall")]
         public string WarningLevel { get; set; }
 
         /// <summary>
         /// Generates an error instead of a warning.
         /// </summary>
+        [BoolSwitch("-Werror")]
         public bool TreatWarningAsError { get; set; }
 
-        // ErrorLimit
-        // TemplateBacktraceLimit
+        [IntSwitch("-ferror-limit=")]
+        public int ErrorLimit { get; set; }
+
+        [IntSwitch("-ftemplate-backtrace-limit=")]
+        public int TemplateBacktraceLimit { get; set; }
+
 
         // ============================= Optimization ==============================
         // OptimizationLevel
@@ -79,31 +88,49 @@ namespace EmscriptenTask
         /// <summary>
         /// Provides any extra user supplied preprocessor definitions.
         /// </summary>
+        [SeparatedStringSwitch("-D")]
         public string PreprocessorDefinitions { get; set; }
 
         /// <summary>
         /// Extra system definitions.
         /// </summary>
+        [SeparatedStringSwitch("-D")] 
         public string SystemPreprocessorDefinitions { get; set; }
 
         /// <summary>
-        /// Do not pass any preprocessor definitions
+        /// If true this will nullify any preprocessor definitions.
         /// </summary>
         public bool UndefineAllPreprocessorDefinitions { get; set; } = false;
 
         // ============================= Code Generation ===========================
-        // FunctionLevelLinking
-        // DataLevelLinking
-        // BufferSecurityCheck
-        // PositionIndependentCode
-        // UseShortEnums
 
+        
         /// <summary>
         /// Set standard exception handling.
         /// A value of Disabled will disable exceptions.
         /// A value of Enabled will enable exceptions.
         /// </summary>
+        [EnumSwitch("Enabled,Disabled", "-fexceptions,-fno-exceptions")]
         public string ExceptionHandling { get; set; }
+
+        /// <summary>
+        /// Place each function in its own section.
+        /// </summary>
+        [BoolSwitch("-ffunction-sections")]
+        public bool FunctionLevelLinking { get; set; } = false;
+
+        [BoolSwitch("-fdata-sections")]
+        public bool DataLevelLinking { get; set; } = false;
+
+        [BoolSwitch("-fstack-protector")]
+        public bool BufferSecurityCheck { get; set; } = true;
+
+        [BoolSwitch("-fpic")]
+        public bool PositionIndependentCode { get; set; } = false;
+
+        [BoolSwitch("fshort-enums")]
+        public bool UseShortEnums { get; set; } = false;
+
 
         // ============================= Language ==============================----
         // RuntimeTypeInfo
@@ -119,19 +146,27 @@ namespace EmscriptenTask
 
         // ============================= Output Files ==============================
         // PreserveTempFiles
-        // GenerateDependencyFile
-        // DependencyFileName
 
         /// <summary>
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
+        [StringSwitch("-o")]
         public string ObjectFileName { get; set; }
 
+        /// <summary>
+        /// Set to true to output a dependency file.
+        /// If this is set to false the DependencyFileName property
+        /// will be set to null.
+        /// </summary>
         public bool GenerateDependencyFile { get; set; }
 
+        /// <summary>
+        /// Specify the output file path for the generated dependency file.
+        /// </summary>
+        [StringSwitch("-MD -MF")]
         public string DependencyFileName { get; set; }
 
-        // =========================-==== Advanced  ==============================--
+        // ============================== Advanced  ==============================--
         // ForcedIncludeFiles
         // EnableSpecificWarnings
         // DisableSpecificWarnings
@@ -151,16 +186,22 @@ namespace EmscriptenTask
         ///     The tool will be em++.bat with the switch -x c++.
         ///
         /// </summary>
+        [EnumSwitch("Default,CompileAsC,CompileAsCpp", ",-x c,-x c++")]
         public string CompileAs { get; set; }
-        private bool  IsInC => CompileAs.Equals("CompileAsC");
+
+        private bool IsInC => CompileAs.Equals("CompileAsC");
 
         /// <summary>
         /// Output included files.
         /// </summary>
+        [BoolSwitch("-H")]
         public bool ShowIncludes { get; set; }
 
         // ============================= Command Line  =============================
+        [StringSwitch]
         public string AdditionalOptions { get; set; }
+
+        // clang-format on
 
         // ============================= Tracking =============================
 
@@ -213,49 +254,6 @@ namespace EmscriptenTask
         {
             var builder = new StringWriter();
 
-            if (!string.IsNullOrEmpty(CompileAs))
-            {
-                if (CompileAs.Equals("CompileAsC"))
-                    builder.Write(" -x c");
-                else if (!CompileAs.Equals("CompileAsCpp"))
-                    builder.Write(" -x c++");
-            }
-
-            if (!string.IsNullOrEmpty(ExceptionHandling))
-            {
-                switch (ExceptionHandling)
-                {
-                case "Disabled":
-                    builder.Write(" -fno-exceptions");
-                    break;
-                case "Enabled":
-                    builder.Write(" -fexceptions");
-                    break;
-                }
-            }
-
-            if (GenerateDependencyFile && !string.IsNullOrEmpty(DependencyFileName))
-                builder.Write($" -MD -MF {DependencyFileName}");
-
-            if (ShowIncludes)
-                builder.Write(" -H");
-
-            if (TreatWarningAsError)
-                builder.Write(" -Werror");
-
-            if (!string.IsNullOrEmpty(WarningLevel))
-            {
-                switch (WarningLevel)
-                {
-                case "None":
-                    builder.Write(" -w");
-                    break;
-                case "All":
-                    builder.Write(" -Wall");
-                    break;
-                }
-            }
-
             if (!string.IsNullOrEmpty(LanguageStandard))
             {
                 switch (LanguageStandard)
@@ -299,66 +297,7 @@ namespace EmscriptenTask
                 }
             }
 
-            if (!string.IsNullOrEmpty(DebugInformationFormat))
-            {
-                switch (DebugInformationFormat)
-                {
-                case "FullDebug":
-                    builder.Write(" -g");
-                    break;
-                case "None":
-                    builder.Write(" -g0");
-                    break;
-                }
-            }
-
-            // EmVerbose
-            if (EmVerbose)
-                builder.Write(" -s VERBOSE=1");
-
-            // EmTracing
-            if (EmTracing)
-                builder.Write(" -s EMSCRIPTEN_TRACING=1");
-
-            if (!string.IsNullOrEmpty(AdditionalOptions))
-            {
-                builder.Write(' ');
-                builder.Write(AdditionalOptions);
-            }
-
-            if (!string.IsNullOrEmpty(SystemIncludeDirectories))
-            {
-                builder.Write(' ');
-                builder.Write(SystemIncludeDirectories);
-            }
-
-            if (!string.IsNullOrEmpty(AdditionalIncludeDirectories))
-            {
-                builder.Write(' ');
-                builder.Write(AdditionalIncludeDirectories);
-            }
-
-            if (!string.IsNullOrEmpty(SystemPreprocessorDefinitions))
-            {
-                builder.Write(' ');
-                builder.Write(SystemPreprocessorDefinitions);
-            }
-
-            if (!string.IsNullOrEmpty(PreprocessorDefinitions))
-            {
-                builder.Write(' ');
-                builder.Write(PreprocessorDefinitions);
-            }
-
-            if (!string.IsNullOrEmpty(AdditionalOptions))
-            {
-                builder.Write(' ');
-                builder.Write(AdditionalOptions);
-            }
-
-            // BuildFile
-            builder.Write($" -c {BuildFile}");
-            builder.Write($" -o {ObjectFileName}");
+            EmSwitchWriter.Write(builder, GetType(), this);
             return builder.ToString();
         }
 
@@ -368,17 +307,13 @@ namespace EmscriptenTask
             if (string.IsNullOrEmpty(ExceptionHandling))
                 ExceptionHandling = "Enabled";
 
+            if (UndefineAllPreprocessorDefinitions)
+                PreprocessorDefinitions = null;
+            if (!GenerateDependencyFile)
+                DependencyFileName = null;
+
             if (Verbose)
                 LogTaskProps(GetType(), this);
-
-            AdditionalIncludeDirectories  = SeparatePaths(AdditionalIncludeDirectories, ';', "-I", true);
-            SystemIncludeDirectories      = SeparatePaths(SystemIncludeDirectories, ';', "-I");
-            SystemPreprocessorDefinitions = SeparatePaths(SystemPreprocessorDefinitions, ';', "-D");
-
-            if (!UndefineAllPreprocessorDefinitions)
-                PreprocessorDefinitions = SeparatePaths(PreprocessorDefinitions, ';', "-D");
-            else
-                PreprocessorDefinitions = "";
 
             OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
 
@@ -400,7 +335,6 @@ namespace EmscriptenTask
             SaveTLogRead();
             OutputFiles.SaveTlog();
         }
-        
 
         /// <summary>
         /// Makes sure that the output file name is absolute
@@ -453,7 +387,7 @@ namespace EmscriptenTask
         /// <returns></returns>
         private string GetDependencyOutput()
         {
-            if (!GenerateDependencyFile || string.IsNullOrEmpty(DependencyFileName))
+            if (string.IsNullOrEmpty(DependencyFileName))
                 return null;
 
             var depFile = AbsolutePath(DependencyFileName);
@@ -519,13 +453,19 @@ namespace EmscriptenTask
             {
                 if (!string.IsNullOrEmpty(file.ItemSpec))
                 {
+                    if (!File.Exists(file.ItemSpec))
+                    {
+                        throw new FileNotFoundException(
+                            $"{SenderName}: the file '{file.ItemSpec}' could not be found.");
+                    }
+
                     if (!ProcessFile(file))
                         return false;
                 }
                 else
                 {
-                    LogError($"{SenderName}: no input files");
-                    return false;
+                    throw new FileNotFoundException(
+                        $"{SenderName}: no input files");
                 }
             }
             return true;

@@ -9,54 +9,51 @@
               Description="Advanced properties"
               DisplayName="Advanced Properties" />
   </Rule.Categories>
+
   <Rule.DataSource>
     <DataSource Label="Configuration"
                 Persistence="ProjectFile" />
   </Rule.DataSource>
+
+
   <StringProperty Name="TargetExt"
                   Category="General"
                   Description="Specifies a file extension that the program will have. (Example: .exe or .dll)"
                   DisplayName="Target File Extension"
-                  F1Keyword="VC.Project.VCConfiguration.TargetExt">
-    <StringProperty.DataSource>
-      <DataSource Label=""
-                  Persistence="ProjectFile" />
-    </StringProperty.DataSource>
-  </StringProperty>
+                  F1Keyword="VC.Project.VCConfiguration.TargetExt"/>
+
   <StringListProperty Name="ExtensionsToDeleteOnClean"
                       Category="General"
                       Description="Semi-colon delimited wildcard specification for which files in the intermediate directory to delete on clean or rebuild."
                       DisplayName="Extensions to Delete on Clean"
                       F1Keyword="VC.Project.VCConfiguration.DeleteExtensionsOnClean"
-                      Separator=";">
-    <StringListProperty.DataSource>
-      <DataSource Label=""
-                  Persistence="ProjectFile" />
-    </StringListProperty.DataSource>
-  </StringListProperty>
+                      Separator=";"/>
+
+
   <StringProperty Name="BuildLogFile"
                   Category="General"
                   Description="Specifies the build log file to write to when build logging is enabled."
                   DisplayName="Build Log File"
                   F1Keyword="VC.Project.VCConfiguration.BuildLogFile"
-                  Subtype="file">
-    <StringProperty.DataSource>
-      <DataSource ItemType="BuildLog"
-                  PersistedName="Path"
-                  Persistence="ProjectFile" />
-    </StringProperty.DataSource>
-  </StringProperty>
+                  Subtype="file"/>
+
   <EnumProperty Name="VerboseOutput"
                 Category="General"
                 Description="Specify what kind of debug trace output to generate during compilation."
                 DisplayName="Verbose Compilation">
+
     <EnumValue Name="NoVerboseOutput"
                DisplayName="Disabled" />
+
     <EnumValue Name="VerboseOutputMode"
                DisplayName="Log what the task is doing." />
-    <EnumProperty.DataSource>
-      <DataSource Persistence="ProjectFile"
-                  Label=""/>
-    </EnumProperty.DataSource>
+
   </EnumProperty>
+
+
+  <BoolProperty Name="DebugTask"
+                DisplayName="Debug Task"
+                Category="General"/>
+
+
 </Rule>

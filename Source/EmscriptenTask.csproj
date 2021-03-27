@@ -51,6 +51,7 @@
     <Compile Include="EmCommon.cs" />
     <Compile Include="EmCxx.cs" />
     <Compile Include="EmLink.cs" />
+    <Compile Include="EmSwitchs.cs" />
     <Compile Include="EmTask.cs" />
     <Compile Include="EmUtils.cs" />
   </ItemGroup>

@@ -12,8 +12,8 @@ IndentCaseLabels:   false
 AlwaysBreakTemplateDeclarations:     true
 AlignConsecutiveDeclarations:        true
 AlignConsecutiveAssignments:         true
-AllowShortIfStatementsOnASingleLine: true
-AllowShortFunctionsOnASingleLine:    true
+AllowShortIfStatementsOnASingleLine: false
+AllowShortFunctionsOnASingleLine:    false
 
 MaxEmptyLinesToKeep:                 1
 KeepEmptyLinesAtTheStartOfBlocks:   false
@@ -28,7 +28,7 @@ SpaceBeforeParens:    ControlStatements
 Standard: Auto
 AlignTrailingComments: true
 AlignOperands: true
-BinPackParameters: false
+BinPackParameters: true
 BinPackArguments:  false
 
 AllowShortLoopsOnASingleLine: false
@@ -45,7 +45,7 @@ AlignEscapedNewlines: Left
 ---
 Language:           Cpp
 BreakBeforeBraces:  Allman
-ColumnLimit:        0
+ColumnLimit:        80
 IndentCaseLabels:   false
 
 AlwaysBreakTemplateDeclarations:     true

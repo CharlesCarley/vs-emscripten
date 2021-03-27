@@ -2,7 +2,9 @@
   <PropertyGroup>
     <UseDefaultProjectTools>false</UseDefaultProjectTools>
   </PropertyGroup>
+
   <Import Project="$(VCTargetsPath)\Microsoft.CppCommon.targets" />
+
   <!-- Define The default settings for common properties -->
   <!-- ============================================================ -->
   <ItemDefinitionGroup>
@@ -221,6 +223,7 @@
            TLogReadFiles                    ="@(CLTLogReadFiles)"
            TLogWriteFiles                   ="@(CLTLogWriteFiles)"
            DebugProp1                       ="$(_BuildActionType)"
+           DebugProp3                       ="$(DebugTask)"
            Verbose                          ="$(DoVerbose)">
       <Output TaskParameter="SkippedExecution"
               PropertyName="ClSkippedExecution" />
@@ -251,6 +254,7 @@
           TLogWriteFiles                 ="@(LIBTLogWriteFiles)"
           MinimalRebuildFromTracking     ="%(Lib.MinimalRebuildFromTracking)"
           DebugProp1                     ="$(_BuildActionType)"
+          DebugProp3                     ="$(DebugTask)"
           Verbose                        ="$(DoVerbose)">
       <Output TaskParameter="SkippedExecution"
               PropertyName="LibSkippedExecution" />
@@ -286,6 +290,7 @@
             EmUseFullOpenGLES3             ="$(EmUseFullOpenGLES3)"
             Sources                        ="@(Link)"
             DebugProp1                     ="$(_BuildActionType)"
+            DebugProp3                     ="$(DebugTask)"
             Verbose                        ="$(DoVerbose)">
       <Output TaskParameter="SkippedExecution"
               PropertyName="LinkSkippedExecution" />

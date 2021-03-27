@@ -20,10 +20,7 @@
 -------------------------------------------------------------------------------
 */
 using Microsoft.Build.Framework;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 
 namespace EmscriptenTask
 {

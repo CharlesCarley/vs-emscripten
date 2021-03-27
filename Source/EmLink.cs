@@ -31,46 +31,57 @@ namespace EmscriptenTask
     {
         protected override string SenderName => nameof(EmLink);
 
-        protected override string _BuildFileName => OutputFile;
+        protected override string BuildFileName => OutputFile;
+        public string ConfigurationType { get; set; }
+
+        // clang-format off
 
         /// <summary>
         /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
         /// </summary>
+        [StringSwitch("-o")]
         public string OutputFile { get; set; }
-
-        public string ConfigurationType { get; set; }
 
         /// <summary>
         /// User supplied libraries.
         /// </summary>
+        [SeparatedStringSwitch(" ", true)]
         public string AdditionalDependencies { get; set; }
 
         /// <summary>
         /// Extra library search paths.
         /// </summary>
+        [SeparatedStringSwitch("-L", true)]
         public string AdditionalLibraryDirectories { get; set; }
 
         /// <summary>
         /// Settings.js conversion, the EXPORT_NAME option
         /// </summary>
+        [StringSwitch("-s EXPORT_NAME=")]
         public string EmExportName { get; set; }
 
         /// <summary>
         /// Settings.js conversion, the argument to WASM=[0,1,2]
         /// </summary>
+        [EnumSwitch("EmWasmOnlyJS,EmWasmOnlyWasm,EmWasmBoth",
+                    "-s WASM=0,-s WASM=1,-s WASM=2", 
+                    "-s WASM=1")]
         public string EmWasmMode { get; set; }
 
         /// <summary>
         /// Settings.js conversion, the argument to USE_SDL=[1,2]
         /// </summary>
-        public string EmSDLVersion { get; set; }
+        [IntSwitch("-s USE_SDL=", new[] { 1, 2 })]
+        public string EmSdlVersion { get; set; }
 
         /// <summary>
         /// Settings.js conversion, the argument to FULL_ES3=[1]
         /// </summary>
         /// <returns></returns>
-        ///
-        public bool EmUseFullOpenGLES3 { get; set; }
+        [BoolSwitch("-s FULL_ES3=1")]
+        public bool EmUseFullOpenGles3 { get; set; }
+
+        // clang-format on
 
         protected string BuildSwitches()
         {
@@ -78,68 +89,13 @@ namespace EmscriptenTask
                 throw new ArgumentNullException(nameof(OutputFile), "Missing OutputFile");
 
             var builder = new StringWriter();
-
-            if (!string.IsNullOrEmpty(EmWasmMode))
-            {
-                switch (EmWasmMode)
-                {
-                case "EmWasmOnlyJS":
-                    builder.Write("-s WASM=0");
-                    break;
-                case "EmWasmBoth":
-                    builder.Write("-s WASM=2");
-                    break;
-                default:
-                    builder.Write("-s WASM=1");  // only WebAssembly
-                    break;
-                }
-            }
-            else
-                builder.Write("-s WASM=1");
-
-            if (EmUseFullOpenGLES3)
-                builder.Write(" -s FULL_ES3=1");
-
-            if (!string.IsNullOrEmpty(EmSDLVersion))
-            {
-                int.TryParse(EmSDLVersion, out var sdlVersion);
-
-                switch (sdlVersion)
-                {
-                case 1:
-                case 2:
-                    builder.Write(" -s USE_SDL=");
-                    builder.Write(sdlVersion);
-                    break;
-                default:
-                    throw new ArgumentException($"Invalid SDL version supplied {sdlVersion}");
-                }
-            }
-
+            
             // write the input objects as a WS separated list
             var objects = GetSeparatedSource(' ', Sources);
-
             builder.Write(' ');
             builder.Write(objects);
 
-            if (!string.IsNullOrEmpty(AdditionalLibraryDirectories))
-            {
-                var dirs = SeparatePaths(AdditionalLibraryDirectories, ';', "-L", true);
-                builder.Write(' ');
-                builder.Write(dirs);
-            }
-
-            if (!string.IsNullOrEmpty(AdditionalDependencies))
-            {
-                var libraries = SeparatePaths(AdditionalDependencies, ';', " ", true);
-                builder.Write(' ');
-                builder.Write(libraries);
-            }
-
-            builder.Write(' ');
-            builder.Write("-o");
-            builder.Write(OutputFile);
-            SkippedExecution = false;
+            EmSwitchWriter.Write(builder, GetType(), this);
             return builder.ToString();
         }
 
@@ -165,18 +121,15 @@ namespace EmscriptenTask
                 builder.Write(tracked);
                 builder.Write('\n');
             }
-
             File.AppendAllText(filePath, builder.ToString());
         }
 
         protected void TaskStarted()
         {
-            if (Verbose)
-                LogTaskProps(GetType(), this);
             OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
 
             InputFiles = new CanonicalTrackedInputFiles(this,
-                                                        TLogWriteFiles,
+                                                        TLogReadFiles,
                                                         Sources,
                                                         null,
                                                         OutputFiles,
@@ -184,6 +137,9 @@ namespace EmscriptenTask
                                                         true);
 
             OutputFile = AbsolutePath(OutputFile);
+
+            if (Verbose)
+                LogTaskProps(GetType(), this);
         }
 
         private void TaskFinished(bool succeeded)
