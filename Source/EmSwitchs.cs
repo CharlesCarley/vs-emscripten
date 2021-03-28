@@ -309,8 +309,8 @@ namespace EmscriptenTask
                 if (enumSwitch.Default != null)
                     builder.Write($" {enumSwitch.Default}");
                 return;
-            }
-
+            } 
+            
             var i = enumSwitch.Values.TakeWhile(sv => !sv.Equals(enumSwitch.ConvertedValue)).Count();
             if (i < enumSwitch.Switches.Length)
                 builder.Write($" {enumSwitch.Switches[i]}");

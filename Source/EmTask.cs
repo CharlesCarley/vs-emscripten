@@ -46,13 +46,29 @@ namespace EmscriptenTask
         // ========================= Tracking ======================================
         private ITaskItem[] _tLogReadFiles;
         private ITaskItem[] _tLogWriteFiles;
+        private string _trackerLogDirectory;
 
-        protected string TLogWritePathName   => $@"{TrackerLogDirectory}\{SenderName}.write.1.tlog";
-        protected string TLogReadPathName    => $@"{TrackerLogDirectory}\{SenderName}.read.1.tlog";
-        protected string TLogCommandPathName => $@"{TrackerLogDirectory}\{SenderName}.command.1.tlog";
+        protected string TLogWritePathName   => $@"{TrackerLogDirectory}{SenderName}.write.1.tlog";
+        protected string TLogReadPathName    => $@"{TrackerLogDirectory}{SenderName}.read.1.tlog";
+        protected string TLogCommandPathName => $@"{TrackerLogDirectory}{SenderName}.command.1.tlog";
 
         [Required]
-        public string TrackerLogDirectory { get; set; }
+        public string TrackerLogDirectory
+        {
+            get => _trackerLogDirectory;
+            set {
+                _trackerLogDirectory = value;
+                if (string.IsNullOrEmpty(_trackerLogDirectory))
+                    throw new NullReferenceException(nameof(_trackerLogDirectory));
+
+                // Make sure that the directory ends with a \
+                // Other areas assume this!
+                if (!_trackerLogDirectory.EndsWith("\\"))
+                    _trackerLogDirectory += "\\";
+
+                _trackerLogDirectory = Sanitize(_trackerLogDirectory);
+            }
+        }
 
         public ITaskItem[] TLogReadFiles
         {
@@ -83,13 +99,14 @@ namespace EmscriptenTask
             }
             set => _tLogWriteFiles = value;
         }
+        // clang-format off
 
         /// <summary>
         /// The input source files.
         /// </summary>
         [Required] public ITaskItem[] Sources { get; set; }
 
-        public bool MinimalRebuildFromTracking { get; set; }
+        public bool MinimalRebuildFromTracking { get; set; } = true;
 
         protected CanonicalTrackedInputFiles  InputFiles { get; set; }
         protected CanonicalTrackedOutputFiles OutputFiles { get; set; }
@@ -134,14 +151,15 @@ namespace EmscriptenTask
         /// <summary>
         /// When set to 1, will generate more verbose output during compilation.
         /// </summary>
-        [BoolSwitch("-s VERBOSE=1")]
+        [BoolSwitch("-s VERBOSE=1")] 
         public bool EmVerbose { get; set; } = false;
 
         /// <summary>
         /// Add some calls to emscripten tracing APIs.
         /// </summary>
-        [BoolSwitch("-s EMSCRIPTEN_TRACING=1")]
+        [BoolSwitch("-s EMSCRIPTEN_TRACING=1")] 
         public bool EmTracing { get; set; } = false;
+        // clang-format on
 
         /// <summary>
         /// The main verbose log function.
@@ -155,7 +173,8 @@ namespace EmscriptenTask
             var maxLen = 0;
             foreach (var field in fields)
             {
-                if (!field.CanRead) continue;
+                if (!field.CanRead)
+                    continue;
 
                 if (maxLen < field.Name.Length)
                     maxLen = field.Name.Length;
@@ -165,7 +184,8 @@ namespace EmscriptenTask
 
             foreach (var field in fields)
             {
-                if (!field.CanRead) continue;
+                if (!field.CanRead)
+                    continue;
 
                 var nameLen = maxLen + 1 - field.Name.Length;
                 var ws      = string.Empty;
@@ -178,7 +198,6 @@ namespace EmscriptenTask
 
         protected void LogSeparator(string message)
         {
-            // provide a guard for the 
             if (message.Length > 45)
                 message = message.Substring(0, 20);
 
@@ -203,7 +222,7 @@ namespace EmscriptenTask
         {
             BuildEngine.LogWarningEvent(
                 new BuildWarningEventArgs(
-                    SenderName,       // subcategory
+                    SenderName,         // subcategory
                     string.Empty,       // code
                     BuildFileName,      // file
                     line,               // line number
@@ -220,7 +239,7 @@ namespace EmscriptenTask
         {
             BuildEngine.LogErrorEvent(
                 new BuildErrorEventArgs(
-                    SenderName,       // subcategory
+                    SenderName,         // subcategory
                     string.Empty,       // code
                     BuildFileName,      // file
                     line,               // line number
@@ -234,30 +253,16 @@ namespace EmscriptenTask
                     ));
         }
 
-        protected delegate void TaskStartEventHandler();
-        protected delegate void TaskStopEventHandler(bool succeeded);
-
-        /// <summary>
-        /// An Event that is called after the SDK paths have been validated and before
-        /// The Run method is invoked.
-        /// </summary>
-        protected event TaskStartEventHandler OnTaskStarted;
-
-        /// <summary>
-        /// An Event that is called after Run is finished.
-        /// </summary>
-        protected event TaskStopEventHandler OnTaskStopped;
-
         private void NotifyTaskStated()
         {
             SkippedExecution = true;
-            OnTaskStarted?.Invoke();
+            OnStart();
         }
 
         private void NotifyTaskFinished(bool succeeded)
         {
+            OnStop(succeeded);
             SkippedExecution = !succeeded;
-            OnTaskStopped?.Invoke(succeeded);
         }
 
         /// <summary>
@@ -360,7 +365,7 @@ namespace EmscriptenTask
                     LogMessage(e.Data);
             }
         }
-        
+
         /// <summary>
         /// The main task function for tasks that derive from
         /// the EmTask base class.
@@ -374,7 +379,9 @@ namespace EmscriptenTask
         /// Defines a callback for code that needs executed right as the main
         /// ITask.Execute function is invoked.
         /// </summary>
-        public abstract void OnStart();
+        protected abstract void OnStart();
+        protected abstract void OnStop(bool succeeded);
+
 
         public bool Execute()
         {
@@ -383,8 +390,6 @@ namespace EmscriptenTask
                 if (!Debugger.IsAttached)
                     Debugger.Launch();
             }
-
-            OnStart();
 
             if (!ValidateSdk())
             {

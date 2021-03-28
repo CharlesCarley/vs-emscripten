@@ -32,7 +32,7 @@ namespace EmscriptenTask
         protected override string SenderName => nameof(EmLink);
 
         protected override string BuildFileName => OutputFile;
-        public string ConfigurationType { get; set; }
+        public string             ConfigurationType { get; set; }
 
         // clang-format off
 
@@ -89,7 +89,7 @@ namespace EmscriptenTask
                 throw new ArgumentNullException(nameof(OutputFile), "Missing OutputFile");
 
             var builder = new StringWriter();
-            
+
             // write the input objects as a WS separated list
             var objects = GetSeparatedSource(' ', Sources);
             builder.Write(' ');
@@ -124,7 +124,7 @@ namespace EmscriptenTask
             File.AppendAllText(filePath, builder.ToString());
         }
 
-        protected void TaskStarted()
+        protected override void OnStart()
         {
             OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
 
@@ -142,7 +142,7 @@ namespace EmscriptenTask
                 LogTaskProps(GetType(), this);
         }
 
-        private void TaskFinished(bool succeeded)
+        protected override void OnStop(bool succeeded)
         {
             if (!succeeded)
                 return;
@@ -183,11 +183,6 @@ namespace EmscriptenTask
             var tool = EmccTool;
             tool     = tool.Replace("emcc.bat", "em++.bat");
             return Call(tool, BuildSwitches());
-        }
-        public override void OnStart()
-        {
-            OnTaskStarted += TaskStarted;
-            OnTaskStopped += TaskFinished;
         }
     }
 }

@@ -35,7 +35,7 @@ namespace EmscriptenTask
         /// </summary>
         public string OutputFile { get; set; }
 
-        protected void TaskStarted()
+        protected override void OnStart()
         {
             if (Verbose)
                 LogTaskProps(GetType(), this);
@@ -78,7 +78,7 @@ namespace EmscriptenTask
             File.AppendAllText(filePath, builder.ToString());
         }
 
-        private void TaskFinished(bool succeeded)
+        protected override void OnStop(bool succeeded)
         {
             if (!succeeded)
                 return;
@@ -120,12 +120,6 @@ namespace EmscriptenTask
             if (result)
                 result = RunRanlib();
             return result;
-        }
-
-        public override void OnStart()
-        {
-            OnTaskStarted += TaskStarted;
-            OnTaskStopped += TaskFinished;
         }
     }
 }

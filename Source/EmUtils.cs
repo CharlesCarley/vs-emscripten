@@ -30,7 +30,7 @@ namespace EmscriptenTask
         public static string EmccTool { get; set; }
         public static string EmscriptenDirectory { get; set; }
 
-        public static string Sanitize(string path)
+        public static string Sanitize(string path, bool quote = true)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -38,8 +38,22 @@ namespace EmscriptenTask
                     "The supplied path variable cannot be null or empty");
             }
 
-            path = path.Replace('/', '\\');
-            path = path.Replace("\\\\", "\\");
+            // Convert from Unix style
+            if (path.Contains("/"))
+                path = path.Replace('/', '\\');
+
+            // trim any back to back '\'
+            while (path.Contains(@"\\"))
+                path = path.Replace(@"\\", @"\");
+
+            // If the path has any white space, be sure that
+            // it can still be passed via the command line.
+
+            if (quote && path.Contains(" "))
+                path = $"\"{path}\"";
+            else
+                path = path.Replace("\"", string.Empty);
+
             return path;
         }
 
@@ -69,10 +83,17 @@ namespace EmscriptenTask
             EmccTool = $"{EmscriptenDirectory}\\emcc.bat";
             return true;
         }
+        public static string AbsolutePathSanitized(string path)
+        {
+            return Sanitize(AbsolutePath(path));
+        }
 
         public static string AbsolutePath(string path)
         {
-            return !Path.IsPathRooted(path) ? $@"{Environment.CurrentDirectory}\{path}" : path;
+            var cur = Environment.CurrentDirectory;
+            if (!cur.EndsWith("\\"))
+                cur += "\\";
+            return !Path.IsPathRooted(path) ? $@"{cur}{path}" : path;
         }
 
         public static string GetSeparatedSource(char charSeparator, ITaskItem[] input)
@@ -96,7 +117,7 @@ namespace EmscriptenTask
         /// <returns> Returns the text at the end of the last directory separator. </returns>
         public static string BaseName(string path)
         {
-            path = Sanitize(path);
+            path = Sanitize(path, false);
 
             var splits = path.Split('\\');
             return splits.Length > 0 ? splits[splits.Length - 1] : path;

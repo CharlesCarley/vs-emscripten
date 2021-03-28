@@ -78,12 +78,8 @@ namespace EmscriptenTask
         public int TemplateBacktraceLimit { get; set; }
 
 
-        // ============================= Optimization ==============================
         // OptimizationLevel
         // OmitFramePointers
-        //
-
-        // ============================= Preprocessor ==============================
 
         /// <summary>
         /// Provides any extra user supplied preprocessor definitions.
@@ -133,23 +129,35 @@ namespace EmscriptenTask
 
 
         // ============================= Language ==============================----
-        // RuntimeTypeInfo
-        // LanguageExtensions
         // EnableMicrosoftExtensions
         // ConstExprLimit
         // TemplateRecursionLimit
+
+
+        [BoolSwitch("-frtti")]
+        public bool RuntimeTypeInfo { get; set; } = false;
+
 
         /// <summary>
         /// Option to explicitly set the desired C++ standard version.
         /// </summary>
         public string LanguageStandard { get; set; }
 
-        // ============================= Output Files ==============================
+
+
+        [EnumSwitch(
+            "EnableLanguageExtensions,WarnLanguageExtensions,DisableLanguageExtensions",
+            ",-pedantic,-pedantic-errors")]
+        public string LanguageExtensions { get; set; }
+
+
+
         // PreserveTempFiles
 
         /// <summary>
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
+        [Required]
         [StringSwitch("-o")]
         public string ObjectFileName { get; set; }
 
@@ -166,7 +174,6 @@ namespace EmscriptenTask
         [StringSwitch("-MD -MF")]
         public string DependencyFileName { get; set; }
 
-        // ============================== Advanced  ==============================--
         // ForcedIncludeFiles
         // EnableSpecificWarnings
         // DisableSpecificWarnings
@@ -197,13 +204,11 @@ namespace EmscriptenTask
         [BoolSwitch("-H")]
         public bool ShowIncludes { get; set; }
 
-        // ============================= Command Line  =============================
         [StringSwitch]
         public string AdditionalOptions { get; set; }
 
         // clang-format on
 
-        // ============================= Tracking =============================
 
         /// <summary>
         /// Test to determine whether or not the supplied source code
@@ -218,29 +223,25 @@ namespace EmscriptenTask
             // use own test.
             var result = false;
 
+            var testBuildFile = BaseName(BuildFile);
+
             if (!string.IsNullOrEmpty(CompileAs))
             {
                 if (CompileAs.Equals("Default"))
                 {
-                    if (BuildFile != null)
+                    if (testBuildFile != null)
                     {
-                        result = BuildFile.EndsWith(".c");
+                        result = testBuildFile.EndsWith(".c");
                         if (result)
-                        {
                             CompileAs = "CompileAsC";
-                        }
                     }
                     return result;
                 }
-
-                if (CompileAs.Equals("CompileAsC"))
-                    return true;
-                return false;
+                return CompileAs.Equals("CompileAsC");
             }
-
-            if (BuildFile != null)
+            if (testBuildFile != null)
             {
-                result    = BuildFile.EndsWith(".c");
+                result    = testBuildFile.EndsWith(".c");
                 CompileAs = result ? "CompileAsC" : "Default";
             }
             return result;
@@ -301,7 +302,7 @@ namespace EmscriptenTask
             return builder.ToString();
         }
 
-        private void TaskStarted()
+        protected override void OnStart()
         {
             // enabled by default if not set.
             if (string.IsNullOrEmpty(ExceptionHandling))
@@ -326,7 +327,7 @@ namespace EmscriptenTask
                                                         true);
         }
 
-        private void TaskStopped(bool succeeded)
+        protected override void OnStop(bool succeeded)
         {
             if (!succeeded)
                 return;
@@ -346,9 +347,9 @@ namespace EmscriptenTask
             var basePath = ObjectFileName.Replace(baseName, "");
 
             if (Sources.Length > 1)
-                ObjectFileName = AbsolutePath($"{basePath}{BaseName(BuildFile)}.o");
+                ObjectFileName = AbsolutePathSanitized($"{basePath}{BaseName(BuildFile)}.o");
             else
-                ObjectFileName = AbsolutePath($"{basePath}{baseName}");
+                ObjectFileName = AbsolutePathSanitized($"{basePath}{baseName}");
 
             if (string.IsNullOrEmpty(basePath))
                 return;
@@ -366,7 +367,7 @@ namespace EmscriptenTask
 
         protected bool ProcessFile(ITaskItem file)
         {
-            BuildFile = AbsolutePath(file.ItemSpec);
+            BuildFile = AbsolutePathSanitized(file.ItemSpec);
             ValidateOutputFile();
 
             // Reflect the BaseName of the file currently being compiled.
@@ -388,11 +389,11 @@ namespace EmscriptenTask
         private string GetDependencyOutput()
         {
             if (string.IsNullOrEmpty(DependencyFileName))
-                return null;
+                return ObjectFileName;
 
             var depFile = AbsolutePath(DependencyFileName);
             if (!File.Exists(depFile))
-                return null;
+                return ObjectFileName;
 
             var builder = new StringWriter();
 
@@ -449,6 +450,11 @@ namespace EmscriptenTask
         public override bool Run()
         {
             var list = InputFiles.ComputeSourcesNeedingCompilation();
+            if (list == null)
+            {
+                throw new FileNotFoundException($"{SenderName}: no input files");
+            }
+
             foreach (var file in list)
             {
                 if (!string.IsNullOrEmpty(file.ItemSpec))
@@ -469,12 +475,6 @@ namespace EmscriptenTask
                 }
             }
             return true;
-        }
-
-        public override void OnStart()
-        {
-            OnTaskStarted += TaskStarted;
-            OnTaskStopped += TaskStopped;
         }
     }
 }
