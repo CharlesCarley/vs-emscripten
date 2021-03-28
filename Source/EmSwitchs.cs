@@ -37,7 +37,7 @@ namespace EmscriptenTask
         public const int PadSwitch  = 0x00;
         public const int GlueSwitch = 0x01;
 
-        public BaseSwitch(int flags = 0x00)
+        public BaseSwitch(int flags = PadSwitch)
         {
             Flags = flags;
         }
@@ -160,7 +160,7 @@ namespace EmscriptenTask
         /// A value of 1 means quote if the input contains white space.
         /// A value of 2 means quote always.
         /// </param>
-        public StringSwitch(string switchValue = null, int quoteOpts = NoQuote, int extraFlags = 0x00) :
+        public StringSwitch(string switchValue = null, int quoteOpts = NoQuote, int extraFlags = PadSwitch) :
             base(extraFlags)
         {
             SwitchValue = switchValue;
@@ -265,7 +265,7 @@ namespace EmscriptenTask
         /// <param name="values">A comma separated list of possible options.</param>
         /// <param name="switches">A comma separated list of corresponding switch values.</param>
         /// <param name="defaultValue">A default switch value</param>
-        public EnumSwitch(string values, string switches, string defaultValue = null, int extraFlags = 0x00) :
+        public EnumSwitch(string values, string switches, string defaultValue = null, int extraFlags = PadSwitch) :
             base(extraFlags)
         {
             Values   = values.Split(',');

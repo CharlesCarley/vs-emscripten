@@ -106,6 +106,7 @@
       <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'Application'">EmWasmOnlyWasm</EmWasmMode>
       <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'HTMLApplication'">EmWasmBoth</EmWasmMode>
       <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'JavaScriptApplication'">EmWasmOnlyJS</EmWasmMode>
+
     </Link>
   </ItemDefinitionGroup>
   <!-- ============================================================ -->
@@ -281,6 +282,7 @@
       <Link_MinimalRebuildFromTracking Condition="'$(_BuildActionType)' != 'Build' or '$(ForceRebuild)' == 'true'">false</Link_MinimalRebuildFromTracking>
       <Link_MinimalRebuildFromTracking Condition="'$(Link_MinimalRebuildFromTracking)' == ''">true</Link_MinimalRebuildFromTracking>
       <DoVerbose Condition="'$(VerboseOutput)' == 'VerboseOutputMode'">true</DoVerbose>
+
     </PropertyGroup>
 
     <EmLink OutputFile="%(Link.OutputFile)"

@@ -18,10 +18,22 @@
 # 3. This notice may not be removed or altered from any source distribution.
 # ------------------------------------------------------------------------------
 
+macro(emscripten_WebGLVersion WebGLMin WebGLMax)
+
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s MIN_WEBGL_VERSION=${WebGLMin} -s MAX_WEBGL_VERSION=${WebGLMax}")
+
+endmacro()
+
+macro(emscripten_FullOpenGles3)
+
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s FULL_ES3=1")
+
+endmacro()
+
 
 macro(enable_vs_emscripten_sdl EmSdlVersion)
 
-	list(APPEND CMAKE_EXE_LINKER_FLAGS "-s USE_SDL=${EmSdlVersion}")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_SDL=${EmSdlVersion}")
 
 endmacro()
 

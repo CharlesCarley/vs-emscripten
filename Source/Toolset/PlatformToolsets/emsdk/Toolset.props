@@ -197,7 +197,10 @@
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <AdditionalDependencies/>
-      <EmWasmMode>EmWasmOnlyWasm</EmWasmMode>
+
+      <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'Application'">EmWasmOnlyWasm</EmWasmMode>
+      <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'HTMLApplication'">EmWasmBoth</EmWasmMode>
+      <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'JavaScriptApplication'">EmWasmOnlyJS</EmWasmMode>
     </Link>
   </ItemDefinitionGroup>
 </Project>

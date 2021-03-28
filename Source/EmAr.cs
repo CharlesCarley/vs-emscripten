@@ -19,7 +19,7 @@
   3. This notice may not be removed or altered from any source distribution.
 -------------------------------------------------------------------------------
 */
-using System.IO;
+
 using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
 
@@ -68,7 +68,7 @@ namespace EmscriptenTask
                 return true;
 
             var tool = EmccTool;
-            tool = tool.Replace("emcc.bat", "emar.bat");
+            tool     = tool.Replace("emcc.bat", "emar.bat");
 
             OutputFiles.AddComputedOutputsForSourceRoot(OutputFile.ToUpperInvariant(), input);
 

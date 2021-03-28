@@ -118,7 +118,7 @@ namespace EmscriptenTask
         [BoolSwitch("-fdata-sections")]
         public bool DataLevelLinking { get; set; } = false;
 
-        [BoolSwitch("-s STACK_OVERFLOW_CHECK=1")]
+        [BoolSwitch("-fstack-protector")] // favor -s STACK_OVERFLOW_CHECK=1
         public bool BufferSecurityCheck { get; set; } = false;
 
         [BoolSwitch("-fpic")]
@@ -142,10 +142,7 @@ namespace EmscriptenTask
         /// Option to explicitly set the desired C++ standard version.
         /// </summary>
         public string LanguageStandard { get; set; }
-
-
-
-        [EnumSwitch(
+       [EnumSwitch(
             "EnableLanguageExtensions,WarnLanguageExtensions,DisableLanguageExtensions",
             ",-pedantic,-pedantic-errors")]
         public string LanguageExtensions { get; set; }
