@@ -136,8 +136,7 @@ namespace EmscriptenTask
                                                         MinimalRebuildFromTracking,
                                                         true);
 
-            OutputFile = AbsolutePath(OutputFile);
-
+            OutputFile = AbsolutePathSanitized(OutputFile);
             if (Verbose)
                 LogTaskProps(GetType(), this);
         }

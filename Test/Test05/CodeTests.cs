@@ -22,7 +22,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using EmscriptenTask;
 using Microsoft.Build.Framework;
@@ -31,7 +30,7 @@ using Logger = Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger;
 
 namespace UnitTest
 {
-    public class BuildEngine : Microsoft.Build.Framework.IBuildEngine
+    public class BuildEngine : IBuildEngine
     {
         public void LogErrorEvent(BuildErrorEventArgs e)
         {
@@ -102,7 +101,7 @@ namespace UnitTest
 
             var sourceFile = $@"{CurrentDirectory}\Tests\New Folder\New Text Document.c";
             var objFile    = $@"{CurrentDirectory}\Tests\t1.c.o";
-            var wasmFile = $@"{CurrentDirectory}\Tests\t1.wasm";
+            var wasmFile = $@"{CurrentDirectory}\Tests\New Folder\t 1 2.wasm";
             var trackerDir = $@"{CurrentDirectory}\Debug\";
 
             if (!Directory.Exists(trackerDir))
