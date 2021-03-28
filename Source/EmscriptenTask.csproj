@@ -74,7 +74,6 @@
     <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_general.xml" />
     <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_js_general.xml" />
     <Content Include="Toolset\PlatformToolsets\emsdk\Properties\em_wasm.xml" />
-    <Content Include="Toolset\PlatformToolsets\emsdk\Properties\settings.js" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
