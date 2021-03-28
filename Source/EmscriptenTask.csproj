@@ -43,6 +43,7 @@
     <None Include="Toolset\Platform.targets">
       <Generator>XamlIntelliSenseFileGenerator</Generator>
     </None>
+    <None Include="Toolset\PlatformToolsets\emsdk\CMake\VSEmscripten.cmake" />
     <None Include="Toolset\PlatformToolsets\emsdk\Toolset.props" />
     <None Include="Toolset\PlatformToolsets\emsdk\Toolset.targets" />
   </ItemGroup>
