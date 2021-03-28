@@ -102,6 +102,10 @@
       <EchoCommandLines              Condition="'%(Link.EchoCommandLines)'               == ''">false</EchoCommandLines>
       <TrackerLogDirectory           Condition="'%(Link.TrackerLogDirectory)'            == ''">$(TLogLocation)</TrackerLogDirectory>
       <MinimalRebuildFromTracking    Condition="'%(Link.MinimalRebuildFromTracking)'     == ''">true</MinimalRebuildFromTracking>
+
+      <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'Application'">EmWasmOnlyWasm</EmWasmMode>
+      <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'HTMLApplication'">EmWasmBoth</EmWasmMode>
+      <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'JavaScriptApplication'">EmWasmOnlyJS</EmWasmMode>
     </Link>
   </ItemDefinitionGroup>
   <!-- ============================================================ -->
@@ -109,8 +113,8 @@
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_general.xml">
       <Context>Project</Context>
     </PropertyPageSchema>
-
-    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_js_general.xml" />
+    
+    
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_adv_override.xml" />
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_directories.xml" />
 
@@ -204,8 +208,6 @@
            DebugInformationFormat           ="%(ClCompile.DebugInformationFormat)"
            DataLevelLinking                 ="%(ClCompile.DataLevelLinking)"
            DependencyFileName               ="%(ClCompile.DependencyFileName)"
-           EmTracing                        ="$(EmTracing)"
-           EmVerbose                        ="$(EmVerbose)"
            EmccTool                         ="$(EmccTool)"
            EmscriptenDirectory              ="$(EmscriptenDirectory)"
            ExceptionHandling                ="%(ClCompile.ExceptionHandling)"
@@ -289,14 +291,8 @@
             TLogReadFiles                  ="@(LinkTLogReadFiles)"
             TLogWriteFiles                 ="@(LinkTLogWriteFiles)"
             MinimalRebuildFromTracking     ="$(Link_MinimalRebuildFromTracking)"
-            EmExportName                   ="$(EmExportName)"
-            EmWasmMode                     ="$(EmWasmMode)"
-            EmSdlVersion                   ="$(EmSdlVersion)"
-            EmUseFullOpenGles2             ="$(EmUseFullOpenGles2)"
-            EmMinWebGlVersion              ="$(EmMinWebGlVersion)"
-            EmMaxWebGlVersion              ="$(EmMaxWebGlVersion)"
-            EmUseFullOpenGles3             ="$(EmUseFullOpenGles3)"
-            EmAssertions                   ="$(EmAssertions)"
+            AdditionalOptions              ="%(Link.AdditionalOptions)"
+            EmWasmMode                     ="%(Link.EmWasmMode)"
             Sources                        ="@(Link)"
             DebugProp1                     ="$(_BuildActionType)"
             DebugProp3                     ="$(DebugTask)"

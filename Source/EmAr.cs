@@ -63,7 +63,7 @@ namespace EmscriptenTask
 
         public bool RunAr()
         {
-            var input = InputFiles.ComputeSourcesNeedingCompilation();
+            var input = GetCurrentSource();
             if (input == null || input.Length <= 0)
                 return true;
 
@@ -77,7 +77,7 @@ namespace EmscriptenTask
 
         public bool RunRanlib()
         {
-            var input = InputFiles.ComputeSourcesNeedingCompilation();
+            var input = GetCurrentSource();
             if (input == null || input.Length <= 0)
                 return true;
 

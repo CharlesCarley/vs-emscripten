@@ -185,6 +185,25 @@
                 Description="Print out the commands emcc is invoked with during linking."
                 DisplayName="Echo Command Lines" />
 
+  <EnumProperty Name="EmWasmMode"
+                DisplayName="Wasm Compile Mode"
+                Description="Specify how to compile code to WebAssembly."
+                Category="General">
+
+    <EnumValue Name="EmWasmOnlyWasm"
+               DisplayName="Compile to WebAssembly"
+               Description="Target only WebAssembly" />
+
+    <EnumValue Name="EmWasmOnlyJS"
+               DisplayName="Compile to JavaScript"
+               Description="Target only JavaScript" />
+
+    <EnumValue Name="EmWasmBoth"
+               DisplayName="Compile to WebAssembly and JavaScript"
+               Description="Target both WebAssembly and JavaScript at the same time." />
+  </EnumProperty>
+
+
 
   <!-- Command Line -->
   <StringProperty Name="AdditionalOptions"

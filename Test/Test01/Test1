@@ -11,7 +11,6 @@
     <EmCxx Sources                       ="main.cpp"
            TrackerLogDirectory            ="Debug"
            Verbose                        ="$(DoVerbose)"
-           EmVerbose                      ="$(DoVerbose)"
            EchoCommandLines               ="$(DoVerbose)"
            AdditionalIncludeDirectories   =".;../"
            ObjectFileName                 ="Debug\main.cpp.o"/>

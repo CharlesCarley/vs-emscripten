@@ -112,6 +112,10 @@ namespace EmscriptenTask
         protected CanonicalTrackedInputFiles  InputFiles { get; set; }
         protected CanonicalTrackedOutputFiles OutputFiles { get; set; }
 
+
+        private ITaskItem[] _currentSources;
+
+
         // ========================= Temporary  ====================================
 
         // Temporary extra debug properties
@@ -147,19 +151,6 @@ namespace EmscriptenTask
         /// </summary>
         public bool EchoCommandLines { get; set; } = false;
 
-        // ========================= Settings.js ==================================
-
-        /// <summary>
-        /// When set to 1, will generate more verbose output during compilation.
-        /// </summary>
-        [BoolSwitch("-s VERBOSE=1")] 
-        public bool EmVerbose { get; set; } = false;
-
-        /// <summary>
-        /// Add some calls to emscripten tracing APIs.
-        /// </summary>
-        [BoolSwitch("-s EMSCRIPTEN_TRACING=1")] 
-        public bool EmTracing { get; set; } = false;
         // clang-format on
 
         /// <summary>
@@ -266,6 +257,14 @@ namespace EmscriptenTask
             SkippedExecution = !succeeded;
         }
 
+
+        protected ITaskItem[] GetCurrentSource()
+        {
+            if (_currentSources is null && InputFiles != null)
+                _currentSources = InputFiles.ComputeSourcesNeedingCompilation(true);
+            return _currentSources;
+        }
+
         /// <summary>
         /// A convenience function for spawning a process.
         /// </summary>
@@ -369,7 +368,7 @@ namespace EmscriptenTask
 
         protected virtual void SaveTLogRead()
         {
-            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
+            var sourceFiles = GetCurrentSource();
             if (sourceFiles == null || sourceFiles.Length <= 0)
                 return;
 
@@ -382,7 +381,11 @@ namespace EmscriptenTask
             var builder = new StringWriter();
             foreach (var source in sourceFiles)
             {
-                var tracked = $"^{AbsolutePathSanitized(source.ItemSpec)}".ToUpperInvariant();
+                var evalInc = source.ItemSpec;
+                if (evalInc == null)
+                    continue;
+
+                var tracked = $"^{AbsolutePathSanitized(evalInc)}".ToUpperInvariant();
                 if (text.Contains(tracked))
                     continue;
 
@@ -392,7 +395,6 @@ namespace EmscriptenTask
 
             File.AppendAllText(filePath, builder.ToString());
         }
-
 
         /// <summary>
         /// The main task function for tasks that derive from
@@ -409,7 +411,6 @@ namespace EmscriptenTask
         /// </summary>
         protected abstract void OnStart();
         protected abstract void OnStop(bool succeeded);
-
 
         public bool Execute()
         {

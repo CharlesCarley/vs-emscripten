@@ -32,10 +32,23 @@ namespace EmscriptenTask
         bool ConvertTo(PropertyInfo prop, object obj);
     }
 
+    public class BaseSwitch : Attribute
+    {
+        public const int PadSwitch  = 0x00;
+        public const int GlueSwitch = 0x01;
+
+        public BaseSwitch(int flags = 0x00)
+        {
+            Flags = flags;
+        }
+
+        public int Flags { get; }
+    }
+
     /// <summary>
     /// A boolean switch attribute.
     /// </summary>
-    public class BoolSwitch : Attribute, IConvertAttribute
+    public class BoolSwitch : BaseSwitch, IConvertAttribute
     {
         public BoolSwitch(string valueIfTrue = null, string valueIfFalse = null)
         {
@@ -73,7 +86,7 @@ namespace EmscriptenTask
     /// <summary>
     /// A multi value string based command line switch.
     /// </summary>
-    public class SeparatedStringSwitch : Attribute, IConvertAttribute
+    public class SeparatedStringSwitch : BaseSwitch, IConvertAttribute
     {
         /// <summary>
         /// The main constructor.
@@ -127,8 +140,12 @@ namespace EmscriptenTask
     /// <summary>
     /// A string based command line switch.
     /// </summary>
-    public class StringSwitch : Attribute, IConvertAttribute
+    public class StringSwitch : BaseSwitch, IConvertAttribute
     {
+        public const int NoQuote           = 0;
+        public const int QuoteIfWhiteSpace = 1;
+        public const int AlwaysQuote       = 2;
+
         /// <summary>
         /// Main constructor.
         /// </summary>
@@ -137,17 +154,31 @@ namespace EmscriptenTask
         /// If this value is null the property value for this attribute will be directly
         /// written to the command line.
         /// </param>
-        public StringSwitch(string switchValue = null, bool quoteIfHasWs = false)
+        /// <param name="quoteOpts">
+        /// Quote options.
+        /// A value of 0 means no quoting.
+        /// A value of 1 means quote if the input contains white space.
+        /// A value of 2 means quote always.
+        /// </param>
+        public StringSwitch(string switchValue = null, int quoteOpts = NoQuote, int extraFlags = 0x00) :
+            base(extraFlags)
         {
             SwitchValue = switchValue;
-            Quote       = quoteIfHasWs;
+            Quote       = quoteOpts;
         }
 
         /// <summary>
         /// The switch value for the attribute's property.
         /// </summary>
         public string SwitchValue { get; }
-        public bool   Quote { get; }
+
+        /// <summary>
+        /// Quote options.
+        /// A value of 0 means no quoting.
+        /// A value of 1 means quote if the input contains white space.
+        /// A value of 2 means quote always.
+        /// </summary>
+        public int Quote { get; }
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
@@ -160,10 +191,12 @@ namespace EmscriptenTask
                 return false;
 
             var sValue = (string)value;
+            sValue = sValue?.Trim();
+
             if (string.IsNullOrEmpty(sValue))
                 return false;
 
-            if (Quote && sValue.Contains(" "))
+            if (Quote == QuoteIfWhiteSpace && sValue.Contains(" ") || Quote == AlwaysQuote)
                 ConvertedValue = $"\"{sValue}\"";
             else
                 ConvertedValue = sValue;
@@ -176,14 +209,15 @@ namespace EmscriptenTask
     /// <summary>
     /// An integer based command line switch.
     /// </summary>
-    public class IntSwitch : Attribute, IConvertAttribute
+    public class IntSwitch : BaseSwitch, IConvertAttribute
     {
         /// <summary>
         /// Main constructor.
         /// </summary>
         /// <param name="switchValue">The switch value for the attribute's property.</param>
         /// <param name="validValues">An optional list of valid values to test against the supplied value.</param>
-        public IntSwitch(string switchValue, int[] validValues = null)
+        public IntSwitch(string switchValue, int[] validValues = null, int extraFlags = GlueSwitch) :
+            base(extraFlags)
         {
             SwitchValue = switchValue;
             ValidValues = validValues;
@@ -210,7 +244,10 @@ namespace EmscriptenTask
             }
             var result = value is string;
             if (result)
+            {
                 ConvertedValue = (string)value;
+                ConvertedValue = ConvertedValue?.Trim();
+            }
             return result;
         }
 
@@ -220,7 +257,7 @@ namespace EmscriptenTask
     /// <summary>
     ///  An enum based command line switch.
     /// </summary>
-    public class EnumSwitch : Attribute
+    public class EnumSwitch : BaseSwitch
     {
         /// <summary>
         /// Main constructor.
@@ -228,7 +265,8 @@ namespace EmscriptenTask
         /// <param name="values">A comma separated list of possible options.</param>
         /// <param name="switches">A comma separated list of corresponding switch values.</param>
         /// <param name="defaultValue">A default switch value</param>
-        public EnumSwitch(string values, string switches, string defaultValue = null)
+        public EnumSwitch(string values, string switches, string defaultValue = null, int extraFlags = 0x00) :
+            base(extraFlags)
         {
             Values   = values.Split(',');
             Switches = switches.Split(',');
@@ -339,7 +377,8 @@ namespace EmscriptenTask
 
             builder.Write(string.IsNullOrEmpty(obj.SwitchValue)
                               ? $" {obj.ConvertedValue}"
-                              : $" {obj.SwitchValue} {obj.ConvertedValue}");
+                          : obj.Flags == BaseSwitch.GlueSwitch ? $" {obj.SwitchValue}{obj.ConvertedValue}"
+                                                               : $" {obj.SwitchValue} {obj.ConvertedValue}");
         }
 
         private static void WriteSwitch(TextWriter builder,
@@ -374,10 +413,14 @@ namespace EmscriptenTask
             if (obj.ValidValues != null)
             {
                 if (obj.ValidValues.Contains(outResult))
-                    builder.Write($" {obj.SwitchValue}{outResult}");
+                    builder.Write(obj.Flags == BaseSwitch.GlueSwitch
+                                      ? $" {obj.SwitchValue}{outResult}"
+                                      : $" {obj.SwitchValue} {outResult}");
             }
             else
-                builder.Write($" {obj.SwitchValue}{outResult}");
+                builder.Write(obj.Flags == BaseSwitch.GlueSwitch
+                                  ? $" {obj.SwitchValue}{outResult}"
+                                  : $" {obj.SwitchValue} {outResult}");
         }
     }
 }

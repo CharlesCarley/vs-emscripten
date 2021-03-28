@@ -39,7 +39,7 @@ namespace EmscriptenTask
         /// <summary>
         /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
         /// </summary>
-        [StringSwitch("-o", true)]
+        [StringSwitch("-o", StringSwitch.QuoteIfWhiteSpace)]
         public string OutputFile { get; set; }
 
         /// <summary>
@@ -54,14 +54,12 @@ namespace EmscriptenTask
         [SeparatedStringSwitch("-L", true, true)]
         public string AdditionalLibraryDirectories { get; set; }
 
-        [IntSwitch("-s ASSERTIONS=", new []{0,1,2})]
-        public string EmAssertions { get; set; }
-
         /// <summary>
-        /// Settings.js conversion, the EXPORT_NAME option
+        /// Extra library search paths.
         /// </summary>
-        [StringSwitch("-s EXPORT_NAME=")]
-        public string EmExportName { get; set; }
+        [StringSwitch(" ")]
+        public string AdditionalOptions { get; set; }
+
 
         /// <summary>
         /// Settings.js conversion, the argument to WASM=[0,1,2]
@@ -70,35 +68,6 @@ namespace EmscriptenTask
                     "-s WASM=0,-s WASM=1,-s WASM=2", 
                     "-s WASM=1")]
         public string EmWasmMode { get; set; }
-
-        /// <summary>
-        /// Settings.js conversion, the argument to USE_SDL=[1,2]
-        /// </summary>
-        [IntSwitch("-s USE_SDL=", new[] { 1, 2 })]
-        public string EmSdlVersion { get; set; }
-
-        [IntSwitch("-s MIN_WEBGL_VERSION=", new[] { 1, 2,3 })]
-        public string EmMinWebGlVersion { get; set; }
-
-
-        [IntSwitch("-s MAX_WEBGL_VERSION=", new[] { 1, 2, 3 })]
-        public string EmMaxWebGlVersion { get; set; }
-
-        /// <summary>
-        /// Settings.js conversion, the argument to FULL_ES2=[1]
-        /// </summary>
-        /// <returns></returns>
-        [BoolSwitch("-s FULL_ES2=1")]
-        public bool EmUseFullOpenGles2 { get; set; }
-
-
-        /// <summary>
-        /// Settings.js conversion, the argument to FULL_ES3=[1]
-        /// </summary>
-        /// <returns></returns>
-        [BoolSwitch("-s FULL_ES3=1")]
-        public bool EmUseFullOpenGles3 { get; set; }
-
         // clang-format on
 
         protected string BuildSwitches()
@@ -109,7 +78,7 @@ namespace EmscriptenTask
             var builder = new StringWriter();
 
             // write the input objects as a WS separated list
-            var objects = GetSeparatedSource(' ', Sources, true);
+            var objects = GetSeparatedSource(' ', GetCurrentSource(), true);
             builder.Write(' ');
             builder.Write(objects);
 
@@ -140,8 +109,7 @@ namespace EmscriptenTask
                 return;
 
             SaveTLogRead();
-
-            var input = InputFiles.ComputeSourcesNeedingCompilation();
+            var input = GetCurrentSource();
             foreach (var inputFile in input)
             {
                 var fileName   = inputFile.ItemSpec;

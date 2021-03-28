@@ -38,7 +38,7 @@ namespace EmscriptenTask
         /// An internal property that is set per source file right
         /// before calling ProcessFile.
         /// </summary>
-        [StringSwitch("-c", true)]
+        [StringSwitch("-c", StringSwitch.QuoteIfWhiteSpace)]
         public string BuildFile { get; set; }
         
         /// <summary>
@@ -158,7 +158,7 @@ namespace EmscriptenTask
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
         [Required]
-        [StringSwitch("-o", true)]
+        [StringSwitch("-o", StringSwitch.QuoteIfWhiteSpace)]
         public string ObjectFileName { get; set; }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace EmscriptenTask
         /// <summary>
         /// Specify the output file path for the generated dependency file.
         /// </summary>
-        [StringSwitch("-MD -MF", true)]
+        [StringSwitch("-MD -MF", StringSwitch.QuoteIfWhiteSpace)]
         public string DependencyFileName { get; set; }
 
         // ForcedIncludeFiles
@@ -410,7 +410,7 @@ namespace EmscriptenTask
 
         protected  override void SaveTLogRead()
         {
-            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
+            var sourceFiles = GetCurrentSource();
             if (sourceFiles == null || sourceFiles.Length <= 0)
                 return;
 
@@ -429,7 +429,7 @@ namespace EmscriptenTask
 
         private void SaveTLogCommand()
         {
-            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
+            var sourceFiles = GetCurrentSource();
             if (sourceFiles == null || sourceFiles.Length <= 0)
                 return;
 
@@ -449,11 +449,9 @@ namespace EmscriptenTask
 
         public override bool Run()
         {
-            var list = InputFiles.ComputeSourcesNeedingCompilation();
+            var list = GetCurrentSource();
             if (list == null)
-            {
                 throw new FileNotFoundException($"{SenderName}: no input files");
-            }
 
             foreach (var file in list)
             {

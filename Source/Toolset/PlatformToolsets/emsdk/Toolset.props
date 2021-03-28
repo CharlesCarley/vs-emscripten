@@ -106,31 +106,14 @@
     <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'HTMLApplication' and '$(LocalDebuggerCommandArguments)'  == ''">$(TargetPath)</LocalDebuggerCommandArguments>
 
     <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
-
-
-    <!-- Settings.js properties  -->
-    <EmVerbose                         Condition="'$(EmVerbose)'                         == ''">false</EmVerbose>
-    <EmTracing                         Condition="'$(EmTracing)'                         == ''">false</EmTracing>
-    <EmDisableExceptionCatching        Condition="'$(EmDisableExceptionCatching)'        == ''">Disabled</EmDisableExceptionCatching>
-    <EmDisableExceptionCatchingAllowed Condition="'$(EmDisableExceptionCatchingAllowed)' == ''"></EmDisableExceptionCatchingAllowed>
-    <EmExportName                      Condition="'$(EmExportName)'                      == ''"></EmExportName>
-    <EmWasmMode                        Condition="'$(EmWasmMode)'                        == ''">EmWasmOnlyWasm</EmWasmMode>
-    <EmSdlVersion                      Condition="'$(EmSdlVersion)'                      == ''">2</EmSdlVersion>
-    <EmUseFullOpenGles3                Condition="'$(EmUseFullOpenGles3)'                == ''">false</EmUseFullOpenGles3>
-    <EmUseFullOpenGles2                Condition="'$(EmUseFullOpenGles2)'                == ''">false</EmUseFullOpenGles2>
-    <EmAssertions                      Condition="'$(EmAssertions)'                      == ''"></EmAssertions>
-    <EmMinWebGlVersion                 Condition="'$(EmMinWebGlVersion)'                 == ''"></EmMinWebGlVersion>
-    <EmMaxWebGlVersion                 Condition="'$(EmMinWebGlVersion)'                 == ''"></EmMaxWebGlVersion>
   </PropertyGroup>
-
 
   <!-- Define The default settings for common properties -->
   <ItemDefinitionGroup>
     <ClCompile>
-      <TrackFileAccess>false</TrackFileAccess>
       <!-- General -->
       <AdditionalIncludeDirectories />
-      <DebugInformationFormat>FullDebug</DebugInformationFormat>
+      <DebugInformationFormat >FullDebug</DebugInformationFormat>
       <WarningLevel>Default</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <ErrorLimit />
@@ -211,10 +194,10 @@
 
 
     <Link>
-      <!--<EmUseFullOpenGles3 Condition="'$(EmUseFullOpenGles3)' == ''">false</EmUseFullOpenGles3>-->
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <AdditionalDependencies/>
+      <EmWasmMode>EmWasmOnlyWasm</EmWasmMode>
     </Link>
   </ItemDefinitionGroup>
 </Project>
