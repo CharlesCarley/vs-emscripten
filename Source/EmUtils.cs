@@ -30,7 +30,7 @@ namespace EmscriptenTask
         public static string EmccTool { get; set; }
         public static string EmscriptenDirectory { get; set; }
 
-        public static string Sanitize(string path, bool quote = true)
+        public static string Sanitize(string path)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -46,17 +46,18 @@ namespace EmscriptenTask
             while (path.Contains(@"\\"))
                 path = path.Replace(@"\\", @"\");
 
-            // If the path has any white space, be sure that
-            // it can still be passed via the command line.
-
-            if (quote && path.Contains(" "))
-                path = $"\"{path}\"";
-            else
-                path = path.Replace("\"", string.Empty);
-
             return path;
         }
 
+        public static string BuildCommandLinePath(string path)
+        {
+            // If the path has any white space, be sure that
+            // it can still be passed via the command line.
+            path = Sanitize(path);
+            if (path.Contains(" "))
+                path = $"\"{path}\"";
+            return path;
+        }
         public static bool ValidateSdk()
         {
             if (EmccTool != null)
@@ -90,13 +91,16 @@ namespace EmscriptenTask
 
         public static string AbsolutePath(string path)
         {
+            if (Path.IsPathRooted(path))
+                return path;
+
             var cur = Environment.CurrentDirectory;
             if (!cur.EndsWith("\\"))
                 cur += "\\";
-            return !Path.IsPathRooted(path) ? $@"{cur}{path}" : path;
+            return $@"{cur}{path}";
         }
 
-        public static string GetSeparatedSource(char charSeparator, ITaskItem[] input)
+        public static string GetSeparatedSource(char charSeparator, ITaskItem[] input, bool quoteIfHasWs=false)
         {
             if (input is null)
             {
@@ -108,7 +112,11 @@ namespace EmscriptenTask
             foreach (var inp in input)
             {
                 builder.Write(charSeparator);
-                builder.Write(inp.ItemSpec);
+                
+                if (quoteIfHasWs && inp.ItemSpec.Contains(" "))
+                    builder.Write($"\"{inp.ItemSpec}\"");
+                else
+                    builder.Write(inp.ItemSpec);
             }
             return builder.ToString();
         }
@@ -117,7 +125,7 @@ namespace EmscriptenTask
         /// <returns> Returns the text at the end of the last directory separator. </returns>
         public static string BaseName(string path)
         {
-            path = Sanitize(path, false);
+            path = Sanitize(path);
 
             var splits = path.Split('\\');
             return splits.Length > 0 ? splits[splits.Length - 1] : path;
@@ -168,7 +176,8 @@ namespace EmscriptenTask
         public static string SeparatePaths(string paths,
                                            char   originalSeparator,
                                            string tagSeparation,
-                                           bool   needsValidation = false)
+                                           bool   needsValidation = false,
+                                           bool   quoteIfHasWs    = false)
         {
             if (string.IsNullOrEmpty(paths) || string.IsNullOrEmpty(tagSeparation))
                 return string.Empty;
@@ -183,7 +192,11 @@ namespace EmscriptenTask
                 var sanitizedPath = Sanitize(path);
                 if (needsValidation && !IsFileOrDirectory(sanitizedPath))
                     continue;
-                builder.Write($" {tagSeparation} {sanitizedPath}");
+
+                if (quoteIfHasWs && sanitizedPath.Contains(" "))
+                    builder.Write($" {tagSeparation} \"{sanitizedPath}\"");
+                else
+                    builder.Write($" {tagSeparation} {sanitizedPath}");
             }
             return builder.ToString();
         }

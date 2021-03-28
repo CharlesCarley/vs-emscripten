@@ -23,6 +23,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text.RegularExpressions;
 using static EmscriptenTask.EmUtils;
 
@@ -365,6 +366,33 @@ namespace EmscriptenTask
                     LogMessage(e.Data);
             }
         }
+
+        protected virtual void SaveTLogRead()
+        {
+            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
+            if (sourceFiles == null || sourceFiles.Length <= 0)
+                return;
+
+            var filePath = TLogReadPathName;
+
+            var text = string.Empty;
+            if (File.Exists(filePath))
+                text = File.ReadAllText(filePath);
+
+            var builder = new StringWriter();
+            foreach (var source in sourceFiles)
+            {
+                var tracked = $"^{AbsolutePathSanitized(source.ItemSpec)}".ToUpperInvariant();
+                if (text.Contains(tracked))
+                    continue;
+
+                builder.Write(tracked);
+                builder.Write('\n');
+            }
+
+            File.AppendAllText(filePath, builder.ToString());
+        }
+
 
         /// <summary>
         /// The main task function for tasks that derive from

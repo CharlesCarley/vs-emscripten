@@ -38,16 +38,16 @@ namespace EmscriptenTask
         /// An internal property that is set per source file right
         /// before calling ProcessFile.
         /// </summary>
-        [StringSwitch("-c")]
+        [StringSwitch("-c", true)]
         public string BuildFile { get; set; }
         
         /// <summary>
         /// Provides any extra user supplied include directories.
         /// </summary>
-        [SeparatedStringSwitch("-I", true)]
+        [SeparatedStringSwitch("-I", true, true)]
         public string AdditionalIncludeDirectories { get; set; }
 
-        [SeparatedStringSwitch("-I")]
+        [SeparatedStringSwitch("-I", false, true)]
         public string SystemIncludeDirectories { get; set; }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace EmscriptenTask
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
         [Required]
-        [StringSwitch("-o")]
+        [StringSwitch("-o", true)]
         public string ObjectFileName { get; set; }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace EmscriptenTask
         /// <summary>
         /// Specify the output file path for the generated dependency file.
         /// </summary>
-        [StringSwitch("-MD -MF")]
+        [StringSwitch("-MD -MF", true)]
         public string DependencyFileName { get; set; }
 
         // ForcedIncludeFiles
@@ -344,7 +344,7 @@ namespace EmscriptenTask
         public void ValidateOutputFile()
         {
             var baseName = BaseName(ObjectFileName);
-            var basePath = ObjectFileName.Replace(baseName, "");
+            var basePath = Sanitize(ObjectFileName.Replace(baseName, ""));
 
             if (Sources.Length > 1)
                 ObjectFileName = AbsolutePathSanitized($"{basePath}{BaseName(BuildFile)}.o");
@@ -408,7 +408,7 @@ namespace EmscriptenTask
             return builder.ToString();
         }
 
-        private void SaveTLogRead()
+        protected  override void SaveTLogRead()
         {
             var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
             if (sourceFiles == null || sourceFiles.Length <= 0)
@@ -417,7 +417,7 @@ namespace EmscriptenTask
             var builder = new StringWriter();
             foreach (var source in sourceFiles)
             {
-                builder.Write($"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant());
+                builder.Write($"^{AbsolutePathSanitized(source.ItemSpec)}".ToUpperInvariant());
                 builder.Write('\n');
 
                 var extraDependencies = GetDependencyOutput();
@@ -436,7 +436,7 @@ namespace EmscriptenTask
             var builder = new StringWriter();
             foreach (var source in sourceFiles)
             {
-                builder.Write($"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant());
+                builder.Write($"^{AbsolutePathSanitized(source.ItemSpec)}".ToUpperInvariant());
                 builder.Write('\n');
 
                 BuildFile = AbsolutePath(source.ItemSpec);

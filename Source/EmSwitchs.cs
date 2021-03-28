@@ -68,7 +68,7 @@ namespace EmscriptenTask
     }
 
     /// <summary>
-    /// A multi value string based commandline switch.
+    /// A multi value string based command line switch.
     /// </summary>
     public class SeparatedStringSwitch : Attribute, IConvertAttribute
     {
@@ -78,11 +78,12 @@ namespace EmscriptenTask
         /// <param name="switchValue">The switch value to put in place of the separator.</param>
         /// <param name="requiresValidation">If this is true the value will be skipped if its not a valid file or directory.</param>
         /// <param name="separator">The character that defines a split</param>
-        public SeparatedStringSwitch(string switchValue, bool requiresValidation = false, char separator = ';')
+        public SeparatedStringSwitch(string switchValue, bool requiresValidation = false, bool quoteIfHasWs = false, char separator = ';')
         {
             SwitchValue        = switchValue;
             Separator          = separator;
             RequiresValidation = requiresValidation;
+            Quote              = quoteIfHasWs;
         }
 
         /// <summary>
@@ -94,6 +95,11 @@ namespace EmscriptenTask
         /// The character that defines a split.
         /// </summary>
         public char Separator { get; }
+
+        /// <summary>
+        /// Quote the value if it has white space.
+        /// </summary>
+        public bool Quote { get; }
 
         /// <summary>
         /// If this is true the value will be skipped if its not a valid file or directory.
@@ -122,23 +128,34 @@ namespace EmscriptenTask
         /// <param name="switchValue">
         /// The switch value for the attribute's property.
         /// If this value is null the property value for this attribute will be directly
-        /// written to the commandline. 
+        /// written to the command line.
         /// </param>
-        public StringSwitch(string switchValue = null)
+        public StringSwitch(string switchValue = null, bool quoteIfHasWs = false)
         {
             SwitchValue = switchValue;
+            Quote       = quoteIfHasWs;
         }
 
         /// <summary>
         /// The switch value for the attribute's property.
         /// </summary>
         public string SwitchValue { get; }
+        public bool   Quote { get; }
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
             var result = prop.PropertyType == typeof(string);
             if (result)
-                ConvertedValue = (string)prop.GetValue(obj);
+            {
+                var value = (string)prop.GetValue(obj);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    if (Quote && value.Contains(" "))
+                        ConvertedValue = $"\"{value}\"";
+                    else
+                        ConvertedValue = value;
+                }
+            }
             return result;
         }
 
@@ -171,7 +188,17 @@ namespace EmscriptenTask
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
-            var result = prop.PropertyType == typeof(string);
+            var result = false;
+            if (prop.PropertyType == typeof(int))
+            {
+                ConvertedValue = ((int)prop.GetValue(obj)).ToString();
+                result         = true;
+            }
+
+            if (result)
+                return true;
+
+            result = prop.PropertyType == typeof(string);
             if (result)
                 ConvertedValue = (string)prop.GetValue(obj);
             return result;
@@ -262,81 +289,82 @@ namespace EmscriptenTask
             }
         }
 
-        private static void WriteSwitch(TextWriter builder, BoolSwitch boolSwitch)
+        private static void WriteSwitch(TextWriter builder, BoolSwitch obj)
         {
-            switch (boolSwitch.ConvertedValue)
+            switch (obj.ConvertedValue)
             {
-            case true when boolSwitch.ValueIfTrue != null:
-                builder.Write($" {boolSwitch.ValueIfTrue}");
+            case true when obj.ValueIfTrue != null:
+                builder.Write($" {obj.ValueIfTrue}");
                 break;
-            case false when boolSwitch.ValueIfFalse != null:
-                builder.Write($" {boolSwitch.ValueIfFalse}");
+            case false when obj.ValueIfFalse != null:
+                builder.Write($" {obj.ValueIfFalse}");
                 break;
             }
         }
 
         private static void WriteSwitch(TextWriter            builder,
-                                        SeparatedStringSwitch stringSwitch)
+                                        SeparatedStringSwitch obj)
         {
-            if (string.IsNullOrEmpty(stringSwitch.ConvertedValue) ||
-                string.IsNullOrEmpty(stringSwitch.SwitchValue))
+            if (string.IsNullOrEmpty(obj.ConvertedValue) ||
+                string.IsNullOrEmpty(obj.SwitchValue))
                 return;
 
-            var result = EmUtils.SeparatePaths(stringSwitch.ConvertedValue,
-                                               stringSwitch.Separator,
-                                               stringSwitch.SwitchValue,
-                                               stringSwitch.RequiresValidation);
+            var result = EmUtils.SeparatePaths(obj.ConvertedValue,
+                                               obj.Separator,
+                                               obj.SwitchValue,
+                                               obj.RequiresValidation,
+                                               obj.Quote);
             if (!string.IsNullOrEmpty(result))
                 builder.Write($" {result}");
         }
 
         private static void WriteSwitch(TextWriter   builder,
-                                        StringSwitch stringSwitch)
+                                        StringSwitch obj)
         {
-            if (string.IsNullOrEmpty(stringSwitch.ConvertedValue))
+            if (string.IsNullOrEmpty(obj.ConvertedValue))
                 return;
-            
-            builder.Write(string.IsNullOrEmpty(stringSwitch.SwitchValue)
-                ? $" {stringSwitch.ConvertedValue}"
-                : $" {stringSwitch.SwitchValue} {stringSwitch.ConvertedValue}");
+
+            builder.Write(string.IsNullOrEmpty(obj.SwitchValue)
+                              ? $" {obj.ConvertedValue}"
+                              : $" {obj.SwitchValue} {obj.ConvertedValue}");
         }
 
         private static void WriteSwitch(TextWriter builder,
-                                        EnumSwitch enumSwitch)
+                                        EnumSwitch obj)
         {
-            if (string.IsNullOrEmpty(enumSwitch.ConvertedValue))
+            if (string.IsNullOrEmpty(obj.ConvertedValue))
             {
-                if (enumSwitch.Default != null)
-                    builder.Write($" {enumSwitch.Default}");
+                if (obj.Default != null)
+                    builder.Write($" {obj.Default}");
                 return;
-            } 
-            
-            var i = enumSwitch.Values.TakeWhile(sv => !sv.Equals(enumSwitch.ConvertedValue)).Count();
-            if (i < enumSwitch.Switches.Length)
-                builder.Write($" {enumSwitch.Switches[i]}");
-            else if (enumSwitch.Default != null)
+            }
+
+            var i = obj.Values.TakeWhile(sv => !sv.Equals(obj.ConvertedValue)).Count();
+            if (i < obj.Switches.Length)
+                builder.Write($" {obj.Switches[i]}");
+            else if (obj.Default != null)
             {
-                builder.Write($" {enumSwitch.Default}");
+                builder.Write($" {obj.Default}");
             }
         }
 
         private static void WriteSwitch(TextWriter builder,
-                                        IntSwitch  intSwitch)
+                                        IntSwitch  obj)
         {
-            if (string.IsNullOrEmpty(intSwitch.ConvertedValue) ||
-                string.IsNullOrEmpty(intSwitch.SwitchValue))
+            if (string.IsNullOrEmpty(obj.ConvertedValue) ||
+                string.IsNullOrEmpty(obj.SwitchValue))
                 return;
 
-            if (!int.TryParse(intSwitch.ConvertedValue, out var outResult)) 
+            if (!int.TryParse(obj.ConvertedValue, out var outResult))
                 return;
 
-            if (intSwitch.ValidValues != null)
+            if (obj.ValidValues != null)
             {
-                if (intSwitch.ValidValues.Contains(outResult))
-                    builder.Write($" {intSwitch.SwitchValue}{outResult}");
+                if (obj.ValidValues.Contains(outResult))
+                    builder.Write($" {obj.SwitchValue}{outResult}");
             }
             else
-                builder.Write($" {intSwitch.SwitchValue}{outResult}");
+                builder.Write($" {obj.SwitchValue}{outResult}");
         }
     }
 }

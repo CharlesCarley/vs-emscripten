@@ -49,33 +49,7 @@ namespace EmscriptenTask
                                                         OutputFiles,
                                                         MinimalRebuildFromTracking,
                                                         true);
-            OutputFile = AbsolutePath(OutputFile);
-        }
-
-        private void SaveTLogRead()
-        {
-            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
-            if (sourceFiles == null || sourceFiles.Length <= 0)
-                return;
-
-            var filePath = TLogReadPathName;
-
-            var text = string.Empty;
-            if (File.Exists(filePath))
-                text = File.ReadAllText(filePath);
-
-            var builder = new StringWriter();
-            foreach (var source in sourceFiles)
-            {
-                var tracked = $"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant();
-                if (text.Contains(tracked))
-                    continue;
-
-                builder.Write(tracked);
-                builder.Write('\n');
-            }
-
-            File.AppendAllText(filePath, builder.ToString());
+            OutputFile = AbsolutePathSanitized(OutputFile);
         }
 
         protected override void OnStop(bool succeeded)
@@ -98,7 +72,7 @@ namespace EmscriptenTask
 
             OutputFiles.AddComputedOutputsForSourceRoot(OutputFile.ToUpperInvariant(), input);
 
-            return Call(tool, $"qc {OutputFile} {GetSeparatedSource(' ', input)}");
+            return Call(tool, $"qc {BuildCommandLinePath(OutputFile)} {GetSeparatedSource(' ', input, true)}");
         }
 
         public bool RunRanlib()
@@ -111,7 +85,7 @@ namespace EmscriptenTask
             OutputFiles.AddComputedOutputForSourceRoot(OutputFile.ToUpperInvariant(), OutputFile);
 
             tool = tool.Replace("emcc.bat", "emranlib.bat");
-            return Call(tool, OutputFile);
+            return Call(tool, BuildCommandLinePath(OutputFile));
         }
 
         public override bool Run()

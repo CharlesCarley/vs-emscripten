@@ -39,19 +39,19 @@ namespace EmscriptenTask
         /// <summary>
         /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
         /// </summary>
-        [StringSwitch("-o")]
+        [StringSwitch("-o", true)]
         public string OutputFile { get; set; }
 
         /// <summary>
         /// User supplied libraries.
         /// </summary>
-        [SeparatedStringSwitch(" ", true)]
+        [SeparatedStringSwitch(" ", true, true)]
         public string AdditionalDependencies { get; set; }
 
         /// <summary>
         /// Extra library search paths.
         /// </summary>
-        [SeparatedStringSwitch("-L", true)]
+        [SeparatedStringSwitch("-L", true, true)]
         public string AdditionalLibraryDirectories { get; set; }
 
         /// <summary>
@@ -91,39 +91,14 @@ namespace EmscriptenTask
             var builder = new StringWriter();
 
             // write the input objects as a WS separated list
-            var objects = GetSeparatedSource(' ', Sources);
+            var objects = GetSeparatedSource(' ', Sources, true);
             builder.Write(' ');
             builder.Write(objects);
 
             EmSwitchWriter.Write(builder, GetType(), this);
             return builder.ToString();
         }
-
-        private void SaveTLogRead()
-        {
-            var sourceFiles = InputFiles.ComputeSourcesNeedingCompilation();
-            if (sourceFiles == null || sourceFiles.Length <= 0)
-                return;
-
-            var filePath = TLogReadPathName;
-
-            var text = string.Empty;
-            if (File.Exists(filePath))
-                text = File.ReadAllText(filePath);
-
-            var builder = new StringWriter();
-            foreach (var source in sourceFiles)
-            {
-                var tracked = $"^{AbsolutePath(source.ItemSpec)}".ToUpperInvariant();
-                if (text.Contains(tracked))
-                    continue;
-
-                builder.Write(tracked);
-                builder.Write('\n');
-            }
-            File.AppendAllText(filePath, builder.ToString());
-        }
-
+        
         protected override void OnStart()
         {
             OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);

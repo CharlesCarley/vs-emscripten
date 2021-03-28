@@ -64,6 +64,12 @@ namespace UnitTest
         public string ProjectFileOfTaskNode { get; }  = string.Empty;
     }
 
+    public class TestSwitch
+    {
+        [IntSwitch("-a", new[] { -2, -1, 0, 1, 2 })]
+        public int Prop1 { get; set; }
+    }
+
     [TestClass]
     public class CodeTests
     {
@@ -76,21 +82,18 @@ namespace UnitTest
             Assert.AreEqual(@"A\B\C\D\E\F", result);
         }
 
-        private static bool ClearIfExists()
+        private static void ClearIfExists()
         {
             var dir = CurrentDirectory + "Debug";
-            if (!Directory.Exists(dir))
-                return true;
+            if (!Directory.Exists(dir)) return;
 
             try
             {
                 Directory.Delete(dir, true);
-                return true;
             }
             catch (Exception ex)
             {
                 Logger.LogMessage("{0}", ex.Message);
-                return false;
             }
         }
 
@@ -100,13 +103,13 @@ namespace UnitTest
             ClearIfExists();
 
             var sourceFile = $@"{CurrentDirectory}\Tests\New Folder\New Text Document.c";
-            var objFile    = $@"{CurrentDirectory}\Tests\t1.c.o";
-            var wasmFile = $@"{CurrentDirectory}\Tests\New Folder\t 1 2.wasm";
+            var objFile    = $@"{CurrentDirectory}\Debug\New Folder\t1.c.o";
+            var wasmFile   = $@"{CurrentDirectory}\Debug\New Folder\t 1 2.wasm";
             var trackerDir = $@"{CurrentDirectory}\Debug\";
 
             if (!Directory.Exists(trackerDir))
                 Directory.CreateDirectory(trackerDir);
-            var be = new BuildEngine();
+            var be   = new BuildEngine();
             var task = new EmCxx {
                 BuildEngine         = be,
                 TrackerLogDirectory = trackerDir,
@@ -115,15 +118,44 @@ namespace UnitTest
             };
             Assert.IsTrue(task.Execute());
 
-
-            var link = new EmLink
-            {
-                BuildEngine = be,
+            var link = new EmLink {
+                BuildEngine         = be,
                 TrackerLogDirectory = trackerDir,
-                OutputFile = wasmFile,
-                Sources = new ITaskItem[] {new TaskItem(objFile)},
+                OutputFile          = wasmFile,
+                Sources             = new ITaskItem[] { new TaskItem(objFile) },
             };
             Assert.IsTrue(link.Execute());
+        }
+
+        [TestMethod]
+        public void TestInvalidIntSwitchValue()
+        {
+            var a = new TestSwitch {
+                Prop1 = 22
+            };
+
+            var builder = new StringWriter();
+            EmSwitchWriter.Write(builder, a.GetType(), a);
+            Assert.AreEqual(string.Empty, builder.ToString());
+        }
+
+        [TestMethod]
+        public void TestValidIntSwitchValue()
+        {
+            var a = new TestSwitch();
+
+            for (var i = 0; i < 7; i++)
+            {
+                a.Prop1     = -3 + i;
+                var builder = new StringWriter();
+                EmSwitchWriter.Write(builder, a.GetType(), a);
+                if (i == 0 || i == 6)
+                    Assert.AreEqual(string.Empty, builder.ToString());
+                else
+                {
+                    Assert.AreEqual($" -a{a.Prop1}", builder.ToString());
+                }
+            }
         }
     }
 }
