@@ -58,9 +58,12 @@ namespace EmscriptenTask
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
-            var result = prop.PropertyType == typeof(bool);
+            var value = prop.GetValue(obj);
+            if (value is null)
+                return false;
+            var result = value is bool;
             if (result)
-                ConvertedValue = (bool)prop.GetValue(obj);
+                ConvertedValue = (bool)value;
             return result;
         }
 
@@ -108,9 +111,13 @@ namespace EmscriptenTask
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
-            var result = prop.PropertyType == typeof(string);
+            var value = prop.GetValue(obj);
+            if (value is null)
+                return false;
+
+            var result = value is string;
             if (result)
-                ConvertedValue = (string)prop.GetValue(obj);
+                ConvertedValue = (string)value;
             return result;
         }
 
@@ -144,19 +151,23 @@ namespace EmscriptenTask
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
-            var result = prop.PropertyType == typeof(string);
-            if (result)
-            {
-                var value = (string)prop.GetValue(obj);
-                if (!string.IsNullOrEmpty(value))
-                {
-                    if (Quote && value.Contains(" "))
-                        ConvertedValue = $"\"{value}\"";
-                    else
-                        ConvertedValue = value;
-                }
-            }
-            return result;
+            var value = prop.GetValue(obj);
+            if (value is null)
+                return false;
+
+            var result = value is string;
+            if (!result)
+                return false;
+
+            var sValue = (string)value;
+            if (string.IsNullOrEmpty(sValue))
+                return false;
+
+            if (Quote && sValue.Contains(" "))
+                ConvertedValue = $"\"{sValue}\"";
+            else
+                ConvertedValue = sValue;
+            return true;
         }
 
         public string ConvertedValue { get; private set; }
@@ -188,19 +199,18 @@ namespace EmscriptenTask
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
-            var result = false;
-            if (prop.PropertyType == typeof(int))
+            var value = prop.GetValue(obj);
+            switch (value)
             {
-                ConvertedValue = ((int)prop.GetValue(obj)).ToString();
-                result         = true;
-            }
-
-            if (result)
+            case null:
+                return false;
+            case int i:
+                ConvertedValue = i.ToString();
                 return true;
-
-            result = prop.PropertyType == typeof(string);
+            }
+            var result = value is string;
             if (result)
-                ConvertedValue = (string)prop.GetValue(obj);
+                ConvertedValue = (string)value;
             return result;
         }
 
@@ -241,9 +251,12 @@ namespace EmscriptenTask
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
-            var result = prop.PropertyType == typeof(string);
+            var value = prop.GetValue(obj);
+            if (value is null)
+                return false;
+            var result = value is string;
             if (result)
-                ConvertedValue = (string)prop.GetValue(obj);
+                ConvertedValue = (string)value;
             return result;
         }
 

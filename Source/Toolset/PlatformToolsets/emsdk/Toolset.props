@@ -66,11 +66,11 @@
     <EmscriptenInclude>$(EmscriptenRoot)\cache\sysroot\include;$(EmscriptenRoot)\cache\sysroot\include\c++\v1;$(EmscriptenUpstream)\lib\clang\13.0.0\include</EmscriptenInclude>
     <EmscriptenLib>$(EmscriptenSystem)\cache\sysroot\lib</EmscriptenLib>
 
-    <IncludePath Condition="'$(IncludePath)' == ''">$(EmscriptenInclude)</IncludePath>
-    <LibraryWPath Condition="'$(LibraryWPath)' == ''" />
-    <SourcePath Condition="'$(SourcePath)' == ''" />
-    <LibraryPath Condition="'$(LibraryPath)' == ''">$(EmscriptenLib)</LibraryPath>
-    <ExcludePath Condition="'$(ExcludePath)' == ''">$(CommonExcludePath)</ExcludePath>
+    <IncludePath    Condition="'$(IncludePath)' == ''">$(EmscriptenInclude)</IncludePath>
+    <LibraryWPath   Condition="'$(LibraryWPath)' == ''" />
+    <SourcePath     Condition="'$(SourcePath)' == ''" />
+    <LibraryPath    Condition="'$(LibraryPath)' == ''">$(EmscriptenLib)</LibraryPath>
+    <ExcludePath    Condition="'$(ExcludePath)' == ''">$(CommonExcludePath)</ExcludePath>
     <CommonExecutablePath>$(EmscriptenLLVM);$(PATH);$(EmscriptenRoot)</CommonExecutablePath>
     <ExecutablePath Condition="'$(ExecutablePath)' == ''">$(CommonExecutablePath)</ExecutablePath>
     <CheckMSVCComponents>false</CheckMSVCComponents>
@@ -98,28 +98,29 @@
     <UseLlvmLib>true</UseLlvmLib>
 
     <!-- Debugger Settings -->
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <DebuggerFlavor Condition="'$(DebuggerFlavor)' == ''">WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerCommand          Condition="'$(ConfigurationType)' == 'Application' and '$(LocalDebuggerCommand)'           == ''">$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'Application' and '$(LocalDebuggerCommandArguments)'  == ''">run $(TargetPath)</LocalDebuggerCommandArguments>
 
-    <LocalDebuggerCommand Condition="'$(ConfigurationType)' == 'Application'">$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'Application'">run $(TargetPath)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommand          Condition="'$(ConfigurationType)' == 'HTMLApplication' and '$(LocalDebuggerCommand)'           == ''">$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'HTMLApplication' and '$(LocalDebuggerCommandArguments)'  == ''">$(TargetPath)</LocalDebuggerCommandArguments>
 
-    <LocalDebuggerCommand Condition="'$(ConfigurationType)' == 'HTMLApplication'">$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'HTMLApplication'">$(TargetPath)</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
+
 
     <!-- Settings.js properties  -->
-
-    <EmVerbose>false</EmVerbose>
-    <EmTracing>false</EmTracing>
-    <EmDisableExceptionCatching>Disabled</EmDisableExceptionCatching>
-    <EmDisableExceptionCatchingAllowed />
-
-
-    <!-- Uses Module by default: do nothing if not set -->
-    <EmExportName/>
-    <EmWasmMode Condition="'$(EmWasmMode)'==''">EmWasmOnlyWasm</EmWasmMode>
-    <EmSDLVersion Condition="'$(EmSDLVersion)' != ''">2</EmSDLVersion>
-
-
+    <EmVerbose                         Condition="'$(EmVerbose)'                         == ''">false</EmVerbose>
+    <EmTracing                         Condition="'$(EmTracing)'                         == ''">false</EmTracing>
+    <EmDisableExceptionCatching        Condition="'$(EmDisableExceptionCatching)'        == ''">Disabled</EmDisableExceptionCatching>
+    <EmDisableExceptionCatchingAllowed Condition="'$(EmDisableExceptionCatchingAllowed)' == ''"></EmDisableExceptionCatchingAllowed>
+    <EmExportName                      Condition="'$(EmExportName)'                      == ''"></EmExportName>
+    <EmWasmMode                        Condition="'$(EmWasmMode)'                        == ''">EmWasmOnlyWasm</EmWasmMode>
+    <EmSdlVersion                      Condition="'$(EmSdlVersion)'                      == ''">2</EmSdlVersion>
+    <EmUseFullOpenGles3                Condition="'$(EmUseFullOpenGles3)'                == ''">false</EmUseFullOpenGles3>
+    <EmUseFullOpenGles2                Condition="'$(EmUseFullOpenGles2)'                == ''">false</EmUseFullOpenGles2>
+    <EmAssertions                      Condition="'$(EmAssertions)'                      == ''"></EmAssertions>
+    <EmMinWebGlVersion                 Condition="'$(EmMinWebGlVersion)'                 == ''"></EmMinWebGlVersion>
+    <EmMaxWebGlVersion                 Condition="'$(EmMinWebGlVersion)'                 == ''"></EmMaxWebGlVersion>
   </PropertyGroup>
 
 
@@ -147,11 +148,11 @@
 
       <!-- Code Generation -->
       <ExceptionHandling>Enabled</ExceptionHandling>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DataLevelLinking>true</DataLevelLinking>
-      <BufferSecurityCheck>true</BufferSecurityCheck>
-      <PositionIndependentCode>true</PositionIndependentCode>
-      <UseShortEnums>true</UseShortEnums>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <DataLevelLinking>false</DataLevelLinking>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PositionIndependentCode>false</PositionIndependentCode>
+      <UseShortEnums>false</UseShortEnums>
 
       <!-- Language -->
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -210,6 +211,7 @@
 
 
     <Link>
+      <!--<EmUseFullOpenGles3 Condition="'$(EmUseFullOpenGles3)' == ''">false</EmUseFullOpenGles3>-->
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <AdditionalDependencies/>

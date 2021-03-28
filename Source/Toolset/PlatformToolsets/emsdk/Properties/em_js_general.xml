@@ -252,7 +252,10 @@
               DisplayName="General" />
     <Category Name="Link"
               Description="General Emscripten properties that effect linking."
-              DisplayName="General" />
+              DisplayName="Link settings" />
+    <Category Name="OpenGL"
+              Description="General Emscripten properties that effect OpenGL."
+              DisplayName="OpenGL" />
   </Rule.Categories>
   <Rule.DataSource>
     <DataSource HasConfigurationCondition="true"
@@ -300,6 +303,13 @@
 
   <!-- Link -->
 
+
+  <IntProperty Name="EmAssertions"
+               DisplayName="Assertions"
+               Description="Runtime assertion level [0,1,2]"
+               Category="Link"
+               />
+
   <StringProperty Name="EmExportName"
                   DisplayName="Exported Module name"
                   Description="Global variable to export the module as for environments without a standardized module loading system (e.g. the browser and SM shell)."
@@ -321,18 +331,40 @@
     <EnumValue Name="EmWasmBoth"
                DisplayName="Compile to WebAssembly and JavaScript"
                Description="Target both WebAssembly and JavaScript at the same time." />
-
   </EnumProperty>
 
-  <StringProperty Name="EmSDLVersion"
-                  Category="Link"
-                  DisplayName="SDL version"
-                  Description="Specify the SDL version of the builtin port."/>
+  <IntProperty Name="EmSdlVersion"
+               Category="Link"
+               DisplayName="SDL version"
+               Description="Specify the SDL version of the builtin port."/>
 
-  <BoolProperty Name="EmUseFullOpenGLES3"
-                Category="Link"
+  <!-- OpenGL -->
+  <BoolProperty Name="EmUseFullOpenGles2"
+                Category="OpenGL"
+                DisplayName="Use Full OpenGL ES 2"
+                Description="Forces support for all GLES2 features, not just the WebGL-friendly subset."/>
+
+
+  <IntProperty Name="EmMinWebGlVersion"
+                Category="OpenGL"
+                DisplayName="Minimum Web GL Version to use >= 1"
+                Description=""/>
+
+  <IntProperty Name="EmMaxWebGlVersion"
+               Category="OpenGL"
+               DisplayName="Maximum Web GL Version to use &lt;= 2"
+               Description=""/>
+
+
+
+  <BoolProperty Name="EmUseFullOpenGles3"
+                Category="OpenGL"
                 DisplayName="Use Full OpenGL ES 3"
-                Description="Use Full OpenGL ES 3."/>
-
+                Description="">
+    <BoolProperty.DataSource>
+      <DataSource 
+          Persistence="ProjectFile"/>
+    </BoolProperty.DataSource>
+  </BoolProperty>
 
 </Rule>

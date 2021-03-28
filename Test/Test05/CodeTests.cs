@@ -66,7 +66,7 @@ namespace UnitTest
 
     public class TestSwitch
     {
-        [IntSwitch("-a", new[] { -2, -1, 0, 1, 2 })]
+        [IntSwitch("-a=", new[] { -2, -1, 0, 1, 2 })]
         public int Prop1 { get; set; }
     }
 
@@ -82,10 +82,51 @@ namespace UnitTest
             Assert.AreEqual(@"A\B\C\D\E\F", result);
         }
 
+
+        [TestMethod]
+        public void TestFileNameWithoutExtension()
+        {
+            var strings = new[]
+            {
+                "abc.123",
+                "abc.def.hij.k",
+                "/some/unix/_/path/abc.def.hij.k",
+                @"Z:\some\windows\_\path\abc.def.hij.k",
+                @"Z:\s o m e\w i n d o w s\_\p a t h\a b c.d e f.h i j.k",
+                @"96587658765*&R8 T^RuyTR876R 87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R/87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R/87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07/file.txt",
+            };
+
+            var expected = new[]
+            {
+                "abc",
+                "abc",
+                @"\some\unix\_\path\abc",
+                @"Z:\some\windows\_\path\abc",
+                @"Z:\s o m e\w i n d o w s\_\p a t h\a b c",
+                @"96587658765*&R8 T^RuyTR876R 87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R\87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R\87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07\file",
+            };
+            
+            for (var i = 0; i < strings.Length; ++i)
+            {
+                var a = strings[i];
+                var b = expected[i];
+                var c = EmUtils.FileNameWithoutExtension(a);
+                Assert.AreEqual(b, c);
+            }
+
+        }
+
+
+
         private static void ClearIfExists()
         {
             var dir = CurrentDirectory + "Debug";
-            if (!Directory.Exists(dir)) return;
+            if (!Directory.Exists(dir))
+                return;
 
             try
             {
@@ -109,7 +150,9 @@ namespace UnitTest
 
             if (!Directory.Exists(trackerDir))
                 Directory.CreateDirectory(trackerDir);
-            var be   = new BuildEngine();
+
+            var be = new BuildEngine();
+
             var task = new EmCxx {
                 BuildEngine         = be,
                 TrackerLogDirectory = trackerDir,
@@ -144,7 +187,7 @@ namespace UnitTest
         {
             var a = new TestSwitch();
 
-            for (var i = 0; i < 7; i++)
+            for (var i = 0; i < 6; i++)
             {
                 a.Prop1     = -3 + i;
                 var builder = new StringWriter();
@@ -152,10 +195,13 @@ namespace UnitTest
                 if (i == 0 || i == 6)
                     Assert.AreEqual(string.Empty, builder.ToString());
                 else
-                {
-                    Assert.AreEqual($" -a{a.Prop1}", builder.ToString());
-                }
+                    Assert.AreEqual($" -a={a.Prop1}", builder.ToString());
             }
         }
+
+
+
+
+
     }
 }

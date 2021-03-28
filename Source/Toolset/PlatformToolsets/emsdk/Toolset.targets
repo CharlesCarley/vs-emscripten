@@ -16,7 +16,7 @@
       <DebugInformationFormat             Condition="'%(ClCompile.DebugInformationFormat)'             == ''">FullDebug</DebugInformationFormat>
       <WarningLevel                       Condition="'%(ClCompile.WarningLevel)'                       == ''">Default</WarningLevel>
       <TreatWarningAsError                Condition="'%(ClCompile.TreatWarningAsError)'                == ''">false</TreatWarningAsError>
-      <ErrorLimit                         Condition="'%(ClCompile.ErrorLimit)'                         == ''"/> <!--Redundant, but consistancy is important! -->
+      <ErrorLimit                         Condition="'%(ClCompile.ErrorLimit)'                         == ''"/> <!--Redundant, but consistency is important! -->
       <TemplateBacktraceLimit             Condition="'%(ClCompile.TemplateBacktraceLimit)'             == ''"/>
       <!-- Optimization -->
       <OptimizationLevel                  Condition="'%(ClCompile.OptimizationLevel)'                  == ''">O0</OptimizationLevel>
@@ -29,11 +29,11 @@
       <SystemPreprocessorDefinitions      Condition="'%(ClCompile.SystemPreprocessorDefinitions)'      == ''" >__EMSCRIPTEN__;$(SystemPreprocessorDefinitions)</SystemPreprocessorDefinitions>
       <!-- Code Generation -->
       <ExceptionHandling                  Condition="'%(ClCompile.ExceptionHandling)'                  == ''" >Enabled</ExceptionHandling>
-      <FunctionLevelLinking               Condition="'%(ClCompile.FunctionLevelLinking)'               == ''">true</FunctionLevelLinking>
-      <DataLevelLinking                   Condition="'%(ClCompile.DataLevelLinking)'                   == ''">true</DataLevelLinking>
+      <FunctionLevelLinking               Condition="'%(ClCompile.FunctionLevelLinking)'               == ''">false</FunctionLevelLinking>
+      <DataLevelLinking                   Condition="'%(ClCompile.DataLevelLinking)'                   == ''">false</DataLevelLinking>
       <BufferSecurityCheck                Condition="'%(ClCompile.BufferSecurityCheck)'                == ''">true</BufferSecurityCheck>
-      <PositionIndependentCode            Condition="'%(ClCompile.PositionIndependentCode)'            == ''">true</PositionIndependentCode>
-      <UseShortEnums                      Condition="'%(ClCompile.UseShortEnums)'                      == ''">true</UseShortEnums>
+      <PositionIndependentCode            Condition="'%(ClCompile.PositionIndependentCode)'            == ''">false</PositionIndependentCode>
+      <UseShortEnums                      Condition="'%(ClCompile.UseShortEnums)'                      == ''">false</UseShortEnums>
       <!-- Language -->
       <RuntimeTypeInfo                    Condition="'%(ClCompile.RuntimeTypeInfo)'                    == ''">false</RuntimeTypeInfo>
       <LanguageStandard                   Condition="'%(ClCompile.LanguageStandard)'                   == ''">gnucpp11</LanguageStandard>
@@ -199,8 +199,10 @@
 
            AdditionalOptions                ="%(ClCompile.AdditionalOptions)"
            AdditionalIncludeDirectories     ="%(ClCompile.AdditionalIncludeDirectories)"
+           BufferSecurityCheck              ="%(ClCompile.BufferSecurityCheck)"
            CompileAs                        ="%(ClCompile.CompileAs)"
            DebugInformationFormat           ="%(ClCompile.DebugInformationFormat)"
+           DataLevelLinking                 ="%(ClCompile.DataLevelLinking)"
            DependencyFileName               ="%(ClCompile.DependencyFileName)"
            EmTracing                        ="$(EmTracing)"
            EmVerbose                        ="$(EmVerbose)"
@@ -208,9 +210,11 @@
            EmscriptenDirectory              ="$(EmscriptenDirectory)"
            ExceptionHandling                ="%(ClCompile.ExceptionHandling)"
            EchoCommandLines                 ="%(ClCompile.EchoCommandLines)"
+           FunctionLevelLinking             ="%(ClCompile.FunctionLevelLinking)"
            GenerateDependencyFile           ="%(ClCompile.GenerateDependencyFile)"
            LanguageStandard                 ="%(ClCompile.LanguageStandard)"
            ObjectFileName                   ="%(ClCompile.ObjectFileName)"
+           PositionIndependentCode          ="%(ClCompile.PositionIndependentCode)"
            PreprocessorDefinitions          ="%(ClCompile.PreprocessorDefinitions)"
            Sources                          ="@(ClCompile)"
            SystemPreprocessorDefinitions    ="%(ClCompile.SystemPreprocessorDefinitions)"
@@ -224,6 +228,7 @@
            TLogWriteFiles                   ="@(CLTLogWriteFiles)"
            DebugProp1                       ="$(_BuildActionType)"
            DebugProp3                       ="$(DebugTask)"
+           UseShortEnums                    ="%(ClCompile.UseShortEnums)"
            Verbose                          ="$(DoVerbose)">
       <Output TaskParameter="SkippedExecution"
               PropertyName="ClSkippedExecution" />
@@ -279,15 +284,19 @@
     <EmLink OutputFile="%(Link.OutputFile)"
             AdditionalDependencies         ="%(Link.AdditionalDependencies)"
             ConfigurationType              ="$(ConfigurationType)"
-            AdditionalLibraryDirectories   ="%(Link.AdditionalLibraryDirectories)"
+            AdditionalLibraryDirectories   ="%(AdditionalLibraryDirectories)"
             TrackerLogDirectory            ="%(Link.TrackerLogDirectory)"
             TLogReadFiles                  ="@(LinkTLogReadFiles)"
             TLogWriteFiles                 ="@(LinkTLogWriteFiles)"
             MinimalRebuildFromTracking     ="$(Link_MinimalRebuildFromTracking)"
             EmExportName                   ="$(EmExportName)"
             EmWasmMode                     ="$(EmWasmMode)"
-            EmSDLVersion                   ="$(EmSDLVersion)"
-            EmUseFullOpenGLES3             ="$(EmUseFullOpenGLES3)"
+            EmSdlVersion                   ="$(EmSdlVersion)"
+            EmUseFullOpenGles2             ="$(EmUseFullOpenGles2)"
+            EmMinWebGlVersion              ="$(EmMinWebGlVersion)"
+            EmMaxWebGlVersion              ="$(EmMaxWebGlVersion)"
+            EmUseFullOpenGles3             ="$(EmUseFullOpenGles3)"
+            EmAssertions                   ="$(EmAssertions)"
             Sources                        ="@(Link)"
             DebugProp1                     ="$(_BuildActionType)"
             DebugProp3                     ="$(DebugTask)"
@@ -303,13 +312,20 @@
   </Target>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'Application' and '$(TargetPath)' != ''">
-    <LocalDebuggerCommand>$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>run $(TargetPath)</LocalDebuggerCommandArguments>
+
+    <LocalDebuggerCommand          Condition="'$(LocalDebuggerCommand)'          == ''">$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == ''">run $(TargetPath)</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
+
+
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'HTMLApplication' and '$(TargetPath)' != ''">
-    <LocalDebuggerCommand>$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments>$(TargetPath)</LocalDebuggerCommandArguments>
+
+    <LocalDebuggerCommand          Condition="'$(LocalDebuggerCommand)' == ''">$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == ''">$(TargetPath)</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
+
   </PropertyGroup>
 
 </Project>

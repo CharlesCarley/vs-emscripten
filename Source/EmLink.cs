@@ -54,6 +54,9 @@ namespace EmscriptenTask
         [SeparatedStringSwitch("-L", true, true)]
         public string AdditionalLibraryDirectories { get; set; }
 
+        [IntSwitch("-s ASSERTIONS=", new []{0,1,2})]
+        public string EmAssertions { get; set; }
+
         /// <summary>
         /// Settings.js conversion, the EXPORT_NAME option
         /// </summary>
@@ -73,6 +76,21 @@ namespace EmscriptenTask
         /// </summary>
         [IntSwitch("-s USE_SDL=", new[] { 1, 2 })]
         public string EmSdlVersion { get; set; }
+
+        [IntSwitch("-s MIN_WEBGL_VERSION=", new[] { 1, 2,3 })]
+        public string EmMinWebGlVersion { get; set; }
+
+
+        [IntSwitch("-s MAX_WEBGL_VERSION=", new[] { 1, 2, 3 })]
+        public string EmMaxWebGlVersion { get; set; }
+
+        /// <summary>
+        /// Settings.js conversion, the argument to FULL_ES2=[1]
+        /// </summary>
+        /// <returns></returns>
+        [BoolSwitch("-s FULL_ES2=1")]
+        public bool EmUseFullOpenGles2 { get; set; }
+
 
         /// <summary>
         /// Settings.js conversion, the argument to FULL_ES3=[1]

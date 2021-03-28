@@ -72,10 +72,10 @@ namespace EmscriptenTask
         public bool TreatWarningAsError { get; set; }
 
         [IntSwitch("-ferror-limit=")]
-        public int ErrorLimit { get; set; }
+        public string ErrorLimit { get; set; }
 
         [IntSwitch("-ftemplate-backtrace-limit=")]
-        public int TemplateBacktraceLimit { get; set; }
+        public string TemplateBacktraceLimit { get; set; }
 
 
         // OptimizationLevel
@@ -118,8 +118,8 @@ namespace EmscriptenTask
         [BoolSwitch("-fdata-sections")]
         public bool DataLevelLinking { get; set; } = false;
 
-        [BoolSwitch("-fstack-protector")]
-        public bool BufferSecurityCheck { get; set; } = true;
+        [BoolSwitch("-s STACK_OVERFLOW_CHECK=1")]
+        public bool BufferSecurityCheck { get; set; } = false;
 
         [BoolSwitch("-fpic")]
         public bool PositionIndependentCode { get; set; } = false;

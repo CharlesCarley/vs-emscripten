@@ -58,6 +58,7 @@ namespace EmscriptenTask
                 path = $"\"{path}\"";
             return path;
         }
+
         public static bool ValidateSdk()
         {
             if (EmccTool != null)
@@ -80,10 +81,10 @@ namespace EmscriptenTask
             }
 
             EmscriptenDirectory = $"{emsdk}\\upstream\\emscripten";
-
-            EmccTool = $"{EmscriptenDirectory}\\emcc.bat";
+            EmccTool            = $"{EmscriptenDirectory}\\emcc.bat";
             return true;
         }
+
         public static string AbsolutePathSanitized(string path)
         {
             return Sanitize(AbsolutePath(path));
@@ -97,10 +98,11 @@ namespace EmscriptenTask
             var cur = Environment.CurrentDirectory;
             if (!cur.EndsWith("\\"))
                 cur += "\\";
+        
             return $@"{cur}{path}";
         }
 
-        public static string GetSeparatedSource(char charSeparator, ITaskItem[] input, bool quoteIfHasWs=false)
+        public static string GetSeparatedSource(char charSeparator, ITaskItem[] input, bool quoteIfHasWs = false)
         {
             if (input is null)
             {
@@ -112,7 +114,7 @@ namespace EmscriptenTask
             foreach (var inp in input)
             {
                 builder.Write(charSeparator);
-                
+
                 if (quoteIfHasWs && inp.ItemSpec.Contains(" "))
                     builder.Write($"\"{inp.ItemSpec}\"");
                 else
