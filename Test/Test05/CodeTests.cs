@@ -21,7 +21,6 @@
 */
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections;
 using System.IO;
 using EmscriptenTask;
 using Microsoft.Build.Framework;
@@ -30,40 +29,6 @@ using Logger = Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger;
 
 namespace UnitTest
 {
-    public class BuildEngine : IBuildEngine
-    {
-        public void LogErrorEvent(BuildErrorEventArgs e)
-        {
-            Logger.LogMessage("error : {0}", e.Message);
-        }
-
-        public void LogWarningEvent(BuildWarningEventArgs e)
-        {
-            Logger.LogMessage("warning : {0}", e.Message);
-        }
-
-        public void LogMessageEvent(BuildMessageEventArgs e)
-        {
-            Logger.LogMessage("{0}", e.Message);
-        }
-
-        public void LogCustomEvent(CustomBuildEventArgs e)
-        {
-            Logger.LogMessage("{0}", e.Message);
-        }
-
-        public bool BuildProjectFile(string projectFileName, string[] targetNames, IDictionary globalProperties,
-                                     IDictionary targetOutputs)
-        {
-            return true;
-        }
-
-        public bool   ContinueOnError { get; }        = true;
-        public int    LineNumberOfTaskNode { get; }   = 0;
-        public int    ColumnNumberOfTaskNode { get; } = 0;
-        public string ProjectFileOfTaskNode { get; }  = string.Empty;
-    }
-
     public class TestSwitch
     {
         [IntSwitch("-a=", new[] { -2, -1, 0, 1, 2 })]
@@ -151,7 +116,7 @@ namespace UnitTest
             if (!Directory.Exists(trackerDir))
                 Directory.CreateDirectory(trackerDir);
 
-            var be = new BuildEngine();
+            var be = new EmptyBuildEngine();
 
             var task = new EmCxx {
                 BuildEngine         = be,

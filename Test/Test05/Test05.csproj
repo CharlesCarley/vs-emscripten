@@ -43,7 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeTests.cs" />
+    <Compile Include="EmptyBuildEngine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestEmAr.cs" />
+    <Compile Include="TestEmCxx.cs" />
+    <Compile Include="TestEmLink.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter">

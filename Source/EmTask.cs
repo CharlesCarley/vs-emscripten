@@ -149,7 +149,7 @@ namespace EmscriptenTask
         /// If this is set to true, the contents of the command line should be
         /// logged to stdout.
         /// </summary>
-        public bool EchoCommandLines { get; set; } = false;
+        public bool EchoCommandLines { get; set; }
 
         // clang-format on
 

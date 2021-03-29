@@ -96,7 +96,7 @@ namespace EmscriptenTask
         /// <summary>
         /// If true this will nullify any preprocessor definitions.
         /// </summary>
-        public bool UndefineAllPreprocessorDefinitions { get; set; } = false;
+        public bool UndefineAllPreprocessorDefinitions { get; set; }
 
         // ============================= Code Generation ===========================
 
@@ -113,19 +113,19 @@ namespace EmscriptenTask
         /// Place each function in its own section.
         /// </summary>
         [BoolSwitch("-ffunction-sections")]
-        public bool FunctionLevelLinking { get; set; } = false;
+        public bool FunctionLevelLinking { get; set; }
 
         [BoolSwitch("-fdata-sections")]
-        public bool DataLevelLinking { get; set; } = false;
+        public bool DataLevelLinking { get; set; }
 
         [BoolSwitch("-fstack-protector")] // favor -s STACK_OVERFLOW_CHECK=1
-        public bool BufferSecurityCheck { get; set; } = false;
+        public bool BufferSecurityCheck { get; set; }
 
         [BoolSwitch("-fpic")]
-        public bool PositionIndependentCode { get; set; } = false;
+        public bool PositionIndependentCode { get; set; }
 
         [BoolSwitch("fshort-enums")]
-        public bool UseShortEnums { get; set; } = false;
+        public bool UseShortEnums { get; set; }
 
 
         // ============================= Language ==============================----
@@ -135,7 +135,7 @@ namespace EmscriptenTask
 
 
         [BoolSwitch("-frtti")]
-        public bool RuntimeTypeInfo { get; set; } = false;
+        public bool RuntimeTypeInfo { get; set; }
 
 
         /// <summary>
@@ -205,7 +205,6 @@ namespace EmscriptenTask
         public string AdditionalOptions { get; set; }
 
         // clang-format on
-
 
         /// <summary>
         /// Test to determine whether or not the supplied source code
@@ -405,7 +404,7 @@ namespace EmscriptenTask
             return builder.ToString();
         }
 
-        protected  override void SaveTLogRead()
+        protected override void SaveTLogRead()
         {
             var sourceFiles = GetCurrentSource();
             if (sourceFiles == null || sourceFiles.Length <= 0)
