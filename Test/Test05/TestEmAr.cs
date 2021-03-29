@@ -20,6 +20,8 @@
 -------------------------------------------------------------------------------
 */
 
+using System;
+using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTest
@@ -58,6 +60,25 @@ namespace UnitTest
 
             // EmAr
             Assert.AreEqual(null, obj.OutputFile);
+        }
+
+
+        [TestMethod]
+        public void TestOutputFileSwitch()
+        {
+            var obj = new EmscriptenTask.EmAr
+            {
+                OutputFile = new TaskItem("ABC.a")
+            };
+
+            var result = TestUtils.WriteSwitchesToString(obj);
+            var mockFileLoc = Environment.CurrentDirectory;
+
+            Assert.AreEqual($@" qc {mockFileLoc}\ABC.a", result);
+            obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.a");
+
+            var result1 = TestUtils.WriteSwitchesToString(obj);
+            Assert.AreEqual(" qc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
         }
     }
 }

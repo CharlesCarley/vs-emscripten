@@ -20,7 +20,11 @@
 -------------------------------------------------------------------------------
 */
 
+using System;
+using System.IO;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using static EmscriptenTask.EmSwitchWriter;
 using static EmscriptenTask.EmUtils;
 
 namespace EmscriptenTask
@@ -28,12 +32,13 @@ namespace EmscriptenTask
     public class EmAr : EmTask
     {
         protected override string SenderName    => nameof(EmAr);
-        protected override string BuildFileName => OutputFile;
+        protected override string BuildFileName => OutputFile.GetMetadata("FullPath");
 
         /// <summary>
         /// Output file name parameter $(OutDir)%(Filename).o
         /// </summary>
-        public string OutputFile { get; set; }
+        [StringSwitch("qc", StringSwitch.QuoteIfWhiteSpace)]
+        public ITaskItem OutputFile { get; set; }
 
         protected override void OnStart()
         {
@@ -49,7 +54,6 @@ namespace EmscriptenTask
                                                         OutputFiles,
                                                         MinimalRebuildFromTracking,
                                                         true);
-            OutputFile = AbsolutePathSanitized(OutputFile);
         }
 
         protected override void OnStop(bool succeeded)
@@ -61,6 +65,26 @@ namespace EmscriptenTask
             OutputFiles.SaveTlog();
         }
 
+        protected string BuildSwitches()
+        {
+            if (OutputFile == null)
+                throw new ArgumentNullException(nameof(OutputFile), "no output file");
+
+            var currentSource = GetCurrentSource();
+            if (currentSource == null || currentSource.Length <= 0)
+                throw new ArgumentNullException(nameof(OutputFile), "no input files.");
+
+            var builder = new StringWriter();
+            Write(builder, GetType(), this);
+
+            // write the input objects as a WS separated list
+            var objects = GetSeparatedSource(' ', currentSource, true);
+            builder.Write(' ');
+            builder.Write(objects);
+
+            return builder.ToString();
+        }
+
         public bool RunAr()
         {
             var input = GetCurrentSource();
@@ -70,9 +94,9 @@ namespace EmscriptenTask
             var tool = EmccTool;
             tool     = tool.Replace("emcc.bat", "emar.bat");
 
-            OutputFiles.AddComputedOutputsForSourceRoot(OutputFile.ToUpperInvariant(), input);
+            OutputFiles.AddComputedOutputsForSourceRoot(OutputFile.GetMetadata("FullPath"), input);
 
-            return Call(tool, $"qc {BuildCommandLinePath(OutputFile)} {GetSeparatedSource(' ', input, true)}");
+            return Call(tool, BuildSwitches());
         }
 
         public bool RunRanlib()
@@ -82,10 +106,9 @@ namespace EmscriptenTask
                 return true;
 
             var tool = EmccTool;
-            OutputFiles.AddComputedOutputForSourceRoot(OutputFile.ToUpperInvariant(), OutputFile);
 
             tool = tool.Replace("emcc.bat", "emranlib.bat");
-            return Call(tool, BuildCommandLinePath(OutputFile));
+            return Call(tool, OutputFile.GetMetadata("FullPath"));
         }
 
         public override bool Run()
