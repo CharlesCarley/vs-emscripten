@@ -41,8 +41,8 @@ namespace UnitTest
             Assert.AreEqual(null, obj.TrackerLogDirectory);
             Assert.AreNotEqual(null, obj.TLogReadFiles);
             Assert.AreNotEqual(null, obj.TLogWriteFiles);
-            Assert.AreEqual(@"EmAr.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
-            Assert.AreEqual(@"EmAr.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+            Assert.AreEqual(@"emar.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"emar.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
             Assert.AreEqual(null, obj.Sources);
             Assert.AreEqual(true, obj.MinimalRebuildFromTracking);
             Assert.AreEqual(null, obj.DebugProp1);
@@ -75,11 +75,11 @@ namespace UnitTest
             var result = TestUtils.WriteSwitchesToString(obj);
             var mockFileLoc = Environment.CurrentDirectory;
 
-            Assert.AreEqual($@" qc {mockFileLoc}\ABC.a", result);
+            Assert.AreEqual($@" rc {mockFileLoc}\ABC.a", result);
             obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.a");
 
             var result1 = TestUtils.WriteSwitchesToString(obj);
-            Assert.AreEqual(" qc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
+            Assert.AreEqual(" rc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace EmscriptenTask
 {
     public class EmCxx : EmTask
     {
-        protected override string SenderName    => nameof(EmCxx);
+        protected override string SenderName    => "emcc";
         protected override string BuildFileName => BuildFile;
 
         // clang-format off
@@ -216,29 +216,26 @@ namespace EmscriptenTask
         private bool TestCompileAsC()
         {
             // use own test.
-            var result = false;
+            bool result;
 
             var testBuildFile = BaseName(BuildFile);
 
             if (!string.IsNullOrEmpty(CompileAs))
             {
-                if (CompileAs.Equals("Default"))
-                {
-                    if (testBuildFile != null)
-                    {
-                        result = testBuildFile.EndsWith(".c");
-                        if (result)
-                            CompileAs = "CompileAsC";
-                    }
-                    return result;
-                }
-                return CompileAs.Equals("CompileAsC");
+                if (!CompileAs.Equals("Default"))
+                    return CompileAs.Equals("CompileAsC");
+                if (testBuildFile == null)
+                    return false;
+                result = testBuildFile.EndsWith(".c");
+                if (result)
+                    CompileAs = "CompileAsC";
+                return result;
             }
-            if (testBuildFile != null)
-            {
-                result    = testBuildFile.EndsWith(".c");
-                CompileAs = result ? "CompileAsC" : "Default";
-            }
+
+            if (testBuildFile == null)
+                return false;
+            result    = testBuildFile.EndsWith(".c");
+            CompileAs = result ? "CompileAsC" : "Default";
             return result;
         }
 
@@ -446,7 +443,7 @@ namespace EmscriptenTask
         {
             var list = GetCurrentSource();
             if (list == null || list.Length <= 0)
-                throw new FileNotFoundException($"{SenderName}: no input files");
+                return true;
 
             foreach (var file in list)
             {

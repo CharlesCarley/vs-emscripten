@@ -29,7 +29,6 @@ using static EmscriptenTask.EmUtils;
 
 namespace EmscriptenTask
 {
-
     public class BaseSwitch : Attribute
     {
         public const int PadSwitch  = 0x00;
@@ -251,12 +250,11 @@ namespace EmscriptenTask
                 return true;
             }
             var result = value is string;
-            if (result)
-            {
-                ConvertedValue = (string)value;
-                ConvertedValue = ConvertedValue?.Trim();
-            }
-            return result;
+            if (!result)
+                return false;
+            ConvertedValue = (string)value;
+            ConvertedValue = ConvertedValue?.Trim();
+            return true;
         }
 
         public string ConvertedValue { get; private set; }
@@ -369,10 +367,10 @@ namespace EmscriptenTask
                 return;
 
             var result = SeparatePaths(obj.ConvertedValue,
-                                               obj.Separator,
-                                               obj.SwitchValue,
-                                               obj.RequiresValidation,
-                                               obj.Quote);
+                                       obj.Separator,
+                                       obj.SwitchValue,
+                                       obj.RequiresValidation,
+                                       obj.Quote);
             if (!string.IsNullOrEmpty(result))
                 builder.Write($" {result}");
         }

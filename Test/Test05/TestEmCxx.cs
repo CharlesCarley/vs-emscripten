@@ -38,8 +38,8 @@ namespace UnitTest
             Assert.AreEqual(null, obj.TrackerLogDirectory);
             Assert.AreNotEqual(null, obj.TLogReadFiles);
             Assert.AreNotEqual(null, obj.TLogWriteFiles);
-            Assert.AreEqual(@"EmCxx.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
-            Assert.AreEqual(@"EmCxx.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+            Assert.AreEqual(@"emcc.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"emcc.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
             Assert.AreEqual(null, obj.Sources);
             Assert.AreEqual(true, obj.MinimalRebuildFromTracking);
             Assert.AreEqual(null, obj.DebugProp1);

@@ -27,7 +27,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
-using Input = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
+using Input  = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
 using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
 
 namespace EmscriptenTask
@@ -322,13 +322,11 @@ namespace EmscriptenTask
             // Wait at least the specified TimeOut.
             // If the process has not finished
             // by then, kill it and report a time out.
-            if (!process.WaitForExit(TimeOut))
-            {
-                LogError($"the process {BaseName(info.FileName)} timed out.");
-                return false;
-            }
-
-            return process.ExitCode != 0;
+            if (process.WaitForExit(TimeOut))
+                return process.ExitCode != 0;
+            
+            LogError($"the process {BaseName(info.FileName)} timed out.");
+            return false;
         }
 
         private void OnMessageDataReceived(object sender, DataReceivedEventArgs e)

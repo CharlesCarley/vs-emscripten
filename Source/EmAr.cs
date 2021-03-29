@@ -32,14 +32,14 @@ namespace EmscriptenTask
 {
     public class EmAr : EmTask
     {
-        protected override string SenderName    => nameof(EmAr);
+        protected override string SenderName    => "emar";
         protected override string BuildFileName => OutputFile.GetMetadata(FullPath);
 
         /// <summary>
         /// Output file name parameter $(OutDir)%(Filename).o
         /// </summary>
         [Required]
-        [StringSwitch("qc", StringSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("rc", StringSwitch.QuoteIfWhiteSpace)]
         public ITaskItem OutputFile { get; set; }
 
         protected override void OnStart()
