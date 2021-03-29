@@ -67,5 +67,32 @@ namespace UnitTest
             Assert.AreEqual(null, obj.AdditionalOptions);
             Assert.AreEqual(null, obj.EmWasmMode);
         }
+
+        [TestMethod]
+        public void TestTrackerLogDirectory()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                TrackerLogDirectory = "/Some/Path/To/The/Log/Files"
+            };
+
+            Assert.AreNotEqual(null, obj.TrackerLogDirectory);
+            Assert.AreNotEqual(null, obj.TLogReadFiles);
+            Assert.AreNotEqual(null, obj.TLogWriteFiles);
+
+
+            Assert.AreEqual(@"\Some\Path\To\The\Log\Files\EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"\Some\Path\To\The\Log\Files\EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+
+
+            obj.TrackerLogDirectory = null;
+            Assert.AreEqual(@"EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+
+            obj.TrackerLogDirectory = "A n o t h e r/ p a t h";
+
+            Assert.AreEqual(@"A n o t h e r\ p a t h\EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"A n o t h e r\ p a t h\EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+        }
     }
 }

@@ -59,8 +59,12 @@ namespace EmscriptenTask
             get => _trackerLogDirectory;
             set {
                 _trackerLogDirectory = value;
-                if (string.IsNullOrEmpty(_trackerLogDirectory))
-                    throw new NullReferenceException(nameof(_trackerLogDirectory));
+
+                // force them to change 
+                _tLogReadFiles = null;
+                _tLogWriteFiles = null;
+
+                if (string.IsNullOrEmpty(_trackerLogDirectory)) return;
 
                 // Make sure that the directory ends with a \
                 // Other areas assume this!
