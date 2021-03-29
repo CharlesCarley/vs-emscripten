@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.Build.Framework;
 using static EmscriptenTask.EmUtils;
 
@@ -31,15 +32,45 @@ namespace EmscriptenTask
 {
     public class BaseSwitch : Attribute
     {
-        public const int PadSwitch  = 0x00;
-        public const int GlueSwitch = 0x01;
+        public const int PadSwitch          = 0x01;
+        public const int GlueSwitch         = 0x02;
+        public const int RequiresValidation = 0x04;
+        public const int NoQuote            = 0x08;
+        public const int QuoteIfWhiteSpace  = 0x10;
+        public const int AlwaysQuote        = 0x20;
+        public const int DefaultFlags       = PadSwitch | NoQuote;
 
-        public BaseSwitch(int flags = PadSwitch)
+        public BaseSwitch(int flags = DefaultFlags)
         {
             Flags = flags;
         }
 
-        public int Flags { get; }
+        public bool NeedsValidation()
+        {
+            return (Flags & RequiresValidation) != 0;
+        }
+
+        public bool CanQuote()
+        {
+            return (Flags & NoQuote) == 0;
+        }
+
+        public bool CanQuoteIfWhiteSpace()
+        {
+            return CanQuote() && (Flags & QuoteIfWhiteSpace) != 0;
+        }
+
+        public bool ShouldAlwaysQuote()
+        {
+            return CanQuote() && (Flags & AlwaysQuote) != 0;
+        }
+
+        public bool ShouldGlueSwitch()
+        {
+            return (Flags & GlueSwitch) != 0;
+        }
+
+        private int Flags { get; }
     }
 
     /// <summary>
@@ -89,17 +120,14 @@ namespace EmscriptenTask
         /// The main constructor.
         /// </summary>
         /// <param name="switchValue">The switch value to put in place of the separator.</param>
-        /// <param name="requiresValidation">If this is true the value will be skipped if its not a valid file or directory.</param>
         /// <param name="separator">The character that defines a split</param>
         public SeparatedStringSwitch(string switchValue,
-                                     bool   requiresValidation = false,
-                                     bool   quoteIfHasWs       = false,
-                                     char   separator          = ';')
+                                     int    flags     = DefaultFlags,
+                                     char   separator = ';') :
+            base(flags)
         {
-            SwitchValue        = switchValue;
-            Separator          = separator;
-            RequiresValidation = requiresValidation;
-            Quote              = quoteIfHasWs;
+            SwitchValue = switchValue;
+            Separator   = separator;
         }
 
         /// <summary>
@@ -111,16 +139,6 @@ namespace EmscriptenTask
         /// The character that defines a split.
         /// </summary>
         public char Separator { get; }
-
-        /// <summary>
-        /// Quote the value if it has white space.
-        /// </summary>
-        public bool Quote { get; }
-
-        /// <summary>
-        /// If this is true the value will be skipped if its not a valid file or directory.
-        /// </summary>
-        public bool RequiresValidation { get; }
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
@@ -142,10 +160,6 @@ namespace EmscriptenTask
     /// </summary>
     public class StringSwitch : BaseSwitch
     {
-        public const int NoQuote           = 0;
-        public const int QuoteIfWhiteSpace = 1;
-        public const int AlwaysQuote       = 2;
-
         /// <summary>
         /// Main constructor.
         /// </summary>
@@ -154,31 +168,17 @@ namespace EmscriptenTask
         /// If this value is null the property value for this attribute will be directly
         /// written to the command line.
         /// </param>
-        /// <param name="quoteOpts">
-        /// Quote options.
-        /// A value of 0 means no quoting.
-        /// A value of 1 means quote if the input contains white space.
-        /// A value of 2 means quote always.
-        /// </param>
-        public StringSwitch(string switchValue = null, int quoteOpts = NoQuote, int extraFlags = PadSwitch) :
+        public StringSwitch(string switchValue = null,
+                            int    extraFlags  = DefaultFlags) :
             base(extraFlags)
         {
             SwitchValue = switchValue;
-            Quote       = quoteOpts;
         }
 
         /// <summary>
         /// The switch value for the attribute's property.
         /// </summary>
         public string SwitchValue { get; }
-
-        /// <summary>
-        /// Quote options.
-        /// A value of 0 means no quoting.
-        /// A value of 1 means quote if the input contains white space.
-        /// A value of 2 means quote always.
-        /// </summary>
-        public int Quote { get; }
 
         public bool ConvertTo(PropertyInfo prop, object obj)
         {
@@ -203,7 +203,13 @@ namespace EmscriptenTask
             if (string.IsNullOrEmpty(sValue))
                 return false;
 
-            if (Quote == QuoteIfWhiteSpace && sValue.Contains(" ") || Quote == AlwaysQuote)
+            if (NeedsValidation())
+            {
+                if (!IsFileOrDirectory(sValue))
+                    return false;
+            }
+
+            if (ShouldAlwaysQuote() || CanQuoteIfWhiteSpace() && sValue.Contains(" "))
                 ConvertedValue = $"\"{sValue}\"";
             else
                 ConvertedValue = sValue;
@@ -271,7 +277,7 @@ namespace EmscriptenTask
         /// <param name="values">A comma separated list of possible options.</param>
         /// <param name="switches">A comma separated list of corresponding switch values.</param>
         /// <param name="defaultValue">A default switch value</param>
-        public EnumSwitch(string values, string switches, string defaultValue = null, int extraFlags = PadSwitch) :
+        public EnumSwitch(string values, string switches, string defaultValue = null, int extraFlags = DefaultFlags) :
             base(extraFlags)
         {
             Values   = values.Split(',');
@@ -351,10 +357,12 @@ namespace EmscriptenTask
             switch (obj.ConvertedValue)
             {
             case true when obj.ValueIfTrue != null:
-                builder.Write($" {obj.ValueIfTrue}");
+                builder.Write(' ');
+                builder.Write(obj.ValueIfTrue);
                 break;
             case false when obj.ValueIfFalse != null:
-                builder.Write($" {obj.ValueIfFalse}");
+                builder.Write(' ');
+                builder.Write(obj.ValueIfFalse);
                 break;
             }
         }
@@ -369,10 +377,14 @@ namespace EmscriptenTask
             var result = SeparatePaths(obj.ConvertedValue,
                                        obj.Separator,
                                        obj.SwitchValue,
-                                       obj.RequiresValidation,
-                                       obj.Quote);
-            if (!string.IsNullOrEmpty(result))
-                builder.Write($" {result}");
+                                       obj.NeedsValidation(),
+                                       obj.CanQuoteIfWhiteSpace(),
+                                       obj.ShouldGlueSwitch());
+            if (string.IsNullOrEmpty(result))
+                return;
+
+            builder.Write(' ');
+            builder.Write(result);
         }
 
         private static void WriteSwitch(TextWriter   builder,
@@ -381,10 +393,11 @@ namespace EmscriptenTask
             if (string.IsNullOrEmpty(obj.ConvertedValue))
                 return;
 
+            builder.Write(' ');
             builder.Write(string.IsNullOrEmpty(obj.SwitchValue)
-                              ? $" {obj.ConvertedValue}"
-                          : obj.Flags == BaseSwitch.GlueSwitch ? $" {obj.SwitchValue}{obj.ConvertedValue}"
-                                                               : $" {obj.SwitchValue} {obj.ConvertedValue}");
+                              ? obj.ConvertedValue
+                          : obj.ShouldGlueSwitch() ? $"{obj.SwitchValue}{obj.ConvertedValue}"
+                                                   : $"{obj.SwitchValue} {obj.ConvertedValue}");
         }
 
         private static void WriteSwitch(TextWriter builder,
@@ -392,17 +405,39 @@ namespace EmscriptenTask
         {
             if (string.IsNullOrEmpty(obj.ConvertedValue))
             {
-                if (obj.Default != null)
-                    builder.Write($" {obj.Default}");
+                if (string.IsNullOrEmpty(obj.Default))
+                    return;
+
+                builder.Write(' ');
+                builder.Write($"{obj.Default}");
                 return;
             }
 
-            var i = obj.Values.TakeWhile(sv => !sv.Equals(obj.ConvertedValue)).Count();
-            if (i < obj.Switches.Length)
-                builder.Write($" {obj.Switches[i]}");
-            else if (obj.Default != null)
+            var found = false;
+            int i;
+            for (i = 0; i < obj.Values.Length; ++i)
             {
-                builder.Write($" {obj.Default}");
+                if (!obj.ConvertedValue.Equals(obj.Values[i]))
+                    continue;
+
+                found = true;
+                break;
+            }
+
+            if (found)
+            {
+                if (string.IsNullOrEmpty(obj.Switches[i]))
+                    return;
+                if (string.IsNullOrWhiteSpace(obj.Switches[i]))
+                    return;
+
+                builder.Write(' ');
+                builder.Write($"{obj.Switches[i]}");
+            }
+            else if (!string.IsNullOrEmpty(obj.Default))
+            {
+                builder.Write(' ');
+                builder.Write($"{obj.Default}");
             }
         }
 
@@ -418,15 +453,21 @@ namespace EmscriptenTask
 
             if (obj.ValidValues != null)
             {
-                if (obj.ValidValues.Contains(outResult))
-                    builder.Write(obj.Flags == BaseSwitch.GlueSwitch
-                                      ? $" {obj.SwitchValue}{outResult}"
-                                      : $" {obj.SwitchValue} {outResult}");
+                if (!obj.ValidValues.Contains(outResult))
+                    return;
+
+                builder.Write(' ');
+                builder.Write(obj.ShouldGlueSwitch()
+                                  ? $"{obj.SwitchValue}{outResult}"
+                                  : $"{obj.SwitchValue} {outResult}");
             }
             else
-                builder.Write(obj.Flags == BaseSwitch.GlueSwitch
-                                  ? $" {obj.SwitchValue}{outResult}"
-                                  : $" {obj.SwitchValue} {outResult}");
+            {
+                builder.Write(' ');
+                builder.Write(obj.ShouldGlueSwitch()
+                                  ? $"{obj.SwitchValue}{outResult}"
+                                  : $"{obj.SwitchValue} {outResult}");
+            }
         }
     }
 }

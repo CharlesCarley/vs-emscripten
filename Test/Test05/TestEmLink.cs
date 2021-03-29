@@ -20,6 +20,7 @@
 -------------------------------------------------------------------------------
 */
 using System;
+using System.Globalization;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -167,7 +168,7 @@ namespace UnitTest
 
             var curDir                 = Environment.CurrentDirectory;
             obj.AdditionalDependencies = $@"{curDir}\..\..\TestEmLink.cs";
-            var expected               = $@"  {curDir}\..\..\TestEmLink.cs";
+            var expected               = $@" {curDir}\..\..\TestEmLink.cs";
 
             var result2 = TestUtils.WriteSwitchesToString(obj);
 
@@ -190,7 +191,7 @@ namespace UnitTest
 
             var curDir                       = Environment.CurrentDirectory;
             obj.AdditionalLibraryDirectories = $@"{curDir}\..\..\New Folder";
-            var expected                     = $"  -L \"{curDir}\\..\\..\\New Folder\"";
+            var expected                     = $" -L \"{curDir}\\..\\..\\New Folder\"";
 
             var result2 = TestUtils.WriteSwitchesToString(obj);
 

@@ -42,19 +42,19 @@ namespace EmscriptenTask
         /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
         /// </summary>
         [Required]
-        [StringSwitch("-o", StringSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("-o", BaseSwitch.QuoteIfWhiteSpace)]
         public ITaskItem OutputFile { get; set; }
 
         /// <summary>
         /// User supplied libraries.
         /// </summary>
-        [SeparatedStringSwitch(" ", true, true)]
+        [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
         public string AdditionalDependencies { get; set; }
 
         /// <summary>
         /// Extra library search paths.
         /// </summary>
-        [SeparatedStringSwitch("-L", true, true)]
+        [SeparatedStringSwitch("-L", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
         public string AdditionalLibraryDirectories { get; set; }
 
         /// <summary>

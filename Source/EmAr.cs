@@ -39,7 +39,7 @@ namespace EmscriptenTask
         /// Output file name parameter $(OutDir)%(Filename).o
         /// </summary>
         [Required]
-        [StringSwitch("rc", StringSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("rc", BaseSwitch.QuoteIfWhiteSpace)]
         public ITaskItem OutputFile { get; set; }
 
         protected override void OnStart()

@@ -39,16 +39,16 @@ namespace EmscriptenTask
         /// An internal property that is set per source file right
         /// before calling ProcessFile.
         /// </summary>
-        [StringSwitch("-c", StringSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("-c", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
         public string BuildFile { get; set; }
         
         /// <summary>
         /// Provides any extra user supplied include directories.
         /// </summary>
-        [SeparatedStringSwitch("-I", true, true)]
+        [SeparatedStringSwitch("-I", BaseSwitch.RequiresValidation|BaseSwitch.QuoteIfWhiteSpace)]
         public string AdditionalIncludeDirectories { get; set; }
 
-        [SeparatedStringSwitch("-I", false, true)]
+        [SeparatedStringSwitch("-I", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
         public string SystemIncludeDirectories { get; set; }
 
         /// <summary>
@@ -85,13 +85,13 @@ namespace EmscriptenTask
         /// <summary>
         /// Provides any extra user supplied preprocessor definitions.
         /// </summary>
-        [SeparatedStringSwitch("-D")]
+        [SeparatedStringSwitch("-D", BaseSwitch.GlueSwitch)]
         public string PreprocessorDefinitions { get; set; }
 
         /// <summary>
         /// Extra system definitions.
         /// </summary>
-        [SeparatedStringSwitch("-D")] 
+        [SeparatedStringSwitch("-D", BaseSwitch.GlueSwitch)] 
         public string SystemPreprocessorDefinitions { get; set; }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace EmscriptenTask
         [BoolSwitch("-fpic")]
         public bool PositionIndependentCode { get; set; }
 
-        [BoolSwitch("fshort-enums")]
+        [BoolSwitch("-fshort-enums")]
         public bool UseShortEnums { get; set; }
 
 
@@ -143,6 +143,10 @@ namespace EmscriptenTask
         /// Option to explicitly set the desired C++ standard version.
         /// </summary>
         public string LanguageStandard { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
        [EnumSwitch(
             "EnableLanguageExtensions,WarnLanguageExtensions,DisableLanguageExtensions",
             ",-pedantic,-pedantic-errors")]
@@ -154,7 +158,7 @@ namespace EmscriptenTask
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
         [Required]
-        [StringSwitch("-o", StringSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("-o", BaseSwitch.QuoteIfWhiteSpace)]
         public string ObjectFileName { get; set; }
 
         /// <summary>
@@ -167,7 +171,7 @@ namespace EmscriptenTask
         /// <summary>
         /// Specify the output file path for the generated dependency file.
         /// </summary>
-        [StringSwitch("-MD -MF", StringSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("-MD -MF", BaseSwitch.QuoteIfWhiteSpace)]
         public string DependencyFileName { get; set; }
 
         // ForcedIncludeFiles

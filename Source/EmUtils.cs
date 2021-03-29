@@ -189,13 +189,17 @@ namespace EmscriptenTask
                                            char   originalSeparator,
                                            string tagSeparation,
                                            bool   needsValidation = false,
-                                           bool   quoteIfHasWs    = false)
+                                           bool   quoteIfHasWs    = false,
+                                           bool   merge           = false)
         {
             if (string.IsNullOrEmpty(paths) || string.IsNullOrEmpty(tagSeparation))
                 return string.Empty;
 
             var splitPath = paths.Split(originalSeparator);
             var builder   = new StringWriter();
+
+            bool isFirst = true;
+
             foreach (var path in splitPath)
             {
                 if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
@@ -205,22 +209,33 @@ namespace EmscriptenTask
                 if (needsValidation && !IsFileOrDirectory(sanitizedPath))
                     continue;
 
+
+                if (isFirst)
+                    isFirst = false;
+                else
+                    builder.Write(' ');
+
                 // if it's separated by white space skip the tag all together
                 if (string.IsNullOrWhiteSpace(tagSeparation))
                 {
                     if (quoteIfHasWs && sanitizedPath.Contains(" "))
-                        builder.Write($" \"{sanitizedPath}\"");
+                        builder.Write($"\"{sanitizedPath}\"");
                     else
-                        builder.Write($" {sanitizedPath}");
+                        builder.Write(sanitizedPath);
                 }
                 else
                 {
                     if (quoteIfHasWs && sanitizedPath.Contains(" "))
-                        builder.Write($" {tagSeparation} \"{sanitizedPath}\"");
+                        builder.Write(merge
+                                          ? $"{tagSeparation}\"{sanitizedPath}\""
+                                          : $"{tagSeparation} \"{sanitizedPath}\"");
                     else
-                        builder.Write($" {tagSeparation} {sanitizedPath}");
+                        builder.Write(merge
+                            ? $"{tagSeparation}{sanitizedPath}"
+                            : $"{tagSeparation} {sanitizedPath}");
                 }
             }
+
             return builder.ToString();
         }
     }
