@@ -110,7 +110,7 @@ namespace EmscriptenTask
             {
                 var fileName   = inputFile.GetMetadata(FullPath);
                 var sourceRoot = OutputFile.GetMetadata(FullPath);
- 
+
                 if (string.IsNullOrEmpty(fileName))
                     LogMessage($"input source is missing MetaData {FullPath}");
                 else if (string.IsNullOrEmpty(sourceRoot))

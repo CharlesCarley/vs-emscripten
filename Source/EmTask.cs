@@ -324,7 +324,7 @@ namespace EmscriptenTask
             // by then, kill it and report a time out.
             if (process.WaitForExit(TimeOut))
                 return process.ExitCode != 0;
-            
+
             LogError($"the process {BaseName(info.FileName)} timed out.");
             return false;
         }

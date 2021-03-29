@@ -198,7 +198,7 @@ namespace EmscriptenTask
             var splitPath = paths.Split(originalSeparator);
             var builder   = new StringWriter();
 
-            bool isFirst = true;
+            var isFirst = true;
 
             foreach (var path in splitPath)
             {
@@ -208,7 +208,6 @@ namespace EmscriptenTask
                 var sanitizedPath = Sanitize(path);
                 if (needsValidation && !IsFileOrDirectory(sanitizedPath))
                     continue;
-
 
                 if (isFirst)
                     isFirst = false;
@@ -231,8 +230,8 @@ namespace EmscriptenTask
                                           : $"{tagSeparation} \"{sanitizedPath}\"");
                     else
                         builder.Write(merge
-                            ? $"{tagSeparation}{sanitizedPath}"
-                            : $"{tagSeparation} {sanitizedPath}");
+                                          ? $"{tagSeparation}{sanitizedPath}"
+                                          : $"{tagSeparation} {sanitizedPath}");
                 }
             }
 
