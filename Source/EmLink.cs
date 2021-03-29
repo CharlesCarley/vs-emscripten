@@ -32,7 +32,7 @@ namespace EmscriptenTask
     {
         protected override string SenderName => nameof(EmLink);
 
-        protected override string BuildFileName => OutputFile.GetMetadata("Filename");
+        protected override string BuildFileName => OutputFile.GetMetadata("FullPath");
         public string             ConfigurationType { get; set; }
 
         // clang-format off
@@ -74,13 +74,12 @@ namespace EmscriptenTask
 
         protected string BuildSwitches()
         {
-            if (OutputFile==null)
+            if (OutputFile == null)
                 throw new ArgumentNullException(nameof(OutputFile), "no output file");
-           
+
             var currentSource = GetCurrentSource();
             if (currentSource == null || currentSource.Length <= 0)
                 throw new ArgumentNullException(nameof(OutputFile), "no input files.");
-
 
             var builder = new StringWriter();
 
@@ -92,7 +91,7 @@ namespace EmscriptenTask
             EmSwitchWriter.Write(builder, GetType(), this);
             return builder.ToString();
         }
-        
+
         protected override void OnStart()
         {
             OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
@@ -105,7 +104,6 @@ namespace EmscriptenTask
                                                         MinimalRebuildFromTracking,
                                                         true);
 
-            /// OutputFile = AbsolutePathSanitized(OutputFile);
             if (Verbose)
                 LogTaskProps(GetType(), this);
         }
@@ -128,14 +126,14 @@ namespace EmscriptenTask
             {
             case "Application":
             {
-                var swapName = OutputFile.GetMetadata("Filename");
+                var swapName   = OutputFile.GetMetadata("Filename");
                 var sourceRoot = OutputFile.GetMetadata("FullPath");
                 OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
                 break;
             }
             case "HTMLApplication":
             {
-                var swapName = OutputFile.GetMetadata("Filename");
+                var swapName   = OutputFile.GetMetadata("Filename");
                 var sourceRoot = OutputFile.GetMetadata("FullPath");
 
                 OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");

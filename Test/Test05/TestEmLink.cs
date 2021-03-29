@@ -105,14 +105,10 @@ namespace UnitTest
             Assert.AreEqual(@"A n o t h e r\ p a t h\EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
         }
 
-
-
-
         [TestMethod]
         public void TestSources()
         {
-            var obj = new EmscriptenTask.EmLink
-            {
+            var obj = new EmscriptenTask.EmLink {
                 Sources = ItemsFromString("a.o;b.o")
             };
 
@@ -122,8 +118,7 @@ namespace UnitTest
             Assert.AreEqual(15, obj.Sources[0].MetadataCount);
 
             var mockFileLoc = Environment.CurrentDirectory;
-            var driveRoot = $"{Path.GetPathRoot(mockFileLoc)}";
-
+            var driveRoot   = $"{Path.GetPathRoot(mockFileLoc)}";
 
             Assert.AreNotEqual(null, obj.Sources[0].MetadataNames);
             Assert.AreEqual($@"{mockFileLoc}\a.o", obj.Sources[0].GetMetadata("FullPath"));
@@ -133,7 +128,6 @@ namespace UnitTest
             Assert.AreEqual("", obj.Sources[0].GetMetadata("RelativeDir"));
             Assert.AreEqual($"{mockFileLoc.Replace(driveRoot, "")}\\", obj.Sources[0].GetMetadata("Directory"));
         }
-
 
         private string WriteSwitchesToString(object obj)
         {
@@ -145,21 +139,44 @@ namespace UnitTest
         [TestMethod]
         public void TestOutputFileSwitch()
         {
-            var obj = new EmscriptenTask.EmLink
-            {
+            var obj = new EmscriptenTask.EmLink {
                 OutputFile = new TaskItem("ABC.wasm")
             };
 
-
-            var result = WriteSwitchesToString(obj);
+            var result      = WriteSwitchesToString(obj);
             var mockFileLoc = Environment.CurrentDirectory;
 
             Assert.AreEqual($@" -o {mockFileLoc}\ABC.wasm", result);
-
             obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.wasm");
 
             var result1 = WriteSwitchesToString(obj);
             Assert.AreEqual(" -o \"Z:\\Some Space \\ Separated Drive\\A B C.wasm\"", result1);
+        }
+
+        [TestMethod]
+        public void TestAdditionalDependenciesSwitch()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                AdditionalDependencies = "ANonExistingDependency.a"
+            };
+
+            var result = WriteSwitchesToString(obj);
+
+            // AdditionalDependencies has the validate argument 
+            // set to true. So the expected behavior is to 
+            // skip it if the file does not exist.
+            Assert.AreEqual(string.Empty, result);
+
+
+            var curDir = Environment.CurrentDirectory;
+            obj.AdditionalDependencies = $@"{curDir}\..\..\TestEmLink.cs";
+            var expected = $@"  {curDir}\..\..\TestEmLink.cs";
+
+            var result2 = WriteSwitchesToString(obj);
+
+            Assert.IsTrue(expected.Equals(result2));
+
         }
 
     }

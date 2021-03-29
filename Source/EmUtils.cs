@@ -98,7 +98,7 @@ namespace EmscriptenTask
             var cur = Environment.CurrentDirectory;
             if (!cur.EndsWith("\\"))
                 cur += "\\";
-        
+
             return $@"{cur}{path}";
         }
 
@@ -200,10 +200,21 @@ namespace EmscriptenTask
                 if (needsValidation && !IsFileOrDirectory(sanitizedPath))
                     continue;
 
-                if (quoteIfHasWs && sanitizedPath.Contains(" "))
-                    builder.Write($" {tagSeparation} \"{sanitizedPath}\"");
+                // if it's separated by white space skip the tag all together 
+                if (string.IsNullOrWhiteSpace(tagSeparation))
+                {
+                    if (quoteIfHasWs && sanitizedPath.Contains(" "))
+                        builder.Write($" \"{sanitizedPath}\"");
+                    else
+                        builder.Write($" {sanitizedPath}");
+                }
                 else
-                    builder.Write($" {tagSeparation} {sanitizedPath}");
+                {
+                    if (quoteIfHasWs && sanitizedPath.Contains(" "))
+                        builder.Write($" {tagSeparation} \"{sanitizedPath}\"");
+                    else
+                        builder.Write($" {tagSeparation} {sanitizedPath}");
+                }
             }
             return builder.ToString();
         }

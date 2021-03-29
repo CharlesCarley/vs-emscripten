@@ -363,7 +363,7 @@ namespace EmscriptenTask
 
         protected bool ProcessFile(ITaskItem file)
         {
-            BuildFile = AbsolutePathSanitized(file.ItemSpec);
+            BuildFile = file.GetMetadata("FullPath");
             ValidateOutputFile();
 
             // Reflect the BaseName of the file currently being compiled.
