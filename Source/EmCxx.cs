@@ -20,10 +20,11 @@
 -------------------------------------------------------------------------------
 */
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using System;
 using System.IO;
 using static EmscriptenTask.EmUtils;
+using Input  = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
+using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
 
 namespace EmscriptenTask
 {
@@ -146,8 +147,6 @@ namespace EmscriptenTask
             "EnableLanguageExtensions,WarnLanguageExtensions,DisableLanguageExtensions",
             ",-pedantic,-pedantic-errors")]
         public string LanguageExtensions { get; set; }
-
-
 
         // PreserveTempFiles
 
@@ -312,15 +311,8 @@ namespace EmscriptenTask
             if (Verbose)
                 LogTaskProps(GetType(), this);
 
-            OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
-
-            InputFiles = new CanonicalTrackedInputFiles(this,
-                                                        TLogReadFiles,
-                                                        Sources,
-                                                        null,
-                                                        OutputFiles,
-                                                        MinimalRebuildFromTracking,
-                                                        true);
+            _outputFiles = new Output(this, TLogWriteFiles);
+            _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, MinimalRebuildFromTracking, true);
         }
 
         protected override void OnStop(bool succeeded)
@@ -330,7 +322,7 @@ namespace EmscriptenTask
 
             SaveTLogCommand();
             SaveTLogRead();
-            OutputFiles.SaveTlog();
+            _outputFiles.SaveTlog();
         }
 
         /// <summary>
@@ -340,12 +332,11 @@ namespace EmscriptenTask
         public void ValidateOutputFile()
         {
             var baseName = BaseName(ObjectFileName);
-            var basePath = Sanitize(ObjectFileName.Replace(baseName, ""));
+            var basePath = AbsolutePathSanitized(ObjectFileName).Replace(baseName, string.Empty);
 
-            if (Sources.Length > 1)
-                ObjectFileName = AbsolutePathSanitized($"{basePath}{BaseName(BuildFile)}.o");
-            else
-                ObjectFileName = AbsolutePathSanitized($"{basePath}{baseName}");
+            ObjectFileName = Sources.Length > 1
+                                 ? $"{basePath}{BaseName(BuildFile)}.o"
+                                 : $"{basePath}{baseName}";
 
             if (string.IsNullOrEmpty(basePath))
                 return;
@@ -363,19 +354,18 @@ namespace EmscriptenTask
 
         protected bool ProcessFile(ITaskItem file)
         {
-            BuildFile = file.GetMetadata("FullPath");
+            BuildFile = file.GetMetadata(FullPath);
             ValidateOutputFile();
 
             // Reflect the BaseName of the file currently being compiled.
             LogMessage(BaseName(BuildFile));
 
-            OutputFiles.AddComputedOutputForSourceRoot(BuildFile.ToUpperInvariant(), ObjectFileName);
+            _outputFiles.AddComputedOutputForSourceRoot(
+                BuildFile.ToUpperInvariant(),
+                ObjectFileName);
 
-            var tool = EmccTool;
-            if (!TestCompileAsC())
-                tool = tool.Replace("emcc.bat", "em++.bat");
-
-            return Call(tool, BuildSwitches());
+            var isC = TestCompileAsC();
+            return Call(isC ? EmccTool : EmCppTool, BuildSwitches());
         }
 
         /// <summary>
@@ -413,13 +403,18 @@ namespace EmscriptenTask
             var builder = new StringWriter();
             foreach (var source in sourceFiles)
             {
-                builder.Write($"^{AbsolutePathSanitized(source.ItemSpec)}".ToUpperInvariant());
+                var file = source.GetMetadata(FullPath);
+                if (string.IsNullOrEmpty(file))
+                    continue;
+
+                builder.Write($"^{file}".ToUpperInvariant());
                 builder.Write('\n');
 
                 var extraDependencies = GetDependencyOutput();
                 if (!string.IsNullOrEmpty(extraDependencies))
                     builder.Write(extraDependencies);
             }
+
             File.AppendAllText(TLogReadPathName, builder.ToString());
         }
 
@@ -432,10 +427,14 @@ namespace EmscriptenTask
             var builder = new StringWriter();
             foreach (var source in sourceFiles)
             {
-                builder.Write($"^{AbsolutePathSanitized(source.ItemSpec)}".ToUpperInvariant());
+                var file = source.GetMetadata(FullPath);
+                if (string.IsNullOrEmpty(file))
+                    continue;
+
+                builder.Write($"^{file}".ToUpperInvariant());
                 builder.Write('\n');
 
-                BuildFile = AbsolutePath(source.ItemSpec);
+                BuildFile = file;
                 ValidateOutputFile();
                 builder.WriteLine(BuildSwitches());
             }
@@ -446,27 +445,21 @@ namespace EmscriptenTask
         public override bool Run()
         {
             var list = GetCurrentSource();
-            if (list == null)
+            if (list == null || list.Length <= 0)
                 throw new FileNotFoundException($"{SenderName}: no input files");
 
             foreach (var file in list)
             {
-                if (!string.IsNullOrEmpty(file.ItemSpec))
-                {
-                    if (!File.Exists(file.ItemSpec))
-                    {
-                        throw new FileNotFoundException(
-                            $"{SenderName}: the file '{file.ItemSpec}' could not be found.");
-                    }
+                var filename = file.GetMetadata(FullPath);
 
-                    if (!ProcessFile(file))
-                        return false;
-                }
-                else
+                if (string.IsNullOrEmpty(filename) || !File.Exists(filename))
                 {
                     throw new FileNotFoundException(
-                        $"{SenderName}: no input files");
+                        $"{SenderName}: the file '{filename}' could not be found.");
                 }
+
+                if (!ProcessFile(file))
+                    return false;
             }
             return true;
         }

@@ -25,13 +25,10 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Build.Framework;
+using static EmscriptenTask.EmUtils;
 
 namespace EmscriptenTask
 {
-    public interface IConvertAttribute
-    {
-        bool ConvertTo(PropertyInfo prop, object obj);
-    }
 
     public class BaseSwitch : Attribute
     {
@@ -49,7 +46,7 @@ namespace EmscriptenTask
     /// <summary>
     /// A boolean switch attribute.
     /// </summary>
-    public class BoolSwitch : BaseSwitch, IConvertAttribute
+    public class BoolSwitch : BaseSwitch
     {
         public BoolSwitch(string valueIfTrue = null, string valueIfFalse = null)
         {
@@ -87,7 +84,7 @@ namespace EmscriptenTask
     /// <summary>
     /// A multi value string based command line switch.
     /// </summary>
-    public class SeparatedStringSwitch : BaseSwitch, IConvertAttribute
+    public class SeparatedStringSwitch : BaseSwitch
     {
         /// <summary>
         /// The main constructor.
@@ -95,7 +92,10 @@ namespace EmscriptenTask
         /// <param name="switchValue">The switch value to put in place of the separator.</param>
         /// <param name="requiresValidation">If this is true the value will be skipped if its not a valid file or directory.</param>
         /// <param name="separator">The character that defines a split</param>
-        public SeparatedStringSwitch(string switchValue, bool requiresValidation = false, bool quoteIfHasWs = false, char separator = ';')
+        public SeparatedStringSwitch(string switchValue,
+                                     bool   requiresValidation = false,
+                                     bool   quoteIfHasWs       = false,
+                                     char   separator          = ';')
         {
             SwitchValue        = switchValue;
             Separator          = separator;
@@ -141,7 +141,7 @@ namespace EmscriptenTask
     /// <summary>
     /// A string based command line switch.
     /// </summary>
-    public class StringSwitch : BaseSwitch, IConvertAttribute
+    public class StringSwitch : BaseSwitch
     {
         public const int NoQuote           = 0;
         public const int QuoteIfWhiteSpace = 1;
@@ -194,7 +194,7 @@ namespace EmscriptenTask
                 sValue = str;
                 break;
             case ITaskItem item:
-                sValue = item.GetMetadata("FullPath");
+                sValue = item.GetMetadata(FullPath);
                 break;
             default:
                 return false;
@@ -217,7 +217,7 @@ namespace EmscriptenTask
     /// <summary>
     /// An integer based command line switch.
     /// </summary>
-    public class IntSwitch : BaseSwitch, IConvertAttribute
+    public class IntSwitch : BaseSwitch
     {
         /// <summary>
         /// Main constructor.
@@ -368,7 +368,7 @@ namespace EmscriptenTask
                 string.IsNullOrEmpty(obj.SwitchValue))
                 return;
 
-            var result = EmUtils.SeparatePaths(obj.ConvertedValue,
+            var result = SeparatePaths(obj.ConvertedValue,
                                                obj.Separator,
                                                obj.SwitchValue,
                                                obj.RequiresValidation,

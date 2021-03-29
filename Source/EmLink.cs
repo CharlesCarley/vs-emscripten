@@ -23,8 +23,9 @@
 using System;
 using System.IO;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
+using Input  = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
+using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
 
 namespace EmscriptenTask
 {
@@ -32,7 +33,7 @@ namespace EmscriptenTask
     {
         protected override string SenderName => nameof(EmLink);
 
-        protected override string BuildFileName => OutputFile.GetMetadata("FullPath");
+        protected override string BuildFileName => OutputFile.GetMetadata(FullPath);
         public string             ConfigurationType { get; set; }
 
         // clang-format off
@@ -94,18 +95,62 @@ namespace EmscriptenTask
 
         protected override void OnStart()
         {
-            OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
-
-            InputFiles = new CanonicalTrackedInputFiles(this,
-                                                        TLogReadFiles,
-                                                        Sources,
-                                                        null,
-                                                        OutputFiles,
-                                                        MinimalRebuildFromTracking,
-                                                        true);
+            _outputFiles = new Output(this, TLogWriteFiles);
+            _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, MinimalRebuildFromTracking, true);
 
             if (Verbose)
                 LogTaskProps(GetType(), this);
+        }
+
+        private void SaveTLogOut()
+        {
+            var input = GetCurrentSource();
+
+            foreach (var inputFile in input)
+            {
+                var fileName   = inputFile.GetMetadata(FullPath);
+                var sourceRoot = OutputFile.GetMetadata(FullPath);
+ 
+                if (string.IsNullOrEmpty(fileName))
+                    LogMessage($"input source is missing MetaData {FullPath}");
+                else if (string.IsNullOrEmpty(sourceRoot))
+                    LogMessage($"output file is missing MetaData {FullPath}");
+                else
+                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, fileName);
+            }
+
+            switch (ConfigurationType)
+            {
+            case "Application":
+            {
+                var swapName   = OutputFile.GetMetadata(Filename);
+                var sourceRoot = OutputFile.GetMetadata(FullPath);
+                if (string.IsNullOrEmpty(swapName))
+                    LogMessage($"input source is missing MetaData {Filename}");
+                else if (string.IsNullOrEmpty(sourceRoot))
+                    LogMessage($"output file is missing MetaData {FullPath}");
+                else
+                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
+                break;
+            }
+            case "HTMLApplication":
+            {
+                var swapName   = OutputFile.GetMetadata(Filename);
+                var sourceRoot = OutputFile.GetMetadata(FullPath);
+                if (string.IsNullOrEmpty(swapName))
+                    LogMessage($"input source is missing MetaData {Filename}");
+                else if (string.IsNullOrEmpty(sourceRoot))
+                    LogMessage($"output file is missing MetaData {FullPath}");
+                else
+                {
+                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
+                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.html");
+                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.js");
+                }
+                break;
+            }
+            }
+            _outputFiles.SaveTlog();
         }
 
         protected override void OnStop(bool succeeded)
@@ -114,43 +159,12 @@ namespace EmscriptenTask
                 return;
 
             SaveTLogRead();
-            var input = GetCurrentSource();
-            foreach (var inputFile in input)
-            {
-                var fileName   = inputFile.GetMetadata("FullPath");
-                var sourceRoot = OutputFile.GetMetadata("FullPath");
-                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, fileName);
-            }
-
-            switch (ConfigurationType)
-            {
-            case "Application":
-            {
-                var swapName   = OutputFile.GetMetadata("Filename");
-                var sourceRoot = OutputFile.GetMetadata("FullPath");
-                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
-                break;
-            }
-            case "HTMLApplication":
-            {
-                var swapName   = OutputFile.GetMetadata("Filename");
-                var sourceRoot = OutputFile.GetMetadata("FullPath");
-
-                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
-                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.html");
-                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.js");
-                break;
-            }
-            }
-
-            OutputFiles.SaveTlog();
+            SaveTLogOut();
         }
 
         public override bool Run()
         {
-            var tool = EmccTool;
-            tool     = tool.Replace("emcc.bat", "em++.bat");
-            return Call(tool, BuildSwitches());
+            return Call(EmCppTool, BuildSwitches());
         }
     }
 }

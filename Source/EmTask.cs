@@ -19,13 +19,16 @@
   3. This notice may not be removed or altered from any source distribution.
 -------------------------------------------------------------------------------
 */
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
+
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
+using Input = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
+using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
 
 namespace EmscriptenTask
 {
@@ -60,11 +63,12 @@ namespace EmscriptenTask
             set {
                 _trackerLogDirectory = value;
 
-                // force them to change 
-                _tLogReadFiles = null;
+                // force them to change
+                _tLogReadFiles  = null;
                 _tLogWriteFiles = null;
 
-                if (string.IsNullOrEmpty(_trackerLogDirectory)) return;
+                if (string.IsNullOrEmpty(_trackerLogDirectory))
+                    return;
 
                 // Make sure that the directory ends with a \
                 // Other areas assume this!
@@ -109,13 +113,14 @@ namespace EmscriptenTask
         /// <summary>
         /// The input source files.
         /// </summary>
-        [Required] public ITaskItem[] Sources { get; set; }
+        [Required] 
+        public ITaskItem[] Sources { get; set; }
 
         public bool MinimalRebuildFromTracking { get; set; } = true;
 
-        protected CanonicalTrackedInputFiles  InputFiles { get; set; }
-        protected CanonicalTrackedOutputFiles OutputFiles { get; set; }
-
+        protected Input _inputFiles;
+        protected Output _outputFiles;
+        
 
         private ITaskItem[] _currentSources;
 
@@ -261,11 +266,10 @@ namespace EmscriptenTask
             SkippedExecution = !succeeded;
         }
 
-
         protected ITaskItem[] GetCurrentSource()
         {
-            if (_currentSources is null && InputFiles != null)
-                _currentSources = InputFiles.ComputeSourcesNeedingCompilation(true);
+            if (_currentSources is null && _inputFiles != null)
+                _currentSources = _inputFiles.ComputeSourcesNeedingCompilation(true);
             return _currentSources;
         }
 
@@ -346,7 +350,7 @@ namespace EmscriptenTask
             {
                 // >main.cpp : error : main.cpp:8:5: error: ...
                 //                             ^   ^
-                var re    = new Regex($@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
+                var re    = new Regex(@"\:([0-9]+)\:([0-9]+)\:", RegexOptions.Compiled);
                 var match = re.Match(e.Data);
                 if (match.Success && match.Groups.Count == 3)
                 {
@@ -385,18 +389,17 @@ namespace EmscriptenTask
             var builder = new StringWriter();
             foreach (var source in sourceFiles)
             {
-                var evalInc = source.ItemSpec;
-                if (evalInc == null)
+                var evalInc = source.GetMetadata(FullPath);
+                if (string.IsNullOrEmpty(evalInc))
                     continue;
 
-                var tracked = $"^{AbsolutePathSanitized(evalInc)}".ToUpperInvariant();
+                var tracked = $"^{evalInc}".ToUpperInvariant();
                 if (text.Contains(tracked))
                     continue;
 
                 builder.Write(tracked);
                 builder.Write('\n');
             }
-
             File.AppendAllText(filePath, builder.ToString());
         }
 
@@ -432,7 +435,6 @@ namespace EmscriptenTask
             }
 
             var result = false;
-
             try
             {
                 NotifyTaskStated();

@@ -21,6 +21,7 @@
 */
 
 using System;
+using EmscriptenTask;
 using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -32,7 +33,7 @@ namespace UnitTest
         [TestMethod]
         public void TestDefaults()
         {
-            var obj = new EmscriptenTask.EmAr();
+            var obj = new EmAr();
 
             // EmTask Settings
             Assert.AreEqual(null, obj.BuildEngine);
@@ -66,7 +67,7 @@ namespace UnitTest
         [TestMethod]
         public void TestOutputFileSwitch()
         {
-            var obj = new EmscriptenTask.EmAr
+            var obj = new EmAr
             {
                 OutputFile = new TaskItem("ABC.a")
             };

@@ -27,7 +27,14 @@ namespace EmscriptenTask
 {
     public static class EmUtils
     {
-        public static string EmccTool { get; set; }
+        public const string FullPath = "FullPath";
+        public const string Filename = "Filename";
+
+        public static string EmCppTool { get; private set; }
+        public static string EmArTool { get; private set; }
+        public static string EmRanLibTool { get; private set; }
+
+        public static string EmccTool { get; private set; }
         public static string EmscriptenDirectory { get; set; }
 
         public static string Sanitize(string path)
@@ -53,16 +60,6 @@ namespace EmscriptenTask
             return path;
         }
 
-        public static string BuildCommandLinePath(string path)
-        {
-            // If the path has any white space, be sure that
-            // it can still be passed via the command line.
-            path = Sanitize(path);
-            if (path.Contains(" "))
-                path = $"\"{path}\"";
-            return path;
-        }
-
         public static bool ValidateSdk()
         {
             if (EmccTool != null)
@@ -85,7 +82,11 @@ namespace EmscriptenTask
             }
 
             EmscriptenDirectory = $"{emsdk}\\upstream\\emscripten";
-            EmccTool            = $"{EmscriptenDirectory}\\emcc.bat";
+
+            EmccTool     = $"{EmscriptenDirectory}\\emcc.bat";
+            EmArTool     = EmccTool.Replace("emcc.bat", "emar.bat");
+            EmCppTool    = EmccTool.Replace("emcc.bat", "em++.bat");
+            EmRanLibTool = EmccTool.Replace("emcc.bat", "emranlib.bat");
             return true;
         }
 
@@ -120,7 +121,7 @@ namespace EmscriptenTask
                 builder.Write(charSeparator);
 
                 // Do not allow this to be null.
-                var fullFilePath = inp.GetMetadata("FullPath");
+                var fullFilePath = inp.GetMetadata(FullPath);
                 if (string.IsNullOrEmpty(fullFilePath))
                     throw new NullReferenceException(nameof(fullFilePath));
 
@@ -204,7 +205,7 @@ namespace EmscriptenTask
                 if (needsValidation && !IsFileOrDirectory(sanitizedPath))
                     continue;
 
-                // if it's separated by white space skip the tag all together 
+                // if it's separated by white space skip the tag all together
                 if (string.IsNullOrWhiteSpace(tagSeparation))
                 {
                     if (quoteIfHasWs && sanitizedPath.Contains(" "))

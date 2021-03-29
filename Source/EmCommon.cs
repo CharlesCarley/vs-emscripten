@@ -26,33 +26,6 @@ namespace EmscriptenTask
 {
     public interface IEmTask : ITask
     {
-
-        /// <summary>
-        /// This should be the upstream/emscripten directory in the emsdk.
-        /// </summary>
-        string EmscriptenDirectory { get; }
-
-        /// <summary>
-        /// This should be the full path to the $(EmscriptenDirectory)\emcc.bat batch file.
-        /// </summary>
-        string EmccTool { get; }
-
-        /// <summary>
-        /// If this is set to true, this will enable task logging.
-        /// </summary>
-        bool Verbose { get; set; }
-
-        /// <summary>
-        /// This should contain the list of source files to build.
-        /// </summary>
-        ITaskItem[] Sources { get; set; }
-
-        /// <summary>
-        /// If this is set to true, the contents of the command line should be
-        /// logged to stdout.
-        /// </summary>
-        bool EchoCommandLines { get; set; }
-
         /// <summary>
         /// Spawns the process described in info
         /// </summary>

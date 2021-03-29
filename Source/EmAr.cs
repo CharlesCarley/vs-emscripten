@@ -23,20 +23,22 @@
 using System;
 using System.IO;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmSwitchWriter;
 using static EmscriptenTask.EmUtils;
+using Input  = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
+using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
 
 namespace EmscriptenTask
 {
     public class EmAr : EmTask
     {
         protected override string SenderName    => nameof(EmAr);
-        protected override string BuildFileName => OutputFile.GetMetadata("FullPath");
+        protected override string BuildFileName => OutputFile.GetMetadata(FullPath);
 
         /// <summary>
         /// Output file name parameter $(OutDir)%(Filename).o
         /// </summary>
+        [Required]
         [StringSwitch("qc", StringSwitch.QuoteIfWhiteSpace)]
         public ITaskItem OutputFile { get; set; }
 
@@ -45,15 +47,8 @@ namespace EmscriptenTask
             if (Verbose)
                 LogTaskProps(GetType(), this);
 
-            OutputFiles = new CanonicalTrackedOutputFiles(this, TLogWriteFiles);
-
-            InputFiles = new CanonicalTrackedInputFiles(this,
-                                                        TLogReadFiles,
-                                                        Sources,
-                                                        null,
-                                                        OutputFiles,
-                                                        MinimalRebuildFromTracking,
-                                                        true);
+            _outputFiles = new Output(this, TLogWriteFiles);
+            _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, MinimalRebuildFromTracking, true);
         }
 
         protected override void OnStop(bool succeeded)
@@ -62,7 +57,7 @@ namespace EmscriptenTask
                 return;
 
             SaveTLogRead();
-            OutputFiles.SaveTlog();
+            _outputFiles.SaveTlog();
         }
 
         protected string BuildSwitches()
@@ -91,12 +86,11 @@ namespace EmscriptenTask
             if (input == null || input.Length <= 0)
                 return true;
 
-            var tool = EmccTool;
-            tool     = tool.Replace("emcc.bat", "emar.bat");
+            _outputFiles.AddComputedOutputsForSourceRoot(
+                OutputFile.GetMetadata(FullPath),
+                input);
 
-            OutputFiles.AddComputedOutputsForSourceRoot(OutputFile.GetMetadata("FullPath"), input);
-
-            return Call(tool, BuildSwitches());
+            return Call(EmArTool, BuildSwitches());
         }
 
         public bool RunRanlib()
@@ -105,10 +99,7 @@ namespace EmscriptenTask
             if (input == null || input.Length <= 0)
                 return true;
 
-            var tool = EmccTool;
-
-            tool = tool.Replace("emcc.bat", "emranlib.bat");
-            return Call(tool, OutputFile.GetMetadata("FullPath"));
+            return Call(EmRanLibTool, OutputFile.GetMetadata(FullPath));
         }
 
         public override bool Run()
