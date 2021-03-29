@@ -20,15 +20,10 @@
 -------------------------------------------------------------------------------
 */
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Logger = Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger;
 
 namespace UnitTest
 {
@@ -156,53 +151,69 @@ namespace UnitTest
         [TestMethod]
         public void TestAdditionalDependenciesSwitch()
         {
-            var obj = new EmscriptenTask.EmLink
-            {
+            var obj = new EmscriptenTask.EmLink {
                 AdditionalDependencies = "ANonExistingDependency.a"
             };
 
             var result = WriteSwitchesToString(obj);
 
-            // AdditionalDependencies has the validate argument 
-            // set to true. So the expected behavior is to 
+            // AdditionalDependencies has the validate argument
+            // set to true. So the expected behavior is to
             // skip it if the file does not exist.
             Assert.AreEqual(string.Empty, result);
 
-
-            var curDir = Environment.CurrentDirectory;
+            var curDir                 = Environment.CurrentDirectory;
             obj.AdditionalDependencies = $@"{curDir}\..\..\TestEmLink.cs";
-            var expected = $@"  {curDir}\..\..\TestEmLink.cs";
+            var expected               = $@"  {curDir}\..\..\TestEmLink.cs";
 
             var result2 = WriteSwitchesToString(obj);
 
             Assert.IsTrue(expected.Equals(result2));
-
         }
+
         [TestMethod]
         public void TestAdditionalLibraryDirectories()
         {
-            var obj = new EmscriptenTask.EmLink
-            {
+            var obj = new EmscriptenTask.EmLink {
                 AdditionalLibraryDirectories = "A/Non/Existing/Dependency/New Folder"
             };
 
             var result = WriteSwitchesToString(obj);
 
-            // AdditionalDependencies has the validate argument 
-            // set to true. So the expected behavior is to 
+            // AdditionalLibraryDirectories has the validate argument
+            // set to true. So the expected behavior is to
             // skip it if the file does not exist.
             Assert.AreEqual(string.Empty, result);
 
-
-            var curDir = Environment.CurrentDirectory;
+            var curDir                       = Environment.CurrentDirectory;
             obj.AdditionalLibraryDirectories = $@"{curDir}\..\..\New Folder";
-            var expected = $"  -L \"{curDir}\\..\\..\\New Folder\"";
+            var expected                     = $"  -L \"{curDir}\\..\\..\\New Folder\"";
 
             var result2 = WriteSwitchesToString(obj);
 
             Assert.IsTrue(expected.Equals(result2));
-
         }
 
+        [TestMethod]
+        public void TestEmWasmMode()
+        {
+            var obj = new EmscriptenTask.EmLink {
+                EmWasmMode = "EmWasmOnlyJS"
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s WASM=0", result1);
+
+            obj.EmWasmMode = "EmWasmOnlyWasm";
+            var result2    = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s WASM=1", result2);
+
+            obj.EmWasmMode = "EmWasmBoth";
+            var result3    = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s WASM=2", result3);
+
+            obj.EmWasmMode = "Anything Else Uses The Default";
+            var result4    = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s WASM=1", result4);
+        }
     }
 }
