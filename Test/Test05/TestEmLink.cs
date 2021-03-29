@@ -21,10 +21,14 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Logger = Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger;
 
 namespace UnitTest
 {
@@ -54,7 +58,7 @@ namespace UnitTest
             Assert.AreEqual(false, obj.EchoCommandLines);
 
             // Points to static data, so it's dependent on the whole test set
-            // and is valid only if ValidateSdk is called. It's not public, so... 
+            // and is valid only if ValidateSdk is called. It's not public, so...
             if (obj.EmscriptenDirectory != null)
                 Assert.IsTrue(obj.EmscriptenDirectory.Contains(@"\upstream\emscripten"));
             if (obj.EmccTool != null)
@@ -68,22 +72,28 @@ namespace UnitTest
             Assert.AreEqual(null, obj.EmWasmMode);
         }
 
+        private ITaskItem[] ItemsFromString(string semiColonSeparated)
+        {
+            var list = semiColonSeparated.Split(';');
+            if (list.Length <= 0)
+                return null;
+
+            var items = new ITaskItem[list.Length];
+            for (var i = 0; i < list.Length; ++i)
+                items[i] = new TaskItem(list[i]);
+
+            return items;
+        }
+
         [TestMethod]
         public void TestTrackerLogDirectory()
         {
-            var obj = new EmscriptenTask.EmLink
-            {
+            var obj = new EmscriptenTask.EmLink {
                 TrackerLogDirectory = "/Some/Path/To/The/Log/Files"
             };
 
-            Assert.AreNotEqual(null, obj.TrackerLogDirectory);
-            Assert.AreNotEqual(null, obj.TLogReadFiles);
-            Assert.AreNotEqual(null, obj.TLogWriteFiles);
-
-
             Assert.AreEqual(@"\Some\Path\To\The\Log\Files\EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
             Assert.AreEqual(@"\Some\Path\To\The\Log\Files\EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
-
 
             obj.TrackerLogDirectory = null;
             Assert.AreEqual(@"EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
@@ -94,5 +104,63 @@ namespace UnitTest
             Assert.AreEqual(@"A n o t h e r\ p a t h\EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
             Assert.AreEqual(@"A n o t h e r\ p a t h\EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
         }
+
+
+
+
+        [TestMethod]
+        public void TestSources()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                Sources = ItemsFromString("a.o;b.o")
+            };
+
+            Assert.AreNotEqual(null, obj.Sources);
+            Assert.AreEqual(2, obj.Sources.Length);
+            Assert.AreEqual("a.o", obj.Sources[0].ItemSpec);
+            Assert.AreEqual(15, obj.Sources[0].MetadataCount);
+
+            var mockFileLoc = Environment.CurrentDirectory;
+            var driveRoot = $"{Path.GetPathRoot(mockFileLoc)}";
+
+
+            Assert.AreNotEqual(null, obj.Sources[0].MetadataNames);
+            Assert.AreEqual($@"{mockFileLoc}\a.o", obj.Sources[0].GetMetadata("FullPath"));
+            Assert.AreEqual($@"{driveRoot}", obj.Sources[0].GetMetadata("RootDir"));
+            Assert.AreEqual("a", obj.Sources[0].GetMetadata("Filename"));
+            Assert.AreEqual(".o", obj.Sources[0].GetMetadata("Extension"));
+            Assert.AreEqual("", obj.Sources[0].GetMetadata("RelativeDir"));
+            Assert.AreEqual($"{mockFileLoc.Replace(driveRoot, "")}\\", obj.Sources[0].GetMetadata("Directory"));
+        }
+
+
+        private string WriteSwitchesToString(object obj)
+        {
+            StringWriter writer = new StringWriter();
+            EmscriptenTask.EmSwitchWriter.Write(writer, obj.GetType(), obj);
+            return writer.ToString();
+        }
+
+        [TestMethod]
+        public void TestOutputFileSwitch()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                OutputFile = new TaskItem("ABC.wasm")
+            };
+
+
+            var result = WriteSwitchesToString(obj);
+            var mockFileLoc = Environment.CurrentDirectory;
+
+            Assert.AreEqual($@" -o {mockFileLoc}\ABC.wasm", result);
+
+            obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.wasm");
+
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -o \"Z:\\Some Space \\ Separated Drive\\A B C.wasm\"", result1);
+        }
+
     }
 }

@@ -115,10 +115,15 @@ namespace EmscriptenTask
             {
                 builder.Write(charSeparator);
 
-                if (quoteIfHasWs && inp.ItemSpec.Contains(" "))
-                    builder.Write($"\"{inp.ItemSpec}\"");
+                // Do not allow this to be null.
+                var fullFilePath = inp.GetMetadata("FullPath");
+                if (string.IsNullOrEmpty(fullFilePath))
+                    throw new NullReferenceException(nameof(fullFilePath));
+
+                if (quoteIfHasWs && fullFilePath.Contains(" "))
+                    builder.Write($"\"{fullFilePath}\"");
                 else
-                    builder.Write(inp.ItemSpec);
+                    builder.Write(fullFilePath);
             }
             return builder.ToString();
         }

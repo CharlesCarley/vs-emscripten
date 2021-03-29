@@ -129,7 +129,7 @@ namespace UnitTest
             var link = new EmLink {
                 BuildEngine         = be,
                 TrackerLogDirectory = trackerDir,
-                OutputFile          = wasmFile,
+                OutputFile          = new TaskItem(wasmFile),
                 Sources             = new ITaskItem[] { new TaskItem(objFile) },
             };
             Assert.IsTrue(link.Execute());

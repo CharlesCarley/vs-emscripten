@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
 
@@ -31,7 +32,7 @@ namespace EmscriptenTask
     {
         protected override string SenderName => nameof(EmLink);
 
-        protected override string BuildFileName => OutputFile;
+        protected override string BuildFileName => OutputFile.GetMetadata("Filename");
         public string             ConfigurationType { get; set; }
 
         // clang-format off
@@ -39,8 +40,9 @@ namespace EmscriptenTask
         /// <summary>
         /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
         /// </summary>
+        [Required]
         [StringSwitch("-o", StringSwitch.QuoteIfWhiteSpace)]
-        public string OutputFile { get; set; }
+        public ITaskItem OutputFile { get; set; }
 
         /// <summary>
         /// User supplied libraries.
@@ -72,13 +74,18 @@ namespace EmscriptenTask
 
         protected string BuildSwitches()
         {
-            if (string.IsNullOrEmpty(OutputFile))
-                throw new ArgumentNullException(nameof(OutputFile), "Missing OutputFile");
+            if (OutputFile==null)
+                throw new ArgumentNullException(nameof(OutputFile), "no output file");
+           
+            var currentSource = GetCurrentSource();
+            if (currentSource == null || currentSource.Length <= 0)
+                throw new ArgumentNullException(nameof(OutputFile), "no input files.");
+
 
             var builder = new StringWriter();
 
             // write the input objects as a WS separated list
-            var objects = GetSeparatedSource(' ', GetCurrentSource(), true);
+            var objects = GetSeparatedSource(' ', currentSource, true);
             builder.Write(' ');
             builder.Write(objects);
 
@@ -98,7 +105,7 @@ namespace EmscriptenTask
                                                         MinimalRebuildFromTracking,
                                                         true);
 
-            OutputFile = AbsolutePathSanitized(OutputFile);
+            /// OutputFile = AbsolutePathSanitized(OutputFile);
             if (Verbose)
                 LogTaskProps(GetType(), this);
         }
@@ -112,8 +119,8 @@ namespace EmscriptenTask
             var input = GetCurrentSource();
             foreach (var inputFile in input)
             {
-                var fileName   = inputFile.ItemSpec;
-                var sourceRoot = OutputFile.ToUpperInvariant();
+                var fileName   = inputFile.GetMetadata("FullPath");
+                var sourceRoot = OutputFile.GetMetadata("FullPath");
                 OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, fileName);
             }
 
@@ -121,16 +128,19 @@ namespace EmscriptenTask
             {
             case "Application":
             {
-                var swapName = FileNameWithoutExtension(OutputFile);
-                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.wasm");
+                var swapName = OutputFile.GetMetadata("Filename");
+                var sourceRoot = OutputFile.GetMetadata("FullPath");
+                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
                 break;
             }
             case "HTMLApplication":
             {
-                var swapName = FileNameWithoutExtension(OutputFile);
-                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.wasm");
-                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.html");
-                OutputFiles.AddComputedOutputForSourceRoot(OutputFile, $"{swapName}.js");
+                var swapName = OutputFile.GetMetadata("Filename");
+                var sourceRoot = OutputFile.GetMetadata("FullPath");
+
+                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
+                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.html");
+                OutputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.js");
                 break;
             }
             }

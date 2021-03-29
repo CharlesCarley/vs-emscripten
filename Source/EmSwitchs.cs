@@ -24,6 +24,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Build.Framework;
 
 namespace EmscriptenTask
 {
@@ -186,13 +187,20 @@ namespace EmscriptenTask
             if (value is null)
                 return false;
 
-            var result = value is string;
-            if (!result)
+            string sValue;
+            switch (value)
+            {
+            case string str:
+                sValue = str;
+                break;
+            case ITaskItem item:
+                sValue = item.GetMetadata("FullPath");
+                break;
+            default:
                 return false;
+            }
 
-            var sValue = (string)value;
             sValue = sValue?.Trim();
-
             if (string.IsNullOrEmpty(sValue))
                 return false;
 
