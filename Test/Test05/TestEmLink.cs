@@ -178,6 +178,31 @@ namespace UnitTest
             Assert.IsTrue(expected.Equals(result2));
 
         }
+        [TestMethod]
+        public void TestAdditionalLibraryDirectories()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                AdditionalLibraryDirectories = "A/Non/Existing/Dependency/New Folder"
+            };
+
+            var result = WriteSwitchesToString(obj);
+
+            // AdditionalDependencies has the validate argument 
+            // set to true. So the expected behavior is to 
+            // skip it if the file does not exist.
+            Assert.AreEqual(string.Empty, result);
+
+
+            var curDir = Environment.CurrentDirectory;
+            obj.AdditionalLibraryDirectories = $@"{curDir}\..\..\New Folder";
+            var expected = $"  -L \"{curDir}\\..\\..\\New Folder\"";
+
+            var result2 = WriteSwitchesToString(obj);
+
+            Assert.IsTrue(expected.Equals(result2));
+
+        }
 
     }
 }

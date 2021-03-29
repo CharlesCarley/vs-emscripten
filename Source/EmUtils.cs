@@ -46,6 +46,10 @@ namespace EmscriptenTask
             while (path.Contains(@"\\"))
                 path = path.Replace(@"\\", @"\");
 
+            if (path.StartsWith(" "))
+                path = path.TrimStart();
+            if (path.EndsWith(" "))
+                path = path.TrimEnd();
             return path;
         }
 
