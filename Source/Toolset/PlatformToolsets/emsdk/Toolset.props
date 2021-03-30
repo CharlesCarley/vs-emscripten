@@ -99,12 +99,17 @@
 
     <!-- Debugger Settings -->
     <DebuggerFlavor Condition="'$(DebuggerFlavor)' == ''">WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommand          Condition="'$(ConfigurationType)' == 'Application' and '$(LocalDebuggerCommand)'           == ''">$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'Application' and '$(LocalDebuggerCommandArguments)'  == ''">run $(TargetPath)</LocalDebuggerCommandArguments>
+  </PropertyGroup>
 
-    <LocalDebuggerCommand          Condition="'$(ConfigurationType)' == 'HTMLApplication' and '$(LocalDebuggerCommand)'           == ''">$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments Condition="'$(ConfigurationType)' == 'HTMLApplication' and '$(LocalDebuggerCommandArguments)'  == ''">$(TargetPath)</LocalDebuggerCommandArguments>
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'Application'">
+    <LocalDebuggerCommand          Condition="'$(LocalDebuggerCommand)'          == ''">$(EmscriptenLLVM)\wasmer.bat</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == ''">$(TargetPath)</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'HTMLApplication' ">
+    <LocalDebuggerCommand          Condition="'$(LocalDebuggerCommand)' == ''">$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
+    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == ''">$(TargetPath)</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 

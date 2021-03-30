@@ -84,7 +84,7 @@ namespace EmscriptenTask
         {
             var input = GetCurrentSource();
             if (input == null || input.Length <= 0)
-                return true;
+                throw new ArgumentNullException(nameof(OutputFile), "no input files.");
 
             _outputFiles.AddComputedOutputsForSourceRoot(
                 OutputFile.GetMetadata(FullPath),
@@ -99,7 +99,7 @@ namespace EmscriptenTask
             if (input == null || input.Length <= 0)
                 return true;
 
-            return Call(EmRanLibTool, OutputFile.GetMetadata(FullPath));
+            return Call(EmRanLibTool, OutputFile.ItemSpec);
         }
 
         public override bool Run()

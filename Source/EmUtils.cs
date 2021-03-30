@@ -121,7 +121,7 @@ namespace EmscriptenTask
                 builder.Write(charSeparator);
 
                 // Do not allow this to be null.
-                var fullFilePath = inp.GetMetadata(FullPath);
+                var fullFilePath = inp.ItemSpec;
                 if (string.IsNullOrEmpty(fullFilePath))
                     throw new NullReferenceException(nameof(fullFilePath));
 
