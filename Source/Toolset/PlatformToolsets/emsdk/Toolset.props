@@ -54,7 +54,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
     <TargetPlatformIdentifier>Emscripten</TargetPlatformIdentifier>
     <ToolsetISenseIdentifier>$(TargetPlatformIdentifier)</ToolsetISenseIdentifier>
     <EmscriptenSDK>$(EMSDK)</EmscriptenSDK>
@@ -129,7 +129,7 @@
       <OmitFramePointers>false</OmitFramePointers>
 
       <!-- Preprocessor -->
-      <PreprocessorDefinitions />
+      <PreprocessorDefinitions>__EMSCRIPTEN__</PreprocessorDefinitions>
       <UndefinePreprocessorDefinitions />
       <SystemPreprocessorDefinitions>__EMSCRIPTEN__</SystemPreprocessorDefinitions>
       <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>

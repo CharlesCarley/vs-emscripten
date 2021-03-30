@@ -84,7 +84,7 @@ namespace EmscriptenTask
         {
             var input = GetCurrentSource();
             if (input == null || input.Length <= 0)
-                throw new ArgumentNullException(nameof(OutputFile), "no input files.");
+                return true;
 
             _outputFiles.AddComputedOutputsForSourceRoot(
                 OutputFile.GetMetadata(FullPath),

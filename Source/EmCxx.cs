@@ -48,7 +48,7 @@ namespace EmscriptenTask
         [SeparatedStringSwitch("-I", BaseSwitch.RequiresValidation|BaseSwitch.QuoteIfWhiteSpace)]
         public string AdditionalIncludeDirectories { get; set; }
 
-        [SeparatedStringSwitch("-I", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
+        //[SeparatedStringSwitch("-I", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
         public string SystemIncludeDirectories { get; set; }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace EmscriptenTask
         public void ValidateOutputFile()
         {
             var baseName = BaseName(ObjectFileName);
-            var basePath = AbsolutePathSanitized(ObjectFileName).Replace(baseName, string.Empty);
+            var basePath = Sanitize(ObjectFileName).Replace(baseName, string.Empty);
 
             ObjectFileName = Sources.Length > 1
                                  ? $"{basePath}{BaseName(BuildFile)}.o"
@@ -355,14 +355,14 @@ namespace EmscriptenTask
 
         protected bool ProcessFile(ITaskItem file)
         {
-            BuildFile = file.GetMetadata(FullPath);
+            BuildFile = file.ItemSpec;
             ValidateOutputFile();
 
             // Reflect the BaseName of the file currently being compiled.
             LogMessage(BaseName(BuildFile));
 
             _outputFiles.AddComputedOutputForSourceRoot(
-                BuildFile.ToUpperInvariant(),
+                file.GetMetadata(FullPath).ToUpperInvariant(),
                 ObjectFileName);
 
             var isC = TestCompileAsC();
@@ -452,7 +452,6 @@ namespace EmscriptenTask
             foreach (var file in list)
             {
                 var filename = file.GetMetadata(FullPath);
-
                 if (string.IsNullOrEmpty(filename) || !File.Exists(filename))
                 {
                     throw new FileNotFoundException(

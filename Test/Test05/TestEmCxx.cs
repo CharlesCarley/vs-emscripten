@@ -100,22 +100,22 @@ namespace UnitTest
             Assert.AreEqual($" -c {obj.BuildFile}", result2);
         }
 
-        [TestMethod]
-        public void TestSystemIncludeDirectories()
-        {
-            var obj = new EmscriptenTask.EmCxx {
-                SystemIncludeDirectories = "../foo bar"
-            };
-            var result1 = TestUtils.WriteSwitchesToString(obj);
-            Assert.AreEqual(string.Empty, result1);
+        //[TestMethod]
+        //public void TestSystemIncludeDirectories()
+        //{
+        //    var obj = new EmscriptenTask.EmCxx {
+        //        SystemIncludeDirectories = "../foo bar"
+        //    };
+        //    var result1 = TestUtils.WriteSwitchesToString(obj);
+        //    Assert.AreEqual(string.Empty, result1);
 
-            var curDir = $@"{Environment.CurrentDirectory}\..\..\";
+        //    var curDir = $@"{Environment.CurrentDirectory}\..\..\";
 
-            obj.SystemIncludeDirectories = $@"{curDir};{curDir}\New Folder";
+        //    obj.SystemIncludeDirectories = $@"{curDir};{curDir}\New Folder";
 
-            var result2 = TestUtils.WriteSwitchesToString(obj);
-            Assert.AreEqual($" -I {curDir} -I \"{curDir}New Folder\"", result2);
-        }
+        //    var result2 = TestUtils.WriteSwitchesToString(obj);
+        //    Assert.AreEqual($" -I {curDir} -I \"{curDir}New Folder\"", result2);
+        //}
 
         [TestMethod]
         public void TestAdditionalIncludeDirectories()
