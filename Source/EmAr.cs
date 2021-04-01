@@ -32,7 +32,7 @@ namespace EmscriptenTask
 {
     public class EmAr : EmTask
     {
-        protected override string SenderName => nameof(EmAr);
+        protected override string SenderName    => nameof(EmAr);
         protected override string BuildFileName => OutputFile.GetMetadata(FullPath);
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace EmscriptenTask
             Write(builder, GetType(), this);
 
             // write the input objects as a WS separated list
-            var objects = GetSeparatedSource(' ', currentSource, true);
+            var objects = GetSeparatedSource(' ', Sources, true);
             builder.Write(' ');
             builder.Write(objects);
 
@@ -90,13 +90,13 @@ namespace EmscriptenTask
                 return true;
 
             var result = Call(EmRanLibTool, OutputFile.ItemSpec);
-            if (result)
-            {
-                EmitOutputForInput(OutputFile, Sources);
-                foreach (var inp in Sources)
-                    AddDependenciesForInput(inp, null);
-            }
-            return result;
+            if (!result)
+                return false;
+
+            EmitOutputForInput(OutputFile, Sources);
+            foreach (var src in Sources)
+                AddDependenciesForInput(src, null);
+            return true;
         }
 
         public override bool Run()

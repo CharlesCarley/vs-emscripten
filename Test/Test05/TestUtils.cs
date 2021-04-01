@@ -20,6 +20,7 @@
 -------------------------------------------------------------------------------
 */
 using System;
+using System.Diagnostics;
 using System.IO;
 using Logger = Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger;
 
@@ -55,6 +56,43 @@ namespace UnitTest
         public static void Log(string message)
         {
             Logger.LogMessage("{0}", message);
+        }
+
+        public static int Spawn(string program, string args, ref string output)
+        {
+            var proc = Process.Start(new ProcessStartInfo(program) {
+                CreateNoWindow         = true,
+                RedirectStandardOutput = output != null,
+                UseShellExecute        = false,
+                WorkingDirectory       = CurrentDirectory,
+                Arguments              = args
+            });
+
+            if (proc == null)
+                return 1;
+
+            if (output != null)
+            {
+                output = proc.StandardOutput.ReadToEnd();
+                Log(output);
+            }
+
+            proc.WaitForExit();
+            return proc.ExitCode;
+        }
+
+
+        public static string FindWavm()
+        {
+            var emDir = Environment.GetEnvironmentVariable("EMSDK");
+            if (emDir == null)
+                return null;
+
+            var pathToWavm = $@"{emDir}\upstream\bin\wavm.exe";
+            if (!File.Exists(pathToWavm))
+                pathToWavm = null;
+
+            return pathToWavm;
         }
     }
 }

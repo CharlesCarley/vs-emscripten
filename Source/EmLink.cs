@@ -87,7 +87,7 @@ namespace EmscriptenTask
             var builder = new StringWriter();
 
             // write the input objects as a WS separated list
-            var objects = GetSeparatedSource(' ', currentSource, true);
+            var objects = GetSeparatedSource(' ', Sources, true);
             builder.Write(' ');
             builder.Write(objects);
 
@@ -139,6 +139,10 @@ namespace EmscriptenTask
 
         public override bool Run()
         {
+            var currentSource = GetCurrentSource();
+            if (currentSource == null || currentSource.Length <= 0)
+                return true;
+
             var result = Call(EmCppTool, BuildSwitches());
             if (result)
             {
@@ -146,7 +150,6 @@ namespace EmscriptenTask
                 foreach (var inp in MergedInputs)
                     AddDependenciesForInput(inp, null);
             }
-
             return result;
         }
     }

@@ -262,9 +262,8 @@ namespace EmscriptenTask
 
         protected void EmitOutputForInput(ITaskItem outItem, ITaskItem[] inItems)
         {
-            _outputFiles.AddComputedOutputsForSourceRoot(
-                outItem.GetMetadata(FullPath).ToUpperInvariant(),
-                inItems);
+            foreach (var item in inItems)
+                EmitOutputForInput(outItem, item);
         }
 
         protected void AddDependenciesForInput(ITaskItem inItem, ITaskItem[] depItems)
@@ -284,7 +283,19 @@ namespace EmscriptenTask
 
                     if (!dict.ContainsKey(key))
                         dict.Add(key, inPath);
+                    else
+                        dict[key] = inPath;
                 }
+            }
+            else
+            {
+                var key  = inPath.ToUpperInvariant();
+                var dict = dependencyTable[inPath];
+
+                if (!dict.ContainsKey(key))
+                    dict.Add(key, inPath);
+                else
+                    dict[key] = inPath;
             }
         }
 
@@ -292,6 +303,7 @@ namespace EmscriptenTask
         {
             _outputFiles = new Output(this, TLogWriteFiles, true);
             _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, true, false);
+
             _outputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
             _inputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
 
@@ -305,6 +317,9 @@ namespace EmscriptenTask
         {
             OnStop(succeeded);
             SkippedExecution = !succeeded;
+
+            if (!SkippedExecution && _currentSources.Length <= 0)
+                SkippedExecution = true;
 
             _inputFiles.SaveTlog();
             _outputFiles.SaveTlog();
