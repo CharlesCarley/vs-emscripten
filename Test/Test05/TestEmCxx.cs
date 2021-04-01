@@ -39,8 +39,8 @@ namespace UnitTest
             Assert.AreEqual(null, obj.TrackerLogDirectory);
             Assert.AreNotEqual(null, obj.TLogReadFiles);
             Assert.AreNotEqual(null, obj.TLogWriteFiles);
-            Assert.AreEqual(@"emcc.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
-            Assert.AreEqual(@"emcc.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+            Assert.AreEqual(@"EmCxx.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"EmCxx.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
             Assert.AreEqual(null, obj.Sources);
             Assert.AreEqual(true, obj.MinimalRebuildFromTracking);
             Assert.AreEqual(null, obj.DebugProp1);
@@ -100,22 +100,6 @@ namespace UnitTest
             Assert.AreEqual($" -c {obj.BuildFile}", result2);
         }
 
-        //[TestMethod]
-        //public void TestSystemIncludeDirectories()
-        //{
-        //    var obj = new EmscriptenTask.EmCxx {
-        //        SystemIncludeDirectories = "../foo bar"
-        //    };
-        //    var result1 = TestUtils.WriteSwitchesToString(obj);
-        //    Assert.AreEqual(string.Empty, result1);
-
-        //    var curDir = $@"{Environment.CurrentDirectory}\..\..\";
-
-        //    obj.SystemIncludeDirectories = $@"{curDir};{curDir}\New Folder";
-
-        //    var result2 = TestUtils.WriteSwitchesToString(obj);
-        //    Assert.AreEqual($" -I {curDir} -I \"{curDir}New Folder\"", result2);
-        //}
 
         [TestMethod]
         public void TestAdditionalIncludeDirectories()

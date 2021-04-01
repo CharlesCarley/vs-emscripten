@@ -30,7 +30,7 @@ namespace EmscriptenTask
 {
     public class EmCxx : EmTask
     {
-        protected override string SenderName    => "emcc";
+        protected override string SenderName    => nameof(EmCxx);
         protected override string BuildFileName => BuildFile;
 
         // clang-format off

@@ -31,7 +31,7 @@ namespace EmscriptenTask
 {
     public class EmLink : EmTask
     {
-        protected override string SenderName => "em++";
+        protected override string SenderName => nameof(EmLink);
 
         protected override string BuildFileName => OutputFile.GetMetadata(FullPath);
         public string             ConfigurationType { get; set; }

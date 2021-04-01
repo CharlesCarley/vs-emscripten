@@ -52,8 +52,8 @@ namespace UnitTest
             Assert.AreEqual(null, obj.TrackerLogDirectory);
             Assert.AreNotEqual(null, obj.TLogReadFiles);
             Assert.AreNotEqual(null, obj.TLogWriteFiles);
-            Assert.AreEqual(@"em++.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
-            Assert.AreEqual(@"em++.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+            Assert.AreEqual(@"EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
             Assert.AreEqual(null, obj.Sources);
             Assert.AreEqual(true, obj.MinimalRebuildFromTracking);
             Assert.AreEqual(null, obj.DebugProp1);
@@ -98,17 +98,17 @@ namespace UnitTest
                 TrackerLogDirectory = "/Some/Path/To/The/Log/Files"
             };
 
-            Assert.AreEqual(@"\Some\Path\To\The\Log\Files\em++.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
-            Assert.AreEqual(@"\Some\Path\To\The\Log\Files\em++.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+            Assert.AreEqual(@"\Some\Path\To\The\Log\Files\EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"\Some\Path\To\The\Log\Files\EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
 
             obj.TrackerLogDirectory = null;
-            Assert.AreEqual(@"em++.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
-            Assert.AreEqual(@"em++.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+            Assert.AreEqual(@"EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
 
             obj.TrackerLogDirectory = "A n o t h e r/ p a t h";
 
-            Assert.AreEqual(@"A n o t h e r\ p a t h\em++.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
-            Assert.AreEqual(@"A n o t h e r\ p a t h\em++.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
+            Assert.AreEqual(@"A n o t h e r\ p a t h\EmLink.read.1.tlog", obj.TLogReadFiles[0].ItemSpec);
+            Assert.AreEqual(@"A n o t h e r\ p a t h\EmLink.write.1.tlog", obj.TLogWriteFiles[0].ItemSpec);
         }
 
         [TestMethod]

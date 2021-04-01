@@ -32,7 +32,7 @@ namespace EmscriptenTask
 {
     public class EmAr : EmTask
     {
-        protected override string SenderName    => "emar";
+        protected override string SenderName => nameof(EmAr);
         protected override string BuildFileName => OutputFile.GetMetadata(FullPath);
 
         /// <summary>
