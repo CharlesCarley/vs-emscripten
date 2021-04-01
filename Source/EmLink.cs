@@ -21,8 +21,10 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
 using Input  = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
 using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
@@ -101,13 +103,51 @@ namespace EmscriptenTask
 
         protected override void OnStop(bool succeeded)
         {
-            if (!succeeded)
-                return;
+        }
+
+        private ITaskItem[] MergeInputs()
+        {
+            List<ITaskItem> items = new List<ITaskItem>();
+
+            if (!string.IsNullOrEmpty(AdditionalDependencies))
+            {
+                var additionalDependencies = StringToTaskItemList(AdditionalDependencies);
+                items.AddRange(additionalDependencies);
+            }
+            items.AddRange(Sources);
+            return items.ToArray();
+        }
+
+        private ITaskItem[] _mergedInputs;
+        private ITaskItem[] MergedInputs => _mergedInputs ?? (_mergedInputs = MergeInputs());
+
+        void EmitOutput()
+        {
+            switch (ConfigurationType)
+            {
+            case "HTMLApplication":
+                var swapName = OutputFile.GetMetadata(Filename);
+                EmitOutputForInput(OutputFile, MergedInputs);
+                EmitOutputForInput(new TaskItem($"{swapName}.html"), MergedInputs);
+                EmitOutputForInput(new TaskItem($"{swapName}.js"), MergedInputs);
+                break;
+            case "Application":
+                EmitOutputForInput(OutputFile, MergedInputs);
+                break;
+            }
         }
 
         public override bool Run()
         {
-            return Call(EmCppTool, BuildSwitches());
+            var result = Call(EmCppTool, BuildSwitches());
+            if (result)
+            {
+                EmitOutput();
+                foreach (var inp in MergedInputs)
+                    AddDependenciesForInput(inp, null);
+            }
+
+            return result;
         }
     }
 }

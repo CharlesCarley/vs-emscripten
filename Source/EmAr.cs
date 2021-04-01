@@ -89,7 +89,14 @@ namespace EmscriptenTask
             if (input == null || input.Length <= 0)
                 return true;
 
-            return Call(EmRanLibTool, OutputFile.ItemSpec);
+            var result = Call(EmRanLibTool, OutputFile.ItemSpec);
+            if (result)
+            {
+                EmitOutputForInput(OutputFile, Sources);
+                foreach (var inp in Sources)
+                    AddDependenciesForInput(inp, null);
+            }
+            return result;
         }
 
         public override bool Run()

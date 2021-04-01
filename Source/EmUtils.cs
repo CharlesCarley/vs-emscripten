@@ -21,7 +21,10 @@
 */
 using Microsoft.Build.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Microsoft.Build.Utilities;
 
 namespace EmscriptenTask
 {
@@ -90,11 +93,6 @@ namespace EmscriptenTask
             return true;
         }
 
-        public static string AbsolutePathSanitized(string path)
-        {
-            return Sanitize(AbsolutePath(path));
-        }
-
         public static string AbsolutePath(string path)
         {
             if (Path.IsPathRooted(path))
@@ -106,6 +104,20 @@ namespace EmscriptenTask
 
             return $@"{cur}{path}";
         }
+
+
+        public static ITaskItem[] StringToTaskItemList(string inputString, char charSeparator =';')
+        {
+            if (inputString is null)
+            {
+                throw new NullReferenceException(
+                    "The supplied input variable cannot be null or empty");
+            }
+
+            var input = inputString.Split(charSeparator);
+            return input.Select(inp => new TaskItem(inp)).Cast<ITaskItem>().ToArray();
+        }
+
 
         public static string GetSeparatedSource(char charSeparator, ITaskItem[] input, bool quoteIfHasWs = false)
         {

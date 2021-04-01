@@ -253,22 +253,27 @@ namespace EmscriptenTask
                     ));
         }
 
-
         protected void EmitOutputForInput(ITaskItem outItem, ITaskItem inItem)
         {
             _outputFiles.AddComputedOutputForSourceRoot(
-                inItem.GetMetadata(FullPath), 
+                inItem.GetMetadata(FullPath).ToUpperInvariant(),
                 outItem.GetMetadata(FullPath));
         }
 
-        protected void AddDependenciesForInput(ITaskItem inItem, ITaskItem[]depItems)
+        protected void EmitOutputForInput(ITaskItem outItem, ITaskItem[] inItems)
         {
-            var inPath = inItem.GetMetadata(FullPath).ToUpperInvariant();
+            _outputFiles.AddComputedOutputsForSourceRoot(
+                outItem.GetMetadata(FullPath).ToUpperInvariant(),
+                inItems);
+        }
+
+        protected void AddDependenciesForInput(ITaskItem inItem, ITaskItem[] depItems)
+        {
+            var inPath          = inItem.GetMetadata(FullPath).ToUpperInvariant();
             var dependencyTable = _inputFiles.DependencyTable;
 
             if (!dependencyTable.ContainsKey(inPath))
                 dependencyTable.Add(inPath, new Dictionary<string, string>());
-
 
             if (depItems != null && depItems.Length > 0)
             {
@@ -280,19 +285,18 @@ namespace EmscriptenTask
                     if (!dict.ContainsKey(key))
                         dict.Add(key, inPath);
                 }
-
             }
         }
 
-        
         private void NotifyTaskStated()
         {
             _outputFiles = new Output(this, TLogWriteFiles, true);
-            _inputFiles = new Input(this, TLogReadFiles, Sources, null, _outputFiles, true, false);
+            _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, true, false);
+            _outputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
             _inputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
 
             _currentSources = _inputFiles.ComputeSourcesNeedingCompilation();
-            
+
             SkippedExecution = true;
             OnStart();
         }
