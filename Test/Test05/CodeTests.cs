@@ -25,7 +25,8 @@ using System.IO;
 using EmscriptenTask;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Logger = Microsoft.VisualStudio.TestTools.UnitTesting.Logging.Logger;
+using static EmscriptenTask.EmSwitchWriter;
+using static UnitTest.TestUtils;
 
 namespace UnitTest
 {
@@ -38,80 +39,16 @@ namespace UnitTest
     [TestClass]
     public class CodeTests
     {
-        private static string CurrentDirectory => $@"{Environment.CurrentDirectory}\..\..\";
-
-        [TestMethod]
-        public void SanitizeTest()
-        {
-            var result = EmUtils.Sanitize("A//////////B//C//////D/E//////////////F");
-            Assert.AreEqual(@"A\B\C\D\E\F", result);
-        }
-
-
-        [TestMethod]
-        public void TestFileNameWithoutExtension()
-        {
-            var strings = new[]
-            {
-                "abc.123",
-                "abc.def.hij.k",
-                "/some/unix/_/path/abc.def.hij.k",
-                @"Z:\some\windows\_\path\abc.def.hij.k",
-                @"Z:\s o m e\w i n d o w s\_\p a t h\a b c.d e f.h i j.k",
-                @"96587658765*&R8 T^RuyTR876R 87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
-                @"96587658765*&R8 T^RuyTR876R/87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
-                @"96587658765*&R8 T^RuyTR876R/87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07/file.txt",
-            };
-
-            var expected = new[]
-            {
-                "abc",
-                "abc",
-                @"\some\unix\_\path\abc",
-                @"Z:\some\windows\_\path\abc",
-                @"Z:\s o m e\w i n d o w s\_\p a t h\a b c",
-                @"96587658765*&R8 T^RuyTR876R 87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
-                @"96587658765*&R8 T^RuyTR876R\87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
-                @"96587658765*&R8 T^RuyTR876R\87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07\file",
-            };
-            
-            for (var i = 0; i < strings.Length; ++i)
-            {
-                var a = strings[i];
-                var b = expected[i];
-                var c = EmUtils.FileNameWithoutExtension(a);
-                Assert.AreEqual(b, c);
-            }
-
-        }
-
-
-
-        private static void ClearIfExists()
-        {
-            var dir = CurrentDirectory + "Debug";
-            if (!Directory.Exists(dir))
-                return;
-
-            try
-            {
-                Directory.Delete(dir, true);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogMessage("{0}", ex.Message);
-            }
-        }
 
         [TestMethod]
         public void Create()
         {
-            ClearIfExists();
+            ClearIfExists(Debug);
 
             var sourceFile = $@"{CurrentDirectory}\Tests\New Folder\New Text Document.c";
-            var objFile    = $@"{CurrentDirectory}\Debug\New Folder\t1.c.o";
-            var wasmFile   = $@"{CurrentDirectory}\Debug\New Folder\t 1 2.wasm";
-            var trackerDir = $@"{CurrentDirectory}\Debug\";
+            var objFile    = $@"{CurrentDirectory}\{Debug}\New Folder\t1.c.o";
+            var wasmFile   = $@"{CurrentDirectory}\{Debug}\New Folder\t 1 2.wasm";
+            var trackerDir = $@"{CurrentDirectory}\{Debug}\";
 
             if (!Directory.Exists(trackerDir))
                 Directory.CreateDirectory(trackerDir);
@@ -143,7 +80,7 @@ namespace UnitTest
             };
 
             var builder = new StringWriter();
-            EmSwitchWriter.Write(builder, a.GetType(), a);
+            Write(builder, a.GetType(), a);
             Assert.AreEqual(string.Empty, builder.ToString());
         }
 
@@ -156,7 +93,7 @@ namespace UnitTest
             {
                 a.Prop1     = -3 + i;
                 var builder = new StringWriter();
-                EmSwitchWriter.Write(builder, a.GetType(), a);
+                Write(builder, a.GetType(), a);
                 if (i == 0 || i == 6)
                     Assert.AreEqual(string.Empty, builder.ToString());
                 else
@@ -164,9 +101,45 @@ namespace UnitTest
             }
         }
 
+        [TestMethod]
+        public void SanitizeTest()
+        {
+            var result = EmUtils.Sanitize("A//////////B//C//////D/E//////////////F");
+            Assert.AreEqual(@"A\B\C\D\E\F", result);
+        }
 
+        [TestMethod]
+        public void TestFileNameWithoutExtension()
+        {
+            var strings = new[] {
+                "abc.123",
+                "abc.def.hij.k",
+                "/some/unix/_/path/abc.def.hij.k",
+                @"Z:\some\windows\_\path\abc.def.hij.k",
+                @"Z:\s o m e\w i n d o w s\_\p a t h\a b c.d e f.h i j.k",
+                @"96587658765*&R8 T^RuyTR876R 87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R/87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R/87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07/file.txt",
+            };
 
+            var expected = new[] {
+                "abc",
+                "abc",
+                @"\some\unix\_\path\abc",
+                @"Z:\some\windows\_\path\abc",
+                @"Z:\s o m e\w i n d o w s\_\p a t h\a b c",
+                @"96587658765*&R8 T^RuyTR876R 87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R\87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07",
+                @"96587658765*&R8 T^RuyTR876R\87^5r8&^8&^%9^$#&%^$^$#%#^$^*&(07\file",
+            };
 
-
+            for (var i = 0; i < strings.Length; ++i)
+            {
+                var a = strings[i];
+                var b = expected[i];
+                var c = EmUtils.FileNameWithoutExtension(a);
+                Assert.AreEqual(b, c);
+            }
+        }
     }
 }

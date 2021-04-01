@@ -28,15 +28,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTest
 {
-    public class TestUtils
-    {
-        public static string WriteSwitchesToString(object obj)
-        {
-            var writer = new StringWriter();
-            EmscriptenTask.EmSwitchWriter.Write(writer, obj.GetType(), obj);
-            return writer.ToString();
-        }
-    }
 
     [TestClass]
     public class TestEmLink

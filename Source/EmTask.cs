@@ -118,10 +118,8 @@ namespace EmscriptenTask
 
         public bool MinimalRebuildFromTracking { get; set; } = true;
 
-        protected Input _inputFiles;
-        protected Output _outputFiles;
-        
-
+        private Input _inputFiles;
+        private Output _outputFiles;
         private ITaskItem[] _currentSources;
 
 
@@ -266,13 +264,6 @@ namespace EmscriptenTask
             SkippedExecution = !succeeded;
         }
 
-        protected ITaskItem[] GetCurrentSource()
-        {
-            if (_currentSources is null && _inputFiles != null)
-                _currentSources = _inputFiles.ComputeSourcesNeedingCompilation(true);
-            return _currentSources;
-        }
-
         /// <summary>
         /// A convenience function for spawning a process.
         /// </summary>
@@ -372,33 +363,9 @@ namespace EmscriptenTask
             }
         }
 
-        protected virtual void SaveTLogRead()
+        protected ITaskItem[] GetCurrentSource()
         {
-            var sourceFiles = GetCurrentSource();
-            if (sourceFiles == null || sourceFiles.Length <= 0)
-                return;
-
-            var filePath = TLogReadPathName;
-
-            var text = string.Empty;
-            if (File.Exists(filePath))
-                text = File.ReadAllText(filePath);
-
-            var builder = new StringWriter();
-            foreach (var source in sourceFiles)
-            {
-                var evalInc = source.GetMetadata(FullPath);
-                if (string.IsNullOrEmpty(evalInc))
-                    continue;
-
-                var tracked = $"^{evalInc}".ToUpperInvariant();
-                if (text.Contains(tracked))
-                    continue;
-
-                builder.Write(tracked);
-                builder.Write('\n');
-            }
-            File.AppendAllText(filePath, builder.ToString());
+            return Sources;
         }
 
         /// <summary>

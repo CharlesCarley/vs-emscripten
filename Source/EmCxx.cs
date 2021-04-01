@@ -311,19 +311,12 @@ namespace EmscriptenTask
 
             if (Verbose)
                 LogTaskProps(GetType(), this);
-
-            _outputFiles = new Output(this, TLogWriteFiles);
-            _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, MinimalRebuildFromTracking, true);
         }
 
         protected override void OnStop(bool succeeded)
         {
             if (!succeeded)
                 return;
-
-            SaveTLogCommand();
-            SaveTLogRead();
-            _outputFiles.SaveTlog();
         }
 
         /// <summary>
@@ -358,12 +351,7 @@ namespace EmscriptenTask
             BuildFile = file.ItemSpec;
             ValidateOutputFile();
 
-            // Reflect the BaseName of the file currently being compiled.
             LogMessage(BaseName(BuildFile));
-
-            _outputFiles.AddComputedOutputForSourceRoot(
-                file.GetMetadata(FullPath).ToUpperInvariant(),
-                ObjectFileName);
 
             var isC = TestCompileAsC();
             return Call(isC ? EmccTool : EmCppTool, BuildSwitches());
@@ -393,54 +381,6 @@ namespace EmscriptenTask
                     builder.WriteLine(cleanLine.ToUpperInvariant());
             }
             return builder.ToString();
-        }
-
-        protected override void SaveTLogRead()
-        {
-            var sourceFiles = GetCurrentSource();
-            if (sourceFiles == null || sourceFiles.Length <= 0)
-                return;
-
-            var builder = new StringWriter();
-            foreach (var source in sourceFiles)
-            {
-                var file = source.GetMetadata(FullPath);
-                if (string.IsNullOrEmpty(file))
-                    continue;
-
-                builder.Write($"^{file}".ToUpperInvariant());
-                builder.Write('\n');
-
-                var extraDependencies = GetDependencyOutput();
-                if (!string.IsNullOrEmpty(extraDependencies))
-                    builder.Write(extraDependencies);
-            }
-
-            File.AppendAllText(TLogReadPathName, builder.ToString());
-        }
-
-        private void SaveTLogCommand()
-        {
-            var sourceFiles = GetCurrentSource();
-            if (sourceFiles == null || sourceFiles.Length <= 0)
-                return;
-
-            var builder = new StringWriter();
-            foreach (var source in sourceFiles)
-            {
-                var file = source.GetMetadata(FullPath);
-                if (string.IsNullOrEmpty(file))
-                    continue;
-
-                builder.Write($"^{file}".ToUpperInvariant());
-                builder.Write('\n');
-
-                BuildFile = file;
-                ValidateOutputFile();
-                builder.WriteLine(BuildSwitches());
-            }
-
-            File.AppendAllText(TLogCommandPathName, builder.ToString());
         }
 
         public override bool Run()

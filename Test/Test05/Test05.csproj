@@ -48,6 +48,7 @@
     <Compile Include="TestEmAr.cs" />
     <Compile Include="TestEmCxx.cs" />
     <Compile Include="TestEmLink.cs" />
+    <Compile Include="TestUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter">

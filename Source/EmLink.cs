@@ -95,71 +95,14 @@ namespace EmscriptenTask
 
         protected override void OnStart()
         {
-            _outputFiles = new Output(this, TLogWriteFiles);
-            _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, MinimalRebuildFromTracking, true);
-
             if (Verbose)
                 LogTaskProps(GetType(), this);
-        }
-
-        private void SaveTLogOut()
-        {
-            var input = GetCurrentSource();
-
-            foreach (var inputFile in input)
-            {
-                var fileName   = inputFile.GetMetadata(FullPath);
-                var sourceRoot = OutputFile.GetMetadata(FullPath);
-
-                if (string.IsNullOrEmpty(fileName))
-                    LogMessage($"input source is missing MetaData {FullPath}");
-                else if (string.IsNullOrEmpty(sourceRoot))
-                    LogMessage($"output file is missing MetaData {FullPath}");
-                else
-                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, fileName);
-            }
-
-            switch (ConfigurationType)
-            {
-            case "Application":
-            {
-                var swapName   = OutputFile.GetMetadata(Filename);
-                var sourceRoot = OutputFile.GetMetadata(FullPath);
-                if (string.IsNullOrEmpty(swapName))
-                    LogMessage($"input source is missing MetaData {Filename}");
-                else if (string.IsNullOrEmpty(sourceRoot))
-                    LogMessage($"output file is missing MetaData {FullPath}");
-                else
-                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
-                break;
-            }
-            case "HTMLApplication":
-            {
-                var swapName   = OutputFile.GetMetadata(Filename);
-                var sourceRoot = OutputFile.GetMetadata(FullPath);
-                if (string.IsNullOrEmpty(swapName))
-                    LogMessage($"input source is missing MetaData {Filename}");
-                else if (string.IsNullOrEmpty(sourceRoot))
-                    LogMessage($"output file is missing MetaData {FullPath}");
-                else
-                {
-                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.wasm");
-                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.html");
-                    _outputFiles.AddComputedOutputForSourceRoot(sourceRoot, $"{swapName}.js");
-                }
-                break;
-            }
-            }
-            _outputFiles.SaveTlog();
         }
 
         protected override void OnStop(bool succeeded)
         {
             if (!succeeded)
                 return;
-
-            SaveTLogRead();
-            SaveTLogOut();
         }
 
         public override bool Run()

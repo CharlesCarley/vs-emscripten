@@ -46,18 +46,12 @@ namespace EmscriptenTask
         {
             if (Verbose)
                 LogTaskProps(GetType(), this);
-
-            _outputFiles = new Output(this, TLogWriteFiles);
-            _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, MinimalRebuildFromTracking, true);
         }
 
         protected override void OnStop(bool succeeded)
         {
             if (!succeeded)
                 return;
-
-            SaveTLogRead();
-            _outputFiles.SaveTlog();
         }
 
         protected string BuildSwitches()
@@ -85,10 +79,6 @@ namespace EmscriptenTask
             var input = GetCurrentSource();
             if (input == null || input.Length <= 0)
                 return true;
-
-            _outputFiles.AddComputedOutputsForSourceRoot(
-                OutputFile.GetMetadata(FullPath),
-                input);
 
             return Call(EmArTool, BuildSwitches());
         }
