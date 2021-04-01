@@ -72,7 +72,7 @@ namespace UnitTest
                 BuildEngine         = be,
                 TrackerLogDirectory = trackerDir,
                 OutputFile          = new TaskItem(wasmFile),
-                Sources             = new ITaskItem[] { new TaskItem(objFile) },
+                Sources             = new ITaskItem[] { new TaskItem(task.ObjectFileName) },
             };
             Assert.IsTrue(link.Execute());
         }

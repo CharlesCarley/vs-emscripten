@@ -37,6 +37,7 @@ namespace EmscriptenTask
         public const int NoQuote            = 0x08;
         public const int QuoteIfWhiteSpace  = 0x10;
         public const int AlwaysQuote        = 0x20;
+        public const int PreValidated       = 0x40;
         public const int DefaultFlags       = PadSwitch | NoQuote;
 
         public BaseSwitch(int flags = DefaultFlags)
@@ -69,7 +70,12 @@ namespace EmscriptenTask
             return (Flags & GlueSwitch) != 0;
         }
 
-        private int Flags { get; }
+        public bool PreConverted()
+        {
+            return (Flags & PreValidated) != 0;
+        }
+
+        protected int Flags { get; set; }
     }
 
     /// <summary>
@@ -148,6 +154,12 @@ namespace EmscriptenTask
             var result = value is string;
             if (result)
                 ConvertedValue = (string)value;
+            else if (value is ITaskItem[] items)
+            {
+                Flags |= PreValidated;
+                result         = true;
+                ConvertedValue = GetSeparatedSource(Separator, items, CanQuoteIfWhiteSpace());
+            }
             return result;
         }
 
@@ -372,6 +384,12 @@ namespace EmscriptenTask
             if (string.IsNullOrEmpty(obj.ConvertedValue) ||
                 string.IsNullOrEmpty(obj.SwitchValue))
                 return;
+
+            if (obj.PreConverted())
+            {
+                builder.Write(obj.ConvertedValue);
+                return;
+            }
 
             var result = SeparatePaths(obj.ConvertedValue,
                                        obj.Separator,

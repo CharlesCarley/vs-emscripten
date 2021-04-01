@@ -53,6 +53,7 @@ namespace UnitTest
             Assert.AreEqual(false, obj.SkippedExecution);
             Assert.AreEqual(false, obj.Verbose);
             Assert.AreEqual(false, obj.EchoCommandLines);
+            Assert.AreEqual(null, obj.AllSource);
 
             // Points to static data, so it's dependent on the whole test set
             // and is valid only if ValidateSdk is called. It's not public, so...

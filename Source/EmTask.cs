@@ -257,7 +257,7 @@ namespace EmscriptenTask
         {
             _outputFiles.AddComputedOutputForSourceRoot(
                 inItem.GetMetadata(FullPath).ToUpperInvariant(),
-                outItem.GetMetadata(FullPath));
+                outItem.GetMetadata(FullPath).ToUpperInvariant());
         }
 
         protected void EmitOutputForInput(ITaskItem outItem, ITaskItem[] inItems)
@@ -304,8 +304,8 @@ namespace EmscriptenTask
             _outputFiles = new Output(this, TLogWriteFiles, true);
             _inputFiles  = new Input(this, TLogReadFiles, Sources, null, _outputFiles, true, false);
 
-            _outputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
-            _inputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
+            //_outputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
+            //_inputFiles.RemoveDependenciesFromEntryIfMissing(Sources);
 
             _currentSources = _inputFiles.ComputeSourcesNeedingCompilation();
 
@@ -318,11 +318,15 @@ namespace EmscriptenTask
             OnStop(succeeded);
             SkippedExecution = !succeeded;
 
-            if (!SkippedExecution && _currentSources.Length <= 0)
+            if (succeeded && _currentSources.Length <= 0)
                 SkippedExecution = true;
 
-            _inputFiles.SaveTlog();
-            _outputFiles.SaveTlog();
+            if (!SkippedExecution)
+            {
+                _inputFiles.SaveTlog();
+                _outputFiles.SaveTlog();
+            }
+
         }
 
         /// <summary>
@@ -443,7 +447,10 @@ namespace EmscriptenTask
         /// ITask.Execute function is invoked.
         /// </summary>
         protected abstract void OnStart();
-        protected abstract void OnStop(bool succeeded);
+
+        protected virtual void OnStop(bool succeeded)
+        {
+        }
 
         public bool Execute()
         {
@@ -460,7 +467,7 @@ namespace EmscriptenTask
                 return false;
             }
 
-            var result = false;
+            bool result;
             try
             {
                 NotifyTaskStated();
@@ -469,6 +476,7 @@ namespace EmscriptenTask
             }
             catch (Exception ex)
             {
+                result = false;
                 LogError(ex.Message);
             }
             return result;

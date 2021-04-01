@@ -39,8 +39,14 @@ namespace EmscriptenTask
         /// Output file name parameter $(OutDir)%(Filename).o
         /// </summary>
         [Required]
-        [StringSwitch("rc", BaseSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("qc", BaseSwitch.QuoteIfWhiteSpace)]
         public ITaskItem OutputFile { get; set; }
+
+
+        [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace, ' ')]
+        public ITaskItem[] AllSource => Sources;
+
+
 
         protected override void OnStart()
         {
@@ -48,29 +54,13 @@ namespace EmscriptenTask
                 LogTaskProps(GetType(), this);
         }
 
-        protected override void OnStop(bool succeeded)
-        {
-            if (!succeeded)
-                return;
-        }
-
         protected string BuildSwitches()
         {
             if (OutputFile == null)
                 throw new ArgumentNullException(nameof(OutputFile), "no output file");
-
-            var currentSource = GetCurrentSource();
-            if (currentSource == null || currentSource.Length <= 0)
-                throw new ArgumentNullException(nameof(OutputFile), "no input files.");
-
+            
             var builder = new StringWriter();
             Write(builder, GetType(), this);
-
-            // write the input objects as a WS separated list
-            var objects = GetSeparatedSource(' ', Sources, true);
-            builder.Write(' ');
-            builder.Write(objects);
-
             return builder.ToString();
         }
 

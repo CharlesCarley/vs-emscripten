@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+using static EmscriptenTask.EmSwitchWriter;
 using static EmscriptenTask.EmUtils;
 using Input  = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
 using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
@@ -75,23 +76,19 @@ namespace EmscriptenTask
         public string EmWasmMode { get; set; }
         // clang-format on
 
+
+        [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace, ' ')]
+        public ITaskItem [] AllSource => Sources;
+
+
+
         protected string BuildSwitches()
         {
             if (OutputFile == null)
                 throw new ArgumentNullException(nameof(OutputFile), "no output file");
 
-            var currentSource = GetCurrentSource();
-            if (currentSource == null || currentSource.Length <= 0)
-                throw new ArgumentNullException(nameof(OutputFile), "no input files.");
-
             var builder = new StringWriter();
-
-            // write the input objects as a WS separated list
-            var objects = GetSeparatedSource(' ', Sources, true);
-            builder.Write(' ');
-            builder.Write(objects);
-
-            EmSwitchWriter.Write(builder, GetType(), this);
+            Write(builder, GetType(), this);
             return builder.ToString();
         }
 
@@ -101,20 +98,17 @@ namespace EmscriptenTask
                 LogTaskProps(GetType(), this);
         }
 
-        protected override void OnStop(bool succeeded)
-        {
-        }
-
+ 
         private ITaskItem[] MergeInputs()
         {
-            List<ITaskItem> items = new List<ITaskItem>();
+            var items = new List<ITaskItem>();
+            items.AddRange(Sources);
 
             if (!string.IsNullOrEmpty(AdditionalDependencies))
             {
                 var additionalDependencies = StringToTaskItemList(AdditionalDependencies);
                 items.AddRange(additionalDependencies);
             }
-            items.AddRange(Sources);
             return items.ToArray();
         }
 

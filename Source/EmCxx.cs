@@ -315,13 +315,7 @@ namespace EmscriptenTask
             if (Verbose)
                 LogTaskProps(GetType(), this);
         }
-
-        protected override void OnStop(bool succeeded)
-        {
-            if (!succeeded)
-                return;
-        }
-
+        
         /// <summary>
         /// Makes sure that the output file name is absolute
         /// and that the intermediate directory exists.

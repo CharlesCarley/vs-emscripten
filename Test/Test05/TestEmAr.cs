@@ -51,6 +51,7 @@ namespace UnitTest
             Assert.AreEqual(false, obj.SkippedExecution);
             Assert.AreEqual(false, obj.Verbose);
             Assert.AreEqual(false, obj.EchoCommandLines);
+            Assert.AreEqual(null, obj.AllSource);
 
             // Points to static data, so it's dependent on the whole test set
             // and is valid only if ValidateSdk is called. It's not public, so... 
@@ -75,11 +76,11 @@ namespace UnitTest
             var result = TestUtils.WriteSwitchesToString(obj);
             var mockFileLoc = Environment.CurrentDirectory;
 
-            Assert.AreEqual($@" rc {mockFileLoc}\ABC.a", result);
+            Assert.AreEqual($@" qc {mockFileLoc}\ABC.a", result);
             obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.a");
 
             var result1 = TestUtils.WriteSwitchesToString(obj);
-            Assert.AreEqual(" rc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
+            Assert.AreEqual(" qc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
         }
     }
 }
