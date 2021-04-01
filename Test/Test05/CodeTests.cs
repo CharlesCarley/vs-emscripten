@@ -39,7 +39,6 @@ namespace UnitTest
     [TestClass]
     public class CodeTests
     {
-
         [TestMethod]
         public void Create()
         {
@@ -47,6 +46,7 @@ namespace UnitTest
 
             var sourceFile = $@"{CurrentDirectory}\Tests\New Folder\New Text Document.c";
             var objFile    = $@"{CurrentDirectory}\{Debug}\New Folder\t1.c.o";
+            var depFile    = $@"{CurrentDirectory}\{Debug}\New Folder\t1.c.d";
             var wasmFile   = $@"{CurrentDirectory}\{Debug}\New Folder\t 1 2.wasm";
             var trackerDir = $@"{CurrentDirectory}\{Debug}\";
 
@@ -56,12 +56,16 @@ namespace UnitTest
             var be = new EmptyBuildEngine();
 
             var task = new EmCxx {
-                BuildEngine         = be,
-                TrackerLogDirectory = trackerDir,
-                ObjectFileName      = objFile,
-                Sources             = new ITaskItem[] { new TaskItem(sourceFile) },
+                BuildEngine            = be,
+                TrackerLogDirectory    = trackerDir,
+                ObjectFileName         = objFile,
+                DependencyFileName     = depFile,
+                GenerateDependencyFile = true,
+                Sources                = new ITaskItem[] { new TaskItem(sourceFile) },
             };
-            Assert.IsTrue(task.Execute());
+
+            for (int i = 0; i < 3; i++)
+                Assert.IsTrue(task.Execute());
 
             var link = new EmLink {
                 BuildEngine         = be,

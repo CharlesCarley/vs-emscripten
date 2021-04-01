@@ -21,7 +21,9 @@
 */
 using Microsoft.Build.Framework;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
 using Input  = Microsoft.Build.Utilities.CanonicalTrackedInputFiles;
 using Output = Microsoft.Build.Utilities.CanonicalTrackedOutputFiles;
@@ -306,6 +308,7 @@ namespace EmscriptenTask
 
             if (UndefineAllPreprocessorDefinitions)
                 PreprocessorDefinitions = null;
+
             if (!GenerateDependencyFile)
                 DependencyFileName = null;
 
@@ -352,35 +355,44 @@ namespace EmscriptenTask
             ValidateOutputFile();
 
             LogMessage(BaseName(BuildFile));
+            EmitOutputForInput(new TaskItem(ObjectFileName), file);
 
-            var isC = TestCompileAsC();
-            return Call(isC ? EmccTool : EmCppTool, BuildSwitches());
+            var isC    = TestCompileAsC();
+            var result = Call(isC ? EmccTool : EmCppTool, BuildSwitches());
+            if (result)
+                MergeDependencies(file);
+            return result;
         }
 
         /// <summary>
         /// Makes use of the dependency file output from -MD -MF - if it is available.
         /// </summary>
         /// <returns></returns>
-        private string GetDependencyOutput()
+        private void MergeDependencies(ITaskItem file)
         {
-            if (string.IsNullOrEmpty(DependencyFileName))
-                return ObjectFileName;
+            var hasDep = string.IsNullOrEmpty(DependencyFileName);
+            if (hasDep && !File.Exists(AbsolutePath(DependencyFileName)))
+            {
+                AddDependenciesForInput(file, null);
+                return;
+            }
 
             var depFile = AbsolutePath(DependencyFileName);
-            if (!File.Exists(depFile))
-                return ObjectFileName;
-
-            var builder = new StringWriter();
+            var items   = new List<ITaskItem>();
 
             var depFileLines = File.ReadAllLines(depFile);
             foreach (var depFileLine in depFileLines)
             {
                 var cleanLine = depFileLine.TrimEnd("\\".ToCharArray()).Trim();
 
-                if (!cleanLine.EndsWith(".o:"))
-                    builder.WriteLine(cleanLine.ToUpperInvariant());
+                if (!cleanLine.EndsWith(".h"))
+                    continue;
+
+                if (File.Exists(cleanLine))
+                    items.Add(new TaskItem(cleanLine));
             }
-            return builder.ToString();
+
+            AddDependenciesForInput(file, items.ToArray());
         }
 
         public override bool Run()
