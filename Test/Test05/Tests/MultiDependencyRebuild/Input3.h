@@ -1,2 +1,2 @@
 #pragma once
-extern void Input3PrototypeInTheStaticLibrarySource();
+extern void Input3_InTheStaticLibrarySource();

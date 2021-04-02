@@ -12,9 +12,9 @@ int main(int argc, char **argv)
     SomePrototypeInTheExecutableSource();
     // Calls the source from within the
     // static library object code
-    Input1PrototypeInTheStaticLibrarySource();
-    Input2PrototypeInTheStaticLibrarySource();
-    Input3PrototypeInTheStaticLibrarySource();
+    Input1_InTheStaticLibrarySource();
+    Input2_InTheStaticLibrarySource();
+    Input3_InTheStaticLibrarySource();
     return 0;
 }
 
