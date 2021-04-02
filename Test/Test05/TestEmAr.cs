@@ -24,6 +24,7 @@ using System;
 using EmscriptenTask;
 using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static TestUtils.Utils;
 
 namespace UnitTest
 {
@@ -73,13 +74,13 @@ namespace UnitTest
                 OutputFile = new TaskItem("ABC.a")
             };
 
-            var result = TestUtils.WriteSwitchesToString(obj);
+            var result = WriteSwitchesToString(obj);
             var mockFileLoc = Environment.CurrentDirectory;
 
             Assert.AreEqual($@" qc {mockFileLoc}\ABC.a", result);
             obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.a");
 
-            var result1 = TestUtils.WriteSwitchesToString(obj);
+            var result1 = WriteSwitchesToString(obj);
             Assert.AreEqual(" qc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
         }
     }

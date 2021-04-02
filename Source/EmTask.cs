@@ -316,10 +316,11 @@ namespace EmscriptenTask
         private void NotifyTaskFinished(bool succeeded)
         {
             OnStop(succeeded);
-            SkippedExecution = !succeeded;
-
+            
             if (succeeded && _currentSources.Length <= 0)
                 SkippedExecution = true;
+            else
+                SkippedExecution = !succeeded;
 
             if (!SkippedExecution)
             {

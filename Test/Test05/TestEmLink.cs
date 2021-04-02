@@ -20,15 +20,15 @@
 -------------------------------------------------------------------------------
 */
 using System;
-using System.Globalization;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static TestUtils.Utils;
+
 
 namespace UnitTest
 {
-
     [TestClass]
     public class TestEmLink
     {
@@ -134,13 +134,13 @@ namespace UnitTest
                 OutputFile = new TaskItem("ABC.wasm")
             };
 
-            var result      = TestUtils.WriteSwitchesToString(obj);
+            var result      = WriteSwitchesToString(obj);
             var mockFileLoc = Environment.CurrentDirectory;
 
             Assert.AreEqual($@" -o {mockFileLoc}\ABC.wasm", result);
             obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.wasm");
 
-            var result1 = TestUtils.WriteSwitchesToString(obj);
+            var result1 = WriteSwitchesToString(obj);
             Assert.AreEqual(" -o \"Z:\\Some Space \\ Separated Drive\\A B C.wasm\"", result1);
         }
 
@@ -151,7 +151,7 @@ namespace UnitTest
                 AdditionalDependencies = "ANonExistingDependency.a"
             };
 
-            var result = TestUtils.WriteSwitchesToString(obj);
+            var result = WriteSwitchesToString(obj);
 
             // AdditionalDependencies has the validate argument
             // set to true. So the expected behavior is to
@@ -162,7 +162,7 @@ namespace UnitTest
             obj.AdditionalDependencies = $@"{curDir}\..\..\TestEmLink.cs";
             var expected               = $@" {curDir}\..\..\TestEmLink.cs";
 
-            var result2 = TestUtils.WriteSwitchesToString(obj);
+            var result2 = WriteSwitchesToString(obj);
 
             Assert.IsTrue(expected.Equals(result2));
         }
@@ -174,7 +174,7 @@ namespace UnitTest
                 AdditionalLibraryDirectories = "A/Non/Existing/Dependency/New Folder"
             };
 
-            var result = TestUtils.WriteSwitchesToString(obj);
+            var result = WriteSwitchesToString(obj);
 
             // AdditionalLibraryDirectories has the validate argument
             // set to true. So the expected behavior is to
@@ -185,7 +185,7 @@ namespace UnitTest
             obj.AdditionalLibraryDirectories = $@"{curDir}\..\..\New Folder";
             var expected                     = $" -L \"{curDir}\\..\\..\\New Folder\"";
 
-            var result2 = TestUtils.WriteSwitchesToString(obj);
+            var result2 = WriteSwitchesToString(obj);
 
             Assert.IsTrue(expected.Equals(result2));
         }
@@ -196,19 +196,19 @@ namespace UnitTest
             var obj = new EmscriptenTask.EmLink {
                 EmWasmMode = "EmWasmOnlyJS"
             };
-            var result1 = TestUtils.WriteSwitchesToString(obj);
+            var result1 = WriteSwitchesToString(obj);
             Assert.AreEqual(" -s WASM=0", result1);
 
             obj.EmWasmMode = "EmWasmOnlyWasm";
-            var result2    = TestUtils.WriteSwitchesToString(obj);
+            var result2    = WriteSwitchesToString(obj);
             Assert.AreEqual(" -s WASM=1", result2);
 
             obj.EmWasmMode = "EmWasmBoth";
-            var result3    = TestUtils.WriteSwitchesToString(obj);
+            var result3    = WriteSwitchesToString(obj);
             Assert.AreEqual(" -s WASM=2", result3);
 
             obj.EmWasmMode = "Anything Else Uses The Default";
-            var result4    = TestUtils.WriteSwitchesToString(obj);
+            var result4    = WriteSwitchesToString(obj);
             Assert.AreEqual(" -s WASM=1", result4);
         }
     }

@@ -27,7 +27,7 @@ using EmscriptenTask;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmSwitchWriter;
-using static UnitTest.TestUtils;
+using static TestUtils.Utils;
 
 namespace UnitTest
 {
@@ -43,13 +43,13 @@ namespace UnitTest
         [TestMethod]
         public void Create()
         {
-            ClearIfExists(Debug);
+            ClearIfExists(IntDir);
 
             var sourceFile = $@"{CurrentDirectory}\Tests\New Folder\New Text Document.c";
-            var objFile    = $@"{CurrentDirectory}\{Debug}\New Folder\t1.c.o";
-            var depFile    = $@"{CurrentDirectory}\{Debug}\New Folder\t1.c.d";
-            var wasmFile   = $@"{CurrentDirectory}\{Debug}\New Folder\t 1 2.wasm";
-            var trackerDir = $@"{CurrentDirectory}\{Debug}\";
+            var objFile    = $@"{CurrentDirectory}\{IntDir}\New Folder\t1.c.o";
+            var depFile    = $@"{CurrentDirectory}\{IntDir}\New Folder\t1.c.d";
+            var wasmFile   = $@"{CurrentDirectory}\{IntDir}\New Folder\t 1 2.wasm";
+            var trackerDir = $@"{CurrentDirectory}\{IntDir}\";
 
             if (!Directory.Exists(trackerDir))
                 Directory.CreateDirectory(trackerDir);
@@ -78,7 +78,7 @@ namespace UnitTest
         }
 
         private string TLogSub       = "";
-        private string TLogDirectory => $@"{CurrentDirectory}\{Debug}\{TLogSub}\";
+        private string TLogDirectory => $@"{CurrentDirectory}\{IntDir}\{TLogSub}\";
 
         private EmCxx[] MDR_SetupStaticLibrary(EmptyBuildEngine engine)
         {
@@ -90,8 +90,8 @@ namespace UnitTest
             var file1 = new EmCxx {
                 BuildEngine            = engine,
                 TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{Debug}\Input1.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{Debug}\Input1.cpp.d",
+                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Input1.cpp.o",
+                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Input1.cpp.d",
                 GenerateDependencyFile = true,
                 Sources                = new ITaskItem[] {
                     new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input1.cpp"),
@@ -102,8 +102,8 @@ namespace UnitTest
             var file2 = new EmCxx {
                 BuildEngine            = engine,
                 TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{Debug}\Input2.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{Debug}\Input2.cpp.d",
+                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Input2.cpp.o",
+                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Input2.cpp.d",
                 GenerateDependencyFile = true,
                 Sources                = new ITaskItem[] {
                     new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input2.cpp"),
@@ -114,8 +114,8 @@ namespace UnitTest
             var file3 = new EmCxx {
                 BuildEngine            = engine,
                 TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{Debug}\Input3.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{Debug}\Input3.cpp.d",
+                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Input3.cpp.o",
+                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Input3.cpp.d",
                 GenerateDependencyFile = true,
                 Sources                = new ITaskItem[] {
                     new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input3.cpp"),
@@ -136,8 +136,8 @@ namespace UnitTest
             var file1 = new EmCxx {
                 BuildEngine            = engine,
                 TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{Debug}\Main1.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{Debug}\Main1.cpp.d",
+                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Main1.cpp.o",
+                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Main1.cpp.d",
                 GenerateDependencyFile = true,
                 Sources                = new ITaskItem[] {
                     new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Main1.cpp"),
@@ -148,8 +148,8 @@ namespace UnitTest
             var file2 = new EmCxx {
                 BuildEngine            = engine,
                 TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{Debug}\Main.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{Debug}\Main.cpp.d",
+                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Main.cpp.o",
+                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Main.cpp.d",
                 GenerateDependencyFile = true,
                 Sources                = new ITaskItem[] {
                     new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Main.cpp"),
@@ -213,7 +213,7 @@ namespace UnitTest
         [TestMethod]
         public void MultiDependencyRebuild()
         {
-            ClearIfExists(Debug);
+            ClearIfExists(IntDir);
 
             var engine = new EmptyBuildEngine();
 
@@ -225,7 +225,7 @@ namespace UnitTest
             var ar = new EmAr {
                 BuildEngine         = engine,
                 TrackerLogDirectory = TLogDirectory,
-                OutputFile          = new TaskItem($@"{CurrentDirectory}\{Debug}\libInput.a"),
+                OutputFile          = new TaskItem($@"{CurrentDirectory}\{IntDir}\libInput.a"),
                 Sources             = MDR_MergeObjectFiles(objects),
             };
             Assert.IsTrue(ar.Execute());
@@ -246,7 +246,7 @@ namespace UnitTest
                 ConfigurationType   = "Application",
                 BuildEngine         = engine,
                 TrackerLogDirectory = TLogDirectory,
-                OutputFile          = new TaskItem($@"{CurrentDirectory}\{Debug}\mdr.wasm"),
+                OutputFile          = new TaskItem($@"{CurrentDirectory}\{IntDir}\mdr.wasm"),
                 Sources             = MDR_MergeObjectFiles(exeObjects, ar),
             };
 
@@ -274,12 +274,9 @@ namespace UnitTest
             Assert.IsTrue(lnk.Execute());
             Assert.IsTrue(lnk.SkippedExecution);
 
-            var wavm = FindWavm();
-            Assert.IsNotNull(wavm);
 
-            var output = "";
-            var rc     = Spawn(wavm, $"run {lnk.OutputFile.GetMetadata("FullPath")}", ref output);
-            Assert.AreEqual(0, rc);
+            var output = Spawn(Wavm, $"run {lnk.OutputFile.GetMetadata("FullPath")}");
+
             Assert.AreEqual("Called SomePrototypeInTheExecutableSource\n" +
                             "Called Input1PrototypeInTheStaticLibrarySource\n" +
                             "Called Input2PrototypeInTheStaticLibrarySource\n" +

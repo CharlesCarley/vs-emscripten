@@ -43,10 +43,8 @@ namespace EmscriptenTask
         public ITaskItem OutputFile { get; set; }
 
 
-        [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace, ' ')]
+        [SeparatedStringSwitch(" ", BaseSwitch.QuoteIfWhiteSpace, ' ')]
         public ITaskItem[] AllSource => Sources;
-
-
 
         protected override void OnStart()
         {
