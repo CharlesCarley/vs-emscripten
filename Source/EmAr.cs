@@ -39,7 +39,7 @@ namespace EmscriptenTask
         /// Output file name parameter $(OutDir)%(Filename).o
         /// </summary>
         [Required]
-        [StringSwitch("qc", BaseSwitch.QuoteIfWhiteSpace)]
+        [StringSwitch("rc", BaseSwitch.QuoteIfWhiteSpace)]
         public ITaskItem OutputFile { get; set; }
 
 
@@ -62,37 +62,26 @@ namespace EmscriptenTask
             return builder.ToString();
         }
 
-        public bool RunAr()
-        {
-            var input = GetCurrentSource();
-            if (input == null || input.Length <= 0)
-                return true;
-
-            return Call(EmArTool, BuildSwitches());
-        }
-
-        public bool RunRanlib()
-        {
-            var input = GetCurrentSource();
-            if (input == null || input.Length <= 0)
-                return true;
-
-            var result = Call(EmRanLibTool, OutputFile.ItemSpec);
-            if (!result)
-                return false;
-
-            EmitOutputForInput(OutputFile, Sources);
-            foreach (var src in Sources)
-                AddDependenciesForInput(src, null);
-            return true;
-        }
-
         public override bool Run()
         {
-            var result = RunAr();
+            var input = GetCurrentSource();
+            if (input == null || input.Length <= 0)
+                return true;
+
+            var result = Call(EmArTool, BuildSwitches());
+            
             if (result)
-                result = RunRanlib();
-            return result;
+            {
+                result = Call(EmRanLibTool, OutputFile.ItemSpec);
+                if (!result)
+                    return false;
+
+                EmitOutputForInput(OutputFile, Sources);
+                foreach (var src in Sources)
+                    AddDependenciesForInput(src, null);
+                return true;
+            }
+            return false;
         }
     }
 }
