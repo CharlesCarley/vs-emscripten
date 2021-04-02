@@ -315,7 +315,7 @@ namespace UnitTest
                                 "Called Input3PrototypeInTheStaticLibrarySource\n",
                             output);
 
-            // modify the source files and assert that every thing rebuilds
+            // modify the source files and assert that everything rebuilds
 
             SwapStringInFiles(objects, "PrototypeInTheStaticLibrarySource", "__Swapped_Text__");
             CompileObjectFiles(objects);

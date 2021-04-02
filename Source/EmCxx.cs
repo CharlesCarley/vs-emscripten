@@ -316,10 +316,6 @@ namespace EmscriptenTask
                 LogTaskProps(GetType(), this);
         }
         
-        /// <summary>
-        /// Makes sure that the output file name is absolute
-        /// and that the intermediate directory exists.
-        /// </summary>
         public void ValidateOutputFile()
         {
             var baseName = BaseName(ObjectFileName);
@@ -361,7 +357,6 @@ namespace EmscriptenTask
         /// <summary>
         /// Makes use of the dependency file output from -MD -MF - if it is available.
         /// </summary>
-        /// <returns></returns>
         private void MergeDependencies(ITaskItem file)
         {
             var hasDep = string.IsNullOrEmpty(DependencyFileName);
@@ -379,7 +374,9 @@ namespace EmscriptenTask
             {
                 var cleanLine = depFileLine.TrimEnd("\\".ToCharArray()).Trim();
 
-                if (!cleanLine.EndsWith(".h"))
+                // skip the object that the
+                // dependencies belong to.
+                if (cleanLine.EndsWith(".o:"))
                     continue;
 
                 if (File.Exists(cleanLine))

@@ -35,7 +35,7 @@ namespace EmscriptenTask
 {
     public abstract class EmTask : IEmTask
     {
-        private const int TimeOut = 30000;
+        private const int TimeOut = 45000;
 
         protected abstract string SenderName { get; }
 
