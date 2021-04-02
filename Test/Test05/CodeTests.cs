@@ -80,45 +80,58 @@ namespace UnitTest
         private string TLogSub       = "";
         private string TLogDirectory => $@"{CurrentDirectory}\{IntDir}\{TLogSub}\";
 
-        private EmCxx[] MDR_SetupStaticLibrary(EmptyBuildEngine engine)
+        private EmCxx[] SetupStaticLibrary(EmptyBuildEngine engine)
         {
-            List<EmCxx> resultTasks = new List<EmCxx>();
+            var resultTasks = new List<EmCxx>();
 
             if (!Directory.Exists(TLogDirectory))
                 Directory.CreateDirectory(TLogDirectory);
 
+            // The source is modified during The test so,
+            // make temporary copies
+
+            File.Copy($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input1.cpp",
+                      $@"{CurrentDirectory}\{IntDir}\Input1.cpp");
+            File.Copy($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input2.cpp",
+                      $@"{CurrentDirectory}\{IntDir}\Input2.cpp");
+            File.Copy($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input3.cpp",
+                      $@"{CurrentDirectory}\{IntDir}\Input3.cpp");
+
             var file1 = new EmCxx {
-                BuildEngine            = engine,
-                TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Input1.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Input1.cpp.d",
-                GenerateDependencyFile = true,
-                Sources                = new ITaskItem[] {
-                    new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input1.cpp"),
+                BuildEngine                  = engine,
+                TrackerLogDirectory          = TLogDirectory,
+                AdditionalIncludeDirectories = $@"{CurrentDirectory}\Tests\MultiDependencyRebuild\",
+                ObjectFileName               = $@"{CurrentDirectory}\{IntDir}\Input1.cpp.o",
+                DependencyFileName           = $@"{CurrentDirectory}\{IntDir}\Input1.cpp.d",
+                GenerateDependencyFile       = true,
+                Sources                      = new ITaskItem[] {
+                    new TaskItem($@"{CurrentDirectory}\{IntDir}\Input1.cpp"),
                 },
             };
             resultTasks.Add(file1);
 
             var file2 = new EmCxx {
-                BuildEngine            = engine,
-                TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Input2.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Input2.cpp.d",
-                GenerateDependencyFile = true,
-                Sources                = new ITaskItem[] {
-                    new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input2.cpp"),
+                BuildEngine                  = engine,
+                AdditionalIncludeDirectories = $@"{CurrentDirectory}\Tests\MultiDependencyRebuild\",
+                TrackerLogDirectory          = TLogDirectory,
+                ObjectFileName               = $@"{CurrentDirectory}\{IntDir}\Input2.cpp.o",
+                DependencyFileName           = $@"{CurrentDirectory}\{IntDir}\Input2.cpp.d",
+                GenerateDependencyFile       = true,
+                Sources                      = new ITaskItem[] {
+                    new TaskItem($@"{CurrentDirectory}\{IntDir}\Input2.cpp"),
                 },
             };
             resultTasks.Add(file2);
 
             var file3 = new EmCxx {
-                BuildEngine            = engine,
-                TrackerLogDirectory    = TLogDirectory,
-                ObjectFileName         = $@"{CurrentDirectory}\{IntDir}\Input3.cpp.o",
-                DependencyFileName     = $@"{CurrentDirectory}\{IntDir}\Input3.cpp.d",
-                GenerateDependencyFile = true,
-                Sources                = new ITaskItem[] {
-                    new TaskItem($@"{CurrentDirectory}\Tests\MultiDependencyRebuild\Input3.cpp"),
+                BuildEngine                  = engine,
+                TrackerLogDirectory          = TLogDirectory,
+                AdditionalIncludeDirectories = $@"{CurrentDirectory}\Tests\MultiDependencyRebuild\",
+                ObjectFileName               = $@"{CurrentDirectory}\{IntDir}\Input3.cpp.o",
+                DependencyFileName           = $@"{CurrentDirectory}\{IntDir}\Input3.cpp.d",
+                GenerateDependencyFile       = true,
+                Sources                      = new ITaskItem[] {
+                    new TaskItem($@"{CurrentDirectory}\{IntDir}\Input3.cpp"),
                 },
             };
             resultTasks.Add(file3);
@@ -126,9 +139,9 @@ namespace UnitTest
             return resultTasks.ToArray();
         }
 
-        private EmCxx[] MDR_SetupExecutable(EmptyBuildEngine engine)
+        private EmCxx[] SetupExecutable(EmptyBuildEngine engine)
         {
-            List<EmCxx> resultTasks = new List<EmCxx>();
+            var resultTasks = new List<EmCxx>();
 
             if (!Directory.Exists(TLogDirectory))
                 Directory.CreateDirectory(TLogDirectory);
@@ -160,18 +173,35 @@ namespace UnitTest
             return resultTasks.ToArray();
         }
 
-        private void MDR_CompileObjectFiles(EmCxx[] objects)
+        private static void ReSaveFile(ITaskItem item)
+        {
+            File.WriteAllText(item.ItemSpec, File.ReadAllText(item.ItemSpec));
+        }
+
+        private static void SwapStringInFiles(EmCxx[] objects, string searchFor, string replaceWith)
         {
             foreach (var obj in objects)
-                Assert.IsTrue(obj.Execute());
-
-            // verify that it skipped it
-            foreach (var obj in objects)
             {
-                Assert.IsTrue(obj.Execute());
-                Assert.IsTrue(obj.SkippedExecution);
+                var text = File.ReadAllText(obj.Sources[0].ItemSpec);
+                File.WriteAllText(obj.Sources[0].ItemSpec, text.Replace(searchFor, replaceWith));
             }
+        }
 
+        private static void CompileObjectFiles(EmCxx[] objects)
+        {
+            // Make sure everything builds initially
+            foreach (var obj in objects)
+                ExecuteAndAssertUpToDate(obj);
+
+            // Simulate a different time stamp by saving the file.
+            foreach (var obj in objects)
+                ReSaveFile(obj.Sources[0]);
+
+            // Make sure everything is rebuilt
+            foreach (var obj in objects)
+                ExecuteAndAssertUpToDate(obj);
+
+            // Simulate an out of date event by removing an object file.
             foreach (var obj in objects)
             {
                 Assert.IsTrue(File.Exists(obj.ObjectFileName));
@@ -179,22 +209,16 @@ namespace UnitTest
                 Assert.IsTrue(!File.Exists(obj.ObjectFileName));
             }
 
+            // Make sure everything is rebuilt
             foreach (var obj in objects)
-                Assert.IsTrue(obj.Execute());
+                ExecuteAndAssertUpToDate(obj);
 
-            // verify that it actually rebuilt it
+            // Verify that it actually rebuilt it
             foreach (var obj in objects)
                 Assert.IsTrue(File.Exists(obj.ObjectFileName));
-
-            // verify that it skipped it
-            foreach (var obj in objects)
-            {
-                Assert.IsTrue(obj.Execute());
-                Assert.IsTrue(obj.SkippedExecution);
-            }
         }
 
-        private ITaskItem[] MDR_MergeObjectFiles(EmCxx[] objects, EmAr lib = null)
+        private static ITaskItem[] MergeObjectFiles(EmCxx[] objects, EmAr lib = null)
         {
             var items = new ITaskItem[objects.Length + (lib != null ? 1 : 0)];
             var i     = 0;
@@ -210,6 +234,18 @@ namespace UnitTest
             return items;
         }
 
+        private static void ExecuteAndAssertUpToDate(EmTask task)
+        {
+            // build it twice. the first call should
+            // build it, and the second call should
+            // skip it because it's up to date..
+            Assert.AreEqual(true, task.Execute());
+            Assert.AreNotEqual(true, task.SkippedExecution);
+
+            Assert.AreEqual(true, task.Execute());
+            Assert.AreEqual(true, task.SkippedExecution);
+        }
+
         [TestMethod]
         public void MultiDependencyRebuild()
         {
@@ -218,69 +254,95 @@ namespace UnitTest
             var engine = new EmptyBuildEngine();
 
             TLogSub     = "StaticObjectLogs";
-            var objects = MDR_SetupStaticLibrary(engine);
+            var objects = SetupStaticLibrary(engine);
 
-            MDR_CompileObjectFiles(objects);
+            CompileObjectFiles(objects);
 
             var ar = new EmAr {
                 BuildEngine         = engine,
                 TrackerLogDirectory = TLogDirectory,
                 OutputFile          = new TaskItem($@"{CurrentDirectory}\{IntDir}\libInput.a"),
-                Sources             = MDR_MergeObjectFiles(objects),
+                Sources             = MergeObjectFiles(objects),
             };
-            Assert.IsTrue(ar.Execute());
-            Assert.IsTrue(ar.Execute());
-            Assert.IsTrue(ar.SkippedExecution);
+            ExecuteAndAssertUpToDate(ar);
 
-            Assert.IsTrue(File.Exists(ar.OutputFile.GetMetadata("FullPath")));
-            File.Delete(ar.OutputFile.GetMetadata("FullPath"));
+            Assert.IsTrue(File.Exists(ar.OutputFile.ItemSpec));
+            File.Delete(ar.OutputFile.ItemSpec);
             Assert.IsTrue(ar.Execute());
-            Assert.IsTrue(File.Exists(ar.OutputFile.GetMetadata("FullPath")));
+            Assert.IsTrue(File.Exists(ar.OutputFile.ItemSpec));
 
             TLogSub = "ExecutableLogs";
 
-            var exeObjects = MDR_SetupExecutable(engine);
-            MDR_CompileObjectFiles(exeObjects);
+            var exeObjects = SetupExecutable(engine);
+            CompileObjectFiles(exeObjects);
 
             var lnk = new EmLink {
                 ConfigurationType   = "Application",
                 BuildEngine         = engine,
                 TrackerLogDirectory = TLogDirectory,
                 OutputFile          = new TaskItem($@"{CurrentDirectory}\{IntDir}\mdr.wasm"),
-                Sources             = MDR_MergeObjectFiles(exeObjects, ar),
+                Sources             = MergeObjectFiles(exeObjects, ar),
             };
 
-            // build it twice. the first call should
-            // build it, and the second call should
-            // skip it because it's up to date..
-            Assert.IsTrue(lnk.Execute());
-            Assert.IsTrue(lnk.Execute());
-            Assert.IsTrue(lnk.SkippedExecution);
+            ExecuteAndAssertUpToDate(lnk);
 
-            Assert.IsTrue(File.Exists(lnk.OutputFile.GetMetadata("FullPath")));
-            File.Delete(lnk.OutputFile.GetMetadata("FullPath"));
-            Assert.IsTrue(!File.Exists(lnk.OutputFile.GetMetadata("FullPath")));
+            Assert.IsTrue(File.Exists(lnk.OutputFile.ItemSpec));
+            File.Delete(lnk.OutputFile.ItemSpec);
+            Assert.IsTrue(!File.Exists(lnk.OutputFile.ItemSpec));
 
             Assert.IsTrue(lnk.Execute());
             Assert.IsTrue(!lnk.SkippedExecution);
-            Assert.IsTrue(File.Exists(lnk.OutputFile.GetMetadata("FullPath")));
+            Assert.IsTrue(File.Exists(lnk.OutputFile.ItemSpec));
 
             // delete the archive and attempt to rebuild
-            File.Delete(ar.OutputFile.GetMetadata("FullPath"));
-            Assert.IsFalse(lnk.Execute());
-            Assert.IsTrue(ar.Execute());
-            Assert.IsTrue(lnk.Execute());
-            Assert.IsTrue(!lnk.SkippedExecution);
-            Assert.IsTrue(lnk.Execute());
-            Assert.IsTrue(lnk.SkippedExecution);
+            File.Delete(ar.OutputFile.ItemSpec);
 
+            Assert.AreEqual(false,
+                            lnk.Execute(),
+                            "EmLink.Execute did not fail with invalid input");
 
-            var output = Spawn(Wavm, $"run {lnk.OutputFile.GetMetadata("FullPath")}");
+            // regenerate the archive
+            ExecuteAndAssertUpToDate(ar);
+
+            // it should link again
+            ExecuteAndAssertUpToDate(lnk);
+
+            var output = Spawn(Wavm, $"run {lnk.OutputFile.ItemSpec}");
 
             Assert.AreEqual("Called SomePrototypeInTheExecutableSource\n" +
-                            "Called Input1PrototypeInTheStaticLibrarySource\n" +
-                            "Called Input2PrototypeInTheStaticLibrarySource\n" +
-                            "Called Input3PrototypeInTheStaticLibrarySource\n",
+                                "Called Input1PrototypeInTheStaticLibrarySource\n" +
+                                "Called Input2PrototypeInTheStaticLibrarySource\n" +
+                                "Called Input3PrototypeInTheStaticLibrarySource\n",
+                            output);
+
+            // modify the source files and assert that every thing rebuilds
+
+            SwapStringInFiles(objects, "PrototypeInTheStaticLibrarySource", "__Swapped_Text__");
+            CompileObjectFiles(objects);
+            ExecuteAndAssertUpToDate(ar);
+            ExecuteAndAssertUpToDate(lnk);
+
+            output = Spawn(Wavm, $"run {lnk.OutputFile.ItemSpec}");
+
+            Assert.AreEqual("Called SomePrototypeInTheExecutableSource\n" +
+                                "Called Input1__Swapped_Text__\n" +
+                                "Called Input2__Swapped_Text__\n" +
+                                "Called Input3__Swapped_Text__\n",
+                            output);
+
+            // swap it back to create a cycle
+            SwapStringInFiles(objects, "__Swapped_Text__", "PrototypeInTheStaticLibrarySource");
+
+            CompileObjectFiles(objects);
+            ExecuteAndAssertUpToDate(ar);
+            ExecuteAndAssertUpToDate(lnk);
+
+            output = Spawn(Wavm, $"run {lnk.OutputFile.ItemSpec}");
+
+            Assert.AreEqual("Called SomePrototypeInTheExecutableSource\n" +
+                                "Called Input1PrototypeInTheStaticLibrarySource\n" +
+                                "Called Input2PrototypeInTheStaticLibrarySource\n" +
+                                "Called Input3PrototypeInTheStaticLibrarySource\n",
                             output);
         }
 

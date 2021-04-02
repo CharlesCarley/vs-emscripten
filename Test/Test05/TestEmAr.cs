@@ -77,11 +77,11 @@ namespace UnitTest
             var result = WriteSwitchesToString(obj);
             var mockFileLoc = Environment.CurrentDirectory;
 
-            Assert.AreEqual($@" qc {mockFileLoc}\ABC.a", result);
+            Assert.AreEqual($@" rc {mockFileLoc}\ABC.a", result);
             obj.OutputFile = new TaskItem("Z:/Some Space / Separated Drive/A B C.a");
 
             var result1 = WriteSwitchesToString(obj);
-            Assert.AreEqual(" qc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
+            Assert.AreEqual(" rc \"Z:\\Some Space \\ Separated Drive\\A B C.a\"", result1);
         }
     }
 }
