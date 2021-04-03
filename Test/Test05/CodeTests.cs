@@ -352,7 +352,6 @@ namespace UnitTest
             var a = new TestSwitch {
                 Prop1 = 22
             };
-
             var builder = new StringWriter();
             Write(builder, a.GetType(), a);
             Assert.AreEqual(string.Empty, builder.ToString());
@@ -362,7 +361,6 @@ namespace UnitTest
         public void TestValidIntSwitchValue()
         {
             var a = new TestSwitch();
-
             for (var i = 0; i < 6; i++)
             {
                 a.Prop1     = -3 + i;

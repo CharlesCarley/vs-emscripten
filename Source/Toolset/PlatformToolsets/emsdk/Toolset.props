@@ -53,6 +53,8 @@
     <OutputType>exe</OutputType>
   </PropertyGroup>
 
+
+
   <PropertyGroup>
     <PreferredToolArchitecture>x86</PreferredToolArchitecture>
     <TargetPlatformIdentifier>Emscripten</TargetPlatformIdentifier>
@@ -93,29 +95,29 @@
     <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
 
     <ClCompilerPath>$(EmscriptenLLVM)\$(CLToolExe)</ClCompilerPath>
-    <UseClangCl>true</UseClangCl>
-    <UseLldLink>true</UseLldLink>
-    <UseLlvmLib>true</UseLlvmLib>
+    <UseClangCl>false</UseClangCl>
+    <UseLldLink>false</UseLldLink>
+    <UseLlvmLib>false</UseLlvmLib>
 
     <!-- Debugger Settings -->
     <DebuggerFlavor Condition="'$(DebuggerFlavor)' == ''">WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ConfigurationType)' == 'Application'">
-    <LocalDebuggerCommand          Condition="'$(LocalDebuggerCommand)'          == ''">$(EmscriptenLLVM)\wasmer.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == ''">$(TargetPath)</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommand          Condition="'$(LocalDebuggerCommand)'          == ''">$(EmscriptenLLVM)\wavm.exe</LocalDebuggerCommand>
     <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(ConfigurationType)' == 'HTMLApplication' ">
+  <PropertyGroup Condition="'$(ConfigurationType)' == 'HTMLApplication'">
     <LocalDebuggerCommand          Condition="'$(LocalDebuggerCommand)' == ''">$(EmscriptenRoot)\emrun.bat</LocalDebuggerCommand>
-    <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == ''">$(TargetPath)</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
+
 
   <!-- Define The default settings for common properties -->
   <ItemDefinitionGroup>
     <ClCompile>
+      
       <!-- General -->
       <AdditionalIncludeDirectories />
       <DebugInformationFormat >FullDebug</DebugInformationFormat>
@@ -147,7 +149,7 @@
       <LanguageStandard>gnucpp11</LanguageStandard>
       <LanguageExtensions>EnableLanguageExtensions</LanguageExtensions>
       <EnableMicrosoftExtensions>true</EnableMicrosoftExtensions>
-      <MscVersion>VisualC120</MscVersion>
+      <MscVersion>VisualC160</MscVersion>
       <ConstExprLimit />
       <TemplateRecursionLimit />
 
@@ -170,12 +172,27 @@
       <EchoCommandLines>false</EchoCommandLines>
       <RunStaticAnalysis>false</RunStaticAnalysis>
 
+
       <!-- Command Line -->
       <AdditionalOptions/>
 
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
 
       <!-- Zero options that are not used -->
+
+      <AdditionalUsingDirectories/>
+      <AdditionalBMIDirectories/>
+      <StdIfcDirectory/>
+      <AdditionalModuleDependencies/>
+      <AdditionalHeaderUnitDependencies/>
+      <SupportJustMyCode/>
+      <CompileAsManaged/>
+      <CompileAsWinRT/>
+      <WinRTNoStdLib/>
+      <WarningVersion/>
+      <DiagnosticsFormat/>
+      <SDLCheck/>
+      <ForceSynchronousPDBWrites/>
       <AssemblerOutput />
       <AssemblerListingLocation />
       <AcceptableNonZeroExitCodes />
@@ -184,9 +201,28 @@
       <EnableASAN />
       <ConformanceMode />
       <SuppressStartupBanner/>
+      <ProgramDataBaseFileName />
+      <PreserveTempFiles />
+      <PrecompiledHeader/>
+      <GenerateXMLDocumentationFiles/>
+      <XMLDocumentationFileName/>
+      <BrowseInformation/>
+      <BrowseInformationFile/>
+      <CallingConvention/>
+      <GenerateModuleDependencies/>
+      <ModuleDependenciesFile/>
+      <ScanSourceForModuleDependencies/>
+      <EnablePREfast/>
+      <PREfastLog/>
+      <PREfastProjectDirectory/>
+      <PREfastRulesetDirectories/>
+      <PREfastRulesetFile/>
+      <PREfastAdditionalOptions/>
+      <PREfastAdditionalPlugins/>
+      <UseFullPaths/>
+      <OmitDefaultLibName/>
+      <ErrorReporting/>
       <SystemIncludeDirectories>$(EmscriptenInclude)</SystemIncludeDirectories>
-
-
       <!-- Extra -->
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
