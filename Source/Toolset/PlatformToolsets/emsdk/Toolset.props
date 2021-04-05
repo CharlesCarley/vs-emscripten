@@ -119,6 +119,8 @@
     <EmUseFullOpenGles3  Condition="'$(EmUseFullOpenGles3)' == ''"></EmUseFullOpenGles3>
     <EmMinWebGlVersion   Condition="'$(EmMinWebGlVersion)'  == ''"></EmMinWebGlVersion>
     <EmMaxWebGlVersion   Condition="'$(EmMaxWebGlVersion)'  == ''"></EmMaxWebGlVersion>
+    <EmPreloadFile       Condition="'$(EmPreloadFile)'      == ''"></EmPreloadFile>
+    <EmEmbeddedFile      Condition="'$(EmEmbeddedFile)'     == ''"></EmEmbeddedFile>
   </PropertyGroup>
 
   <!-- Define The default settings for common properties -->

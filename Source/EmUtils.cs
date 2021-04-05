@@ -219,7 +219,10 @@ namespace EmscriptenTask
 
                 var sanitizedPath = Sanitize(path);
                 if (needsValidation && !IsFileOrDirectory(sanitizedPath))
+                {
+                    // This needs to be logged ...
                     continue;
+                }
 
                 if (isFirst)
                     isFirst = false;

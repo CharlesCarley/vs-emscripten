@@ -105,6 +105,20 @@ namespace EmscriptenTask
         [IntSwitch("-s MAX_WEBGL_VERSION=", new[] { 1, 2 })]
         public string EmMaxWebGlVersion { get; set; }
 
+
+        /// <summary>
+        /// Specifies an pre load file or directory.
+        /// </summary>
+        [StringSwitch("--preload-file", BaseSwitch.QuoteIfWhiteSpace)]
+        public string EmPreloadFile { get; set; }
+
+        /// <summary>
+        /// Specifies an embedded file or directory.
+        /// </summary>
+        [StringSwitch("--embed-file", BaseSwitch.QuoteIfWhiteSpace)]
+        public string EmEmbeddedFile { get; set; }
+
+
         [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace, ' ')]
         public ITaskItem[] AllSource => Sources;
 

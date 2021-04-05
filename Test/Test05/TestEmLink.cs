@@ -54,11 +54,6 @@ namespace UnitTest
             Assert.AreEqual(false, obj.Verbose);
             Assert.AreEqual(false, obj.EchoCommandLines);
             Assert.AreEqual(null, obj.AllSource);
-            Assert.AreEqual(null, obj.EmSdlVersion);
-            Assert.AreEqual(false, obj.EmUseFullOpenGles2);
-            Assert.AreEqual(false, obj.EmUseFullOpenGles3);
-            Assert.AreEqual(null, obj.EmMinWebGlVersion);
-            Assert.AreEqual(null, obj.EmMaxWebGlVersion);
 
             // Points to static data, so it's dependent on the whole test set
             // and is valid only if ValidateSdk is called. It's not public, so...
@@ -73,6 +68,14 @@ namespace UnitTest
             Assert.AreEqual(null, obj.AdditionalLibraryDirectories);
             Assert.AreEqual(null, obj.AdditionalOptions);
             Assert.AreEqual(null, obj.EmWasmMode);
+
+            Assert.AreEqual(null, obj.EmSdlVersion);
+            Assert.AreEqual(false, obj.EmUseFullOpenGles2);
+            Assert.AreEqual(false, obj.EmUseFullOpenGles3);
+            Assert.AreEqual(null, obj.EmMinWebGlVersion);
+            Assert.AreEqual(null, obj.EmMaxWebGlVersion);
+            Assert.AreEqual(null, obj.EmPreloadFile);
+            Assert.AreEqual(null, obj.EmEmbeddedFile);
         }
 
         private static ITaskItem[] ItemsFromString(string semiColonSeparated)
@@ -328,6 +331,37 @@ namespace UnitTest
             obj.EmMaxWebGlVersion = " 2              ";
             var result5 = WriteSwitchesToString(obj);
             Assert.AreEqual(" -s MAX_WEBGL_VERSION=2", result5);
+        }
+
+        [TestMethod]
+        public void TestEmPreloadFile()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmPreloadFile = "Foo.Bar"
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" --preload-file Foo.Bar", result1);
+
+            obj.EmPreloadFile = $@"{CurrentDirectory}\Tests\New Folder\New Text Document.c";
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual($" --preload-file \"{CurrentDirectory}\\Tests\\New Folder\\New Text Document.c\"", result2);
+        }
+
+
+        [TestMethod]
+        public void TestEmEmbeddedFile()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmEmbeddedFile = "Foo.Bar"
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" --embed-file Foo.Bar", result1);
+
+            obj.EmEmbeddedFile = $@"{CurrentDirectory}\Tests\New Folder\New Text Document.c";
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual($" --embed-file \"{CurrentDirectory}\\Tests\\New Folder\\New Text Document.c\"", result2);
         }
     }
 }

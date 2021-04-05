@@ -250,6 +250,9 @@
     <Category Name="General"
               Description="General Emscripten properties that effect both compiling and linking."
               DisplayName="General" />
+    <Category Name="Resources"
+              Description="Properties that effect packaged resources "
+              DisplayName="Resources" />
     <Category Name="Link"
               Description="General Emscripten properties that effect linking."
               DisplayName="Link settings" />
@@ -354,5 +357,17 @@
                Category="OpenGL"
                DisplayName="Maximum Web GL Version to use &lt;= 2"
                Description=""/>
+
+
+  <StringProperty Name="EmPreloadFile"
+				  Category="Resources"
+				  DisplayName="Preload resources"
+                  Description="Preload resource file or directory"/>
+  <StringProperty Name="EmEmbeddedFile"
+                  Category="Resources"
+                  DisplayName="Embed resources"
+                  Description="Embedded resource file or directory"/>
+
+
 
 </Rule>

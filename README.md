@@ -78,13 +78,19 @@ Calls **python [BuildTools/Install.py](BuildTools/Install.py)**
 Which will attempt to copy the task and Toolset directory to the VisualStudio toolset directory.
 It expects that the environment variable `VS2019INSTALLDIR` is defined.
 
-It also accepts test arguments:
-
-+ test01 - Plain MSBuild scripts
-+ test02, test03 - CMake generate scripts.
-+ test04 Is a manually created project.
-
 If this script fails:
 
 + Check that there are no projects open that are using the toolset.
 + Check user permissions on the `%VS2019INSTALLDIR%\MSBuild\Microsoft\VC\v160\Platforms\` directory.
+
+## Tests
+
+Tests can be found in the test directory.
+
+| Name   | Description                                      |
+|--------|--------------------------------------------------|
+| Test01 | Runs the tasks through MSBuild.                  |
+| Test02 | Tests the CMake/devenv setup.                    |
+| Test03 | Contains the CMake project structure for Test02. |
+| Test04 | Is a manually created project .                  |
+| Test05 | Runs tests on the code.                          |
