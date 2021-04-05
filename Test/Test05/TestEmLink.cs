@@ -54,6 +54,11 @@ namespace UnitTest
             Assert.AreEqual(false, obj.Verbose);
             Assert.AreEqual(false, obj.EchoCommandLines);
             Assert.AreEqual(null, obj.AllSource);
+            Assert.AreEqual(null, obj.EmSdlVersion);
+            Assert.AreEqual(false, obj.EmUseFullOpenGles2);
+            Assert.AreEqual(false, obj.EmUseFullOpenGles3);
+            Assert.AreEqual(null, obj.EmMinWebGlVersion);
+            Assert.AreEqual(null, obj.EmMaxWebGlVersion);
 
             // Points to static data, so it's dependent on the whole test set
             // and is valid only if ValidateSdk is called. It's not public, so...
@@ -210,6 +215,119 @@ namespace UnitTest
             obj.EmWasmMode = "Anything Else Uses The Default";
             var result4    = WriteSwitchesToString(obj);
             Assert.AreEqual(" -s WASM=1", result4);
+        }
+
+        [TestMethod]
+        public void TestEmSdlVersion()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmSdlVersion = ""
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmSdlVersion = "-1";
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result2);
+
+            obj.EmSdlVersion = "3";
+            var result3 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result3);
+
+            obj.EmSdlVersion = " 1";
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s USE_SDL=1", result4);
+
+            obj.EmSdlVersion = " 2              ";
+            var result5 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s USE_SDL=2", result5);
+        }
+
+        [TestMethod]
+        public void TestEmUseFullOpenGles2()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmUseFullOpenGles2 = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmUseFullOpenGles2 =true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s FULL_ES2=1", result4);
+        }
+
+        [TestMethod]
+        public void TestEmUseFullOpenGles3()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmUseFullOpenGles3 = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmUseFullOpenGles3 = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s FULL_ES3=1", result4);
+        }
+
+
+        [TestMethod]
+        public void TestEmMinWebGlVersion()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmMinWebGlVersion = ""
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmMinWebGlVersion = "-1";
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result2);
+
+            obj.EmMinWebGlVersion = "3";
+            var result3 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result3);
+
+            obj.EmMinWebGlVersion = " 1";
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s MIN_WEBGL_VERSION=1", result4);
+
+            obj.EmMinWebGlVersion = " 2              ";
+            var result5 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s MIN_WEBGL_VERSION=2", result5);
+        }
+
+
+        [TestMethod]
+        public void TestEmMaxWebGlVersion()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmMaxWebGlVersion = ""
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmMaxWebGlVersion = "-1";
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result2);
+
+            obj.EmMaxWebGlVersion = "3";
+            var result3 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result3);
+
+            obj.EmMaxWebGlVersion = " 1";
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s MAX_WEBGL_VERSION=1", result4);
+
+            obj.EmMaxWebGlVersion = " 2              ";
+            var result5 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s MAX_WEBGL_VERSION=2", result5);
         }
     }
 }

@@ -74,13 +74,41 @@ namespace EmscriptenTask
                     "-s WASM=0,-s WASM=1,-s WASM=2", 
                     "-s WASM=1")]
         public string EmWasmMode { get; set; }
-        // clang-format on
 
+        /// <summary>
+        /// Sets the SDL version number
+        /// </summary>
+        [IntSwitch("-s USE_SDL=", new[]{1,2})]
+        public string EmSdlVersion { get; set; }
+
+        /// <summary>
+        /// Enables OpenGL ES 2
+        /// </summary>
+        [BoolSwitch ("-s FULL_ES2=1")]
+        public bool EmUseFullOpenGles2 { get; set; }
+
+        /// <summary>
+        /// Enables OpenGL ES 3
+        /// </summary>
+        [BoolSwitch("-s FULL_ES3=1")]
+        public bool EmUseFullOpenGles3 { get; set; }
+
+        /// <summary>
+        /// Sets the minimum WebGL version
+        /// </summary>
+        [IntSwitch("-s MIN_WEBGL_VERSION=", new[] { 1,2 })]
+        public string EmMinWebGlVersion { get; set; }
+
+        /// <summary>
+        /// Sets the minimum WebGL version
+        /// </summary>
+        [IntSwitch("-s MAX_WEBGL_VERSION=", new[] { 1, 2 })]
+        public string EmMaxWebGlVersion { get; set; }
 
         [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace, ' ')]
-        public ITaskItem [] AllSource => Sources;
+        public ITaskItem[] AllSource => Sources;
 
-
+        // clang-format on
 
         protected string BuildSwitches()
         {
@@ -98,7 +126,6 @@ namespace EmscriptenTask
                 LogTaskProps(GetType(), this);
         }
 
- 
         private ITaskItem[] MergeInputs()
         {
             var items = new List<ITaskItem>();

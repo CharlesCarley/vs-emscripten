@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule xmlns="http://schemas.microsoft.com/build/2009/properties"
+      Name="JavaScriptAdvanced"
+      Description="Advanced properties"
+      DisplayName="Settings.js"
+      PageTemplate="generic"
+      SwitchPrefix="-">
+  <!-- Emscripten -s options https://github.com/emscripten-core/emscripten/blob/main/src/settings.js
+	[general]
+	var VERBOSE = 0;
+
+	[compile + link]
+	var MEMORY64 = 0;
+	var DISABLE_EXCEPTION_CATCHING = 1;
+	var EXCEPTION_CATCHING_ALLOWED = [];
+	var RELOCATABLE = 0;
+	var MAIN_MODULE = 0;
+	var SIDE_MODULE = 0;
+	var STRICT = 0;
+	var EMSCRIPTEN_TRACING = 0;
+	var USE_PTHREADS = 0;
+	var DEFAULT_TO_CXX = 1;
+
+	[other]
+	var IN_TEST_HARNESS = 0;
+
+	[link]
+	var EXPORT_NAME = 'Module';
+
+	var ASSERTIONS = 1;
+	var RUNTIME_LOGGING = 0;
+	var STACK_OVERFLOW_CHECK = 0;
+	var INVOKE_RUN = 1;
+	var EXIT_RUNTIME = 0;
+	var MEM_INIT_METHOD = 0;
+	var TOTAL_STACK = 5*1024*1024;
+	var MALLOC = "dlmalloc";
+	var ABORTING_MALLOC = 1;
+	var INITIAL_MEMORY = 16777216;
+	var MAXIMUM_MEMORY = 2147483648;
+	var ALLOW_MEMORY_GROWTH = 0;
+	var MEMORY_GROWTH_GEOMETRIC_STEP = 0.20;
+	var MEMORY_GROWTH_GEOMETRIC_CAP = 96*1024*1024;
+	var MEMORY_GROWTH_LINEAR_STEP = -1;
+	var INITIAL_TABLE = -1;
+	var ALLOW_TABLE_GROWTH = 0;
+	var GLOBAL_BASE = -1;
+	var USE_CLOSURE_COMPILER = 0;
+	var CLOSURE_WARNINGS = 'quiet';
+	var IGNORE_CLOSURE_COMPILER_ERRORS = 0;
+	var DECLARE_ASM_MODULE_EXPORTS = 1;
+	var INLINING_LIMIT = 0;
+	var SUPPORT_BIG_ENDIAN = 0;
+	var SAFE_HEAP = 0;
+	var SAFE_HEAP_LOG = 0;
+	var EMULATE_FUNCTION_POINTER_CASTS = 0;
+	var EXCEPTION_DEBUG = 0;
+	var DEMANGLE_SUPPORT = 0;
+	var LIBRARY_DEBUG = 0;
+	var SYSCALL_DEBUG = 0;
+	var SOCKET_DEBUG = 0;
+	var DYLINK_DEBUG = 0;
+	var SOCKET_WEBRTC = 0;
+	var WEBSOCKET_URL = 'ws:
+	var PROXY_POSIX_SOCKETS = 0;
+	var WEBSOCKET_SUBPROTOCOL = 'binary';
+	var OPENAL_DEBUG = 0;
+	var WEBSOCKET_DEBUG = 0;
+	var GL_ASSERTIONS = 0;
+	var TRACE_WEBGL_CALLS = 0;
+	var GL_DEBUG = 0;
+	var GL_TESTING = 0;
+	var GL_MAX_TEMP_BUFFER_SIZE = 2097152;
+	var GL_UNSAFE_OPTS = 1;
+	var FULL_ES2 = 0;
+	var GL_EMULATE_GLES_VERSION_STRING_FORMAT = 1;
+	var GL_EXTENSIONS_IN_PREFIXED_FORMAT = 1;
+	var GL_SUPPORT_AUTOMATIC_ENABLE_EXTENSIONS = 1;
+	var GL_SUPPORT_SIMPLE_ENABLE_EXTENSIONS = 1;
+	var GL_TRACK_ERRORS = 1;
+	var GL_SUPPORT_EXPLICIT_SWAP_CONTROL = 0;
+	var GL_POOL_TEMP_BUFFERS = 1;
+	var WORKAROUND_OLD_WEBGL_UNIFORM_UPLOAD_IGNORED_OFFSET_BUG = 0;
+	var USE_WEBGL2 = 0;
+	var MIN_WEBGL_VERSION = 1;
+	var MAX_WEBGL_VERSION = 1;
+	var WEBGL2_BACKWARDS_COMPATIBILITY_EMULATION = 0;
+	var FULL_ES3 = 0;
+	var LEGACY_GL_EMULATION = 0;
+	var GL_FFP_ONLY = 0;
+	var GL_PREINITIALIZED_CONTEXT = 0;
+	var USE_WEBGPU = 0;
+	var STB_IMAGE = 0;
+	var GL_DISABLE_HALF_FLOAT_EXTENSION_IF_BROKEN = 0;
+	var JS_MATH = 0;
+	var POLYFILL_OLD_MATH_FUNCTIONS = 0;
+	var LEGACY_VM_SUPPORT = 0;
+	var ENVIRONMENT = '';
+	var LZ4 = 0;
+	var NODEJS_CATCH_EXIT = 1;
+	var NODEJS_CATCH_REJECTION = 1;
+	var ASYNCIFY = 0;
+	var ASYNCIFY_IMPORTS = [];
+	var ASYNCIFY_IGNORE_INDIRECT = 0;
+	var ASYNCIFY_STACK_SIZE = 4096;
+	var ASYNCIFY_REMOVE = [];
+	var ASYNCIFY_ADD = [];
+	var ASYNCIFY_ONLY = [];
+	var ASYNCIFY_ADVISE = 0;
+	var ASYNCIFY_LAZY_LOAD_CODE = 0;
+	var ASYNCIFY_DEBUG = 0;
+	var EXPORTED_RUNTIME_METHODS = [];
+	var EXTRA_EXPORTED_RUNTIME_METHODS = [];
+	var INCOMING_MODULE_JS_API = [
+	'ENVIRONMENT', 'GL_MAX_TEXTURE_IMAGE_UNITS', 'SDL_canPlayWithWebAudio',
+	'SDL_numSimultaneouslyQueuedBuffers', 'INITIAL_MEMORY', 'wasmMemory', 'arguments',
+	'buffer', 'canvas', 'doNotCaptureKeyboard', 'dynamicLibraries',
+	'elementPointerLock', 'extraStackTrace', 'forcedAspectRatio',
+	'instantiateWasm', 'keyboardListeningElement', 'freePreloadedMediaOnUse',
+	'locateFile', 'logReadFiles', 'mainScriptUrlOrBlob', 'mem',
+	'monitorRunDependencies', 'noExitRuntime', 'noInitialRun', 'onAbort',
+	'onCustomMessage', 'onExit', 'onFree', 'onFullScreen', 'onMalloc',
+	'onRealloc', 'onRuntimeInitialized', 'postMainLoop', 'postRun', 'preInit',
+	'preMainLoop', 'preRun',
+	'preinitializedWebGLContext', 'memoryInitializerRequest', 'preloadPlugins',
+	'print', 'printErr', 'quit', 'setStatus', 'statusMessage', 'stderr',
+	'stdin', 'stdout', 'thisProgram', 'wasm', 'wasmBinary', 'websocket'
+	];
+	var CASE_INSENSITIVE_FS = 0;
+	var FILESYSTEM = 1;
+	var FORCE_FILESYSTEM = 0;
+	var NODERAWFS = 0;
+	var NODE_CODE_CACHING = 0;
+	var EXPORTED_FUNCTIONS = [];
+	var EXPORT_ALL = 0;
+	var RETAIN_COMPILER_SETTINGS = 0;
+	var DEFAULT_LIBRARY_FUNCS_TO_INCLUDE = [];
+	var LIBRARY_DEPS_TO_AUTOEXPORT = ['memcpy'];
+	var INCLUDE_FULL_LIBRARY = 0;
+	var SHELL_FILE = 0;
+	var RUNTIME_LINKED_LIBS = [];
+	var BUILD_AS_WORKER = 0;
+	var PROXY_TO_WORKER = 0;
+	var PROXY_TO_WORKER_FILENAME = '';
+	var PROXY_TO_PTHREAD = 0;
+	var LINKABLE = 0;
+	var IGNORE_MISSING_MAIN = 1;
+	var AUTO_ARCHIVE_INDEXES = 1;
+	var STRICT_JS = 0;
+	var WARN_ON_UNDEFINED_SYMBOLS = 1;
+	var ERROR_ON_UNDEFINED_SYMBOLS = 1;
+	var SMALL_XHR_CHUNKS = 0;
+	var HEADLESS = 0;
+	var DETERMINISTIC = 0;
+	var MODULARIZE = 0;
+	var EXPORT_ES6 = 0;
+	var USE_ES6_IMPORT_META = 1;
+	var BENCHMARK = 0;
+	var DYNAMIC_EXECUTION = 1;
+	var BOOTSTRAPPING_STRUCT_INFO = 0;
+	var USE_GLFW = 2;
+	var WASM = 1;
+	var STANDALONE_WASM = 0;
+	var BINARYEN_IGNORE_IMPLICIT_TRAPS = 0;
+	var BINARYEN_EXTRA_PASSES = "";
+	var WASM_ASYNC_COMPILATION = 1;
+	var DYNCALLS = 0;
+	var WASM_BIGINT = 0;
+	var EMIT_PRODUCERS_SECTION = 0;
+	var EMIT_EMSCRIPTEN_METADATA = 0;
+	var EMIT_EMSCRIPTEN_LICENSE = 0;
+	var LEGALIZE_JS_FFI = 1;
+	var USE_SDL = 1;
+	var USE_SDL_GFX = 0;
+	var USE_SDL_IMAGE = 1;
+	var USE_SDL_TTF = 1;
+	var USE_SDL_NET = 1;
+	var USE_ICU = 0;
+	var USE_ZLIB = 0;
+	var USE_BZIP2 = 0;
+	var USE_GIFLIB = 0;
+	var USE_LIBJPEG = 0;
+	var USE_LIBPNG = 0;
+	var USE_REGAL = 0;
+	var USE_BOOST_HEADERS = 0;
+	var USE_BULLET = 0;
+	var USE_VORBIS = 0;
+	var USE_OGG = 0;
+	var USE_MPG123 = 0;
+	var USE_FREETYPE = 0;
+	var USE_SDL_MIXER = 1;
+	var USE_HARFBUZZ = 0;
+	var USE_COCOS2D = 0;
+	var USE_MODPLUG = 0;
+	var SDL2_IMAGE_FORMATS = [];
+	var SDL2_MIXER_FORMATS = ["ogg"];
+	var PTHREAD_POOL_SIZE = '';
+	var PTHREAD_POOL_SIZE_STRICT = 1;
+	// - affects generated JS runtime code at link time
+	var PTHREAD_POOL_DELAY_LOAD = 0;
+	var DEFAULT_PTHREAD_STACK_SIZE = 2*1024*1024;
+	var PTHREADS_PROFILING = 0;
+	var ALLOW_BLOCKING_ON_MAIN_THREAD = 1;
+	var PTHREADS_DEBUG = 0;
+	var EVAL_CTORS = 0;
+	var TEXTDECODER = 1;
+	var EMBIND_STD_STRING_IS_UTF8 = 1;
+	var OFFSCREENCANVAS_SUPPORT = 0;
+	var OFFSCREENCANVASES_TO_PTHREAD = "#canvas";
+	var OFFSCREEN_FRAMEBUFFER = 0;
+	var FETCH_SUPPORT_INDEXEDDB = 1;
+	var FETCH_DEBUG = 0;
+	var FETCH = 0;
+	var ASMFS = 0;
+	var SINGLE_FILE = 0;
+	var AUTO_JS_LIBRARIES = 1;
+	var AUTO_NATIVE_LIBRARIES = 1;
+	var MIN_FIREFOX_VERSION = 65;
+	var MIN_SAFARI_VERSION = 120000;
+	var MIN_IE_VERSION = 0x7FFFFFFF;
+	var MIN_EDGE_VERSION = 44;
+	var MIN_CHROME_VERSION = 75;
+	var SUPPORT_ERRNO = 1;
+	var MINIMAL_RUNTIME = 0;
+	var MINIMAL_RUNTIME_STREAMING_WASM_COMPILATION = 0;
+	var MINIMAL_RUNTIME_STREAMING_WASM_INSTANTIATION = 0;
+	var USES_DYNAMIC_ALLOC = 1;
+	var RUNTIME_FUNCS_TO_IMPORT = ['abort', 'setTempRet0', 'getTempRet0']
+	var SUPPORT_LONGJMP = 1;
+	var DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR = 1;
+	var HTML5_SUPPORT_DEFERRING_USER_SENSITIVE_REQUESTS = 1;
+	var MINIFY_HTML = 1;
+	var MAYBE_WASM2JS = 0;
+	var ASAN_SHADOW_SIZE = -1
+	var DISABLE_EXCEPTION_THROWING = 0;
+	var USE_OFFSET_CONVERTER = 0;
+	var LLD_REPORT_UNDEFINED = 0;
+	var PRINTF_LONG_DOUBLE = 0;
+	var WASM2C = 0;
+	var SEPARATE_DWARF_URL = '';
+	var ERROR_ON_WASM_CHANGES_AFTER_LINK = 0;
+	var ABORT_ON_WASM_EXCEPTIONS = 0;
+	var PURE_WASI = 0;
+	var IMPORTED_MEMORY = 0;
+	var SPLIT_MODULE = 0;
+	var REVERSE_DEPS = 'auto';
+	var OFFSCREEN_FRAMEBUFFER_FORBID_VAO_PATH = 0;
+	var TEST_MEMORY_GROWTH_FAILS = 0; -->
+  <Rule.Categories>
+    <Category Name="General"
+              Description="General Emscripten properties that effect both compiling and linking."
+              DisplayName="General" />
+    <Category Name="Link"
+              Description="General Emscripten properties that effect linking."
+              DisplayName="Link settings" />
+    <Category Name="OpenGL"
+              Description="General Emscripten properties that effect OpenGL."
+              DisplayName="OpenGL" />
+  </Rule.Categories>
+  <Rule.DataSource>
+    <DataSource HasConfigurationCondition="true"
+                Persistence="ProjectFile"
+                    />
+  </Rule.DataSource>
+
+  <!-- General -->
+  <BoolProperty Name="EmVerbose"
+                Category="General"
+                Description=" When set to 1, will generate more verbose output during compilation."
+                DisplayName="Verbose" />
+  <BoolProperty Name="EmTracing"
+                Category="General"
+                Description="Add some calls to emscripten tracing APIs."
+                DisplayName="Tracing"/>
+  <EnumProperty Name="EmDisableExceptionCatching"
+                Category="General"
+                Description="Disables generating code to actually catch exceptions."
+                DisplayName="Disable Exception Catching">
+    <EnumValue Name="GenerateCode"
+               DisplayName="GenerateCode"
+               Description="Generate code to actually catch exceptions."
+               Switch="-s DISABLE_EXCEPTION_CATCHING=0" />
+    <EnumValue Name="Disabled"
+               DisplayName="Disabled"
+               Description="Disable exception catching at all"
+               Switch="s DISABLE_EXCEPTION_CATCHING=1" />
+    <EnumValue Name="DisabledWithAllowedFunctions"
+               DisplayName="DisabledWithAllowedFunctions"
+               Description="Disable exception catching, but enables catching in list of allowed functions"
+               Switch="s DISABLE_EXCEPTION_CATCHING=2" />
+  </EnumProperty>
+  <StringProperty Name="EmDisableExceptionCatchingAllowed"
+                  DisplayName="Allowed Catch Functions"
+                  Description="Enables catching exception in the listed functions only. For use with Disable Exception Catching DisabledWithAllowedFunctions"
+                  Category="General"
+                  Separator=";" />
+
+
+
+  <!-- Link -->
+
+
+  <IntProperty Name="EmAssertions"
+               DisplayName="Assertions"
+               Description="Runtime assertion level [0,1,2]"
+               Category="Link"
+               />
+
+  <StringProperty Name="EmExportName"
+                  DisplayName="Exported Module name"
+                  Description="Global variable to export the module as for environments without a standardized module loading system (e.g. the browser and SM shell)."
+                  Category="Link"/>
+
+  <EnumProperty Name="EmWasmMode"
+                DisplayName="Wasm Compile Mode"
+                Description="Specify how to compile code to WebAssembly."
+                Category="Link">
+
+    <EnumValue Name="EmWasmOnlyWasm"
+               DisplayName="Compile to WebAssembly"
+               Description="Target only WebAssembly" />
+
+    <EnumValue Name="EmWasmOnlyJS"
+               DisplayName="Compile to JavaScript"
+               Description="Target only JavaScript" />
+
+    <EnumValue Name="EmWasmBoth"
+               DisplayName="Compile to WebAssembly and JavaScript"
+               Description="Target both WebAssembly and JavaScript at the same time." />
+  </EnumProperty>
+
+  <IntProperty Name="EmSdlVersion"
+               Category="Link"
+               DisplayName="SDL version"
+               Description="Specify the SDL version of the builtin port."/>
+
+  <!-- OpenGL -->
+  <BoolProperty Name="EmUseFullOpenGles2"
+                Category="OpenGL"
+                DisplayName="Use Full OpenGL ES 2"
+                Description="Forces support for all GLES2 features, not just the WebGL-friendly subset."/>
+
+  <BoolProperty Name="EmUseFullOpenGles3"
+                Category="OpenGL"
+                DisplayName="Use Full OpenGL ES 3"
+                Description=""/>
+
+  <IntProperty Name="EmMinWebGlVersion"
+                Category="OpenGL"
+                DisplayName="Minimum Web GL Version to use >= 1"
+                Description=""/>
+
+  <IntProperty Name="EmMaxWebGlVersion"
+               Category="OpenGL"
+               DisplayName="Maximum Web GL Version to use &lt;= 2"
+               Description=""/>
+
+</Rule>

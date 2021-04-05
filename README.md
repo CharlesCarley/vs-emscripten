@@ -9,12 +9,12 @@ It expects that the [Emscripten SDK](https://github.com/emscripten-core/emsdk) i
 The Toolset can be selected either in the GUI or the command line. 
 With the GUI select the generator `Visual Studio 16 2019`, then fill in `Emscripten` for the platform generator and `emsdk` for the toolset. Alternatively for the command line, use the -G, -A and -T options respectively.
 
-Settings that have been converted from [settings.js](https://github.com/emscripten-core/emscripten/blob/main/src/settings.js) will be stored in the project file in a global scope. Therefore, in order to set the property during the CMake generation stage you would use the VS_GLOBALS_xxx target property.
+Settings that have been converted from [settings.js](Settings.md) will be stored in the project file in a global scope. Therefore, in order to set the property during the CMake generation stage you would use the VS_GLOBALS_xxx target property.
 
 For example:
 
 ```cmake
-set_target_properties(${TargetName} PROPERTIES VS_GLOBAL_EmVerbose true)
+set_target_properties(${TargetName} PROPERTIES VS_GLOBAL_VerboseOutput VerboseOutputMode)
 set_target_properties(${TargetName} PROPERTIES VS_GLOBAL_EmSDLVersion 2)
 ```
 

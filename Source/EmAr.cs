@@ -42,9 +42,10 @@ namespace EmscriptenTask
         [StringSwitch("rc", BaseSwitch.QuoteIfWhiteSpace)]
         public ITaskItem OutputFile { get; set; }
 
-
-        [SeparatedStringSwitch(" ", BaseSwitch.QuoteIfWhiteSpace, ' ')]
-        public ITaskItem[] AllSource => Sources;
+        /// <summary>
+        /// Access to read only, space separated, command line source files.
+        /// </summary>
+        [SeparatedStringSwitch(" ", BaseSwitch.QuoteIfWhiteSpace, ' ')] public ITaskItem[] AllSource => Sources;
 
         protected override void OnStart()
         {
@@ -56,7 +57,7 @@ namespace EmscriptenTask
         {
             if (OutputFile == null)
                 throw new ArgumentNullException(nameof(OutputFile), "no output file");
-            
+
             var builder = new StringWriter();
             Write(builder, GetType(), this);
             return builder.ToString();
@@ -69,19 +70,17 @@ namespace EmscriptenTask
                 return true;
 
             var result = Call(EmArTool, BuildSwitches());
-            
-            if (result)
-            {
-                result = Call(EmRanLibTool, OutputFile.ItemSpec);
-                if (!result)
-                    return false;
+            if (!result)
+                return false;
 
-                EmitOutputForInput(OutputFile, Sources);
-                foreach (var src in Sources)
-                    AddDependenciesForInput(src, null);
-                return true;
-            }
-            return false;
+            result = Call(EmRanLibTool, OutputFile.ItemSpec);
+            if (!result)
+                return false;
+
+            EmitOutputForInput(OutputFile, Sources);
+            foreach (var src in Sources)
+                AddDependenciesForInput(src, null);
+            return true;
         }
     }
 }

@@ -48,15 +48,17 @@ namespace UnitTest
             Logger.LogMessage("{0}", e.Message);
         }
 
-        public bool BuildProjectFile(string projectFileName, string[] targetNames, IDictionary globalProperties,
+        public bool BuildProjectFile(string projectFileName,
+                                     string[] targetNames,
+                                     IDictionary globalProperties,
                                      IDictionary targetOutputs)
         {
             return true;
         }
 
-        public bool ContinueOnError { get; } = true;
-        public int LineNumberOfTaskNode { get; } = 0;
-        public int ColumnNumberOfTaskNode { get; } = 0;
-        public string ProjectFileOfTaskNode { get; } = string.Empty;
+        public bool   ContinueOnError { get; }        = true;
+        public int    LineNumberOfTaskNode { get; }   = 0;
+        public int    ColumnNumberOfTaskNode { get; } = 0;
+        public string ProjectFileOfTaskNode { get; }  = string.Empty;
     }
 }

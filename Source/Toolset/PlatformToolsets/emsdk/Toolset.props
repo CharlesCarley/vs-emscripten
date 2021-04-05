@@ -113,6 +113,13 @@
     <LocalDebuggerWorkingDirectory Condition="'$(LocalDebuggerWorkingDirectory)' == ''">$(ProjectDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <EmSdlVersion        Condition="'$(EmSdlVersion)'       == ''"></EmSdlVersion>
+    <EmUseFullOpenGles2  Condition="'$(EmUseFullOpenGles2)' == ''"></EmUseFullOpenGles2>
+    <EmUseFullOpenGles3  Condition="'$(EmUseFullOpenGles3)' == ''"></EmUseFullOpenGles3>
+    <EmMinWebGlVersion   Condition="'$(EmMinWebGlVersion)'  == ''"></EmMinWebGlVersion>
+    <EmMaxWebGlVersion   Condition="'$(EmMaxWebGlVersion)'  == ''"></EmMaxWebGlVersion>
+  </PropertyGroup>
 
   <!-- Define The default settings for common properties -->
   <ItemDefinitionGroup>

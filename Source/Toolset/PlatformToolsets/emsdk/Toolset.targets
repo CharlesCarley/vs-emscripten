@@ -18,6 +18,13 @@
     <LocalDebuggerCommandArguments Condition="'$(LocalDebuggerCommandArguments)' == '' and '$(TargetPath)' != ''">$(TargetPath)</LocalDebuggerCommandArguments>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <EmSdlVersion        Condition="'$(EmSdlVersion)'       == ''"></EmSdlVersion>
+    <EmUseFullOpenGles2  Condition="'$(EmUseFullOpenGles2)' == ''"></EmUseFullOpenGles2>
+    <EmUseFullOpenGles3  Condition="'$(EmUseFullOpenGles3)' == ''"></EmUseFullOpenGles3>
+    <EmMinWebGlVersion   Condition="'$(EmMinWebGlVersion)'  == ''"></EmMinWebGlVersion>
+    <EmMaxWebGlVersion   Condition="'$(EmMaxWebGlVersion)'  == ''"></EmMaxWebGlVersion>
+  </PropertyGroup>
 
 
   <!-- Define The default settings for common properties -->
@@ -168,6 +175,7 @@
     
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_adv_override.xml" />
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_directories.xml" />
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\Properties\em_settings.xml" />
 
     <PropertyPageSchema Condition="'$(ConfigurationType)' == 'Application'"
                         Include="$(MSBuildThisFileDirectory)\Properties\em_cxx.xml" />
@@ -335,6 +343,11 @@
             MinimalRebuildFromTracking     ="$(Link_MinimalRebuildFromTracking)"
             AdditionalOptions              ="%(Link.AdditionalOptions)"
             EmWasmMode                     ="%(Link.EmWasmMode)"
+            EmSdlVersion                   ="$(EmSdlVersion)"
+            EmUseFullOpenGles2             ="$(EmUseFullOpenGles2)"
+            EmUseFullOpenGles3             ="$(EmUseFullOpenGles3)"
+            EmMinWebGlVersion              ="$(EmMinWebGlVersion)"
+            EmMaxWebGlVersion              ="$(EmMinWebGlVersion)"
             Sources                        ="@(Link)"
             Verbose                        ="$(DoVerbose)">
       <Output TaskParameter="SkippedExecution"

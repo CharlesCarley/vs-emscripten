@@ -124,14 +124,10 @@ namespace EmscriptenTask
         private ITaskItem[] _currentSources;
 
 
-        // ========================= Temporary  ====================================
-
         // Temporary extra debug properties
         public string DebugProp1 { get; set; }
         public string DebugProp2 { get; set; }
         public bool   DebugProp3 { get; set; }
-
-        // ========================== General ======================================
 
         /// <summary>
         /// Indicator to determine build state. Used in Toolset.targets

@@ -32,7 +32,7 @@ namespace EmscriptenTask
         /// <param name="info">Details about the process that will be executed.</param>
         /// <returns>
         /// The inverse of a typical return from a main function.
-        /// That is, A non zero return code should yield a true return. 
+        /// That is, A non zero return code should yield a true return.
         /// </returns>
         bool Spawn(ProcessStartInfo info);
     }
