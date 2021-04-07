@@ -36,10 +36,12 @@ namespace TestUtils
         private static string _wavm;
         private static string _msBuild;
         private static string _devEnv;
+        private static string _emcpp;
 
         public static string Wavm    => _wavm ?? (_wavm = FindWavm());
         public static string MsBuild => _msBuild ?? (_msBuild = FindMsBuild());
         public static string DevEnv  => _devEnv ?? (_devEnv = FindDevEnv());
+        public static string EmCppBatch => _emcpp ?? (_emcpp = FindEmCppBatch());
 
         public static string WriteSwitchesToString(object obj)
         {
@@ -98,6 +100,18 @@ namespace TestUtils
             if (!File.Exists(pathToWavm))
                 Assert.Fail($"Failed to find WAVM in {pathToWavm}.");
             return pathToWavm;
+        }
+
+        private static string FindEmCppBatch()
+        {
+            var emDir = Environment.GetEnvironmentVariable("EMSDK");
+            if (emDir == null)
+                Assert.Fail("Failed to find the EMSDK environment variable.");
+
+            var path = $@"{emDir}\upstream\emscripten\em++.bat";
+            if (!File.Exists(path))
+                Assert.Fail($"Failed to find em++ in {path}.");
+            return path;
         }
 
         private static string FindMsBuild()

@@ -15,7 +15,6 @@ namespace Test04
             File.Delete($"{CurrentDirectory}output.log");
 
             var cmdLine = $@"Manual\Manual.sln /rebuild Debug /Out output.log";
-
             var output = Spawn(DevEnv, cmdLine);
             Log(output);
 

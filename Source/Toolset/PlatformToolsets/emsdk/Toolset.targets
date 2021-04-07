@@ -30,9 +30,9 @@
     <EmTestStackOverflow Condition="'$(EmTestStackOverflow)' == 'Disabled'"></EmTestStackOverflow>
     <EmAllowMemoryGrowth Condition="'$(EmAllowMemoryGrowth)' == 'false'"></EmAllowMemoryGrowth>
     <EmRuntimeLogging    Condition="'$(EmRuntimeLogging)'    == '0'"></EmRuntimeLogging>
-    <EmInitialMemory     Condition="'$(EmInitialMemory)'      == '16777216'"></EmInitialMemory>
-    <EmUseUBSan          Condition="'$(EmUseUBSan)'           == 'false'"></EmUseUBSan>
-    <EmUseASan           Condition="'$(EmUseASan)'            == 'false'"></EmUseASan>
+    <EmInitialMemory     Condition="'$(EmInitialMemory)'     == '16777216'"></EmInitialMemory>
+    <EmUseUBSan          Condition="'$(EmUseUBSan)'          == 'false'"></EmUseUBSan>
+    <EmUseASan           Condition="'$(EmUseASan)'           == 'false'"></EmUseASan>
 
     <EmSdlVersion        Condition="'$(EmSdlVersion)'        == '0'"></EmSdlVersion>
     <EmUseFullOpenGles2  Condition="'$(EmUseFullOpenGles2)'  == 'false'"></EmUseFullOpenGles2>
@@ -42,6 +42,8 @@
 
     <EmPreloadFile       Condition="'$(EmPreloadFile)'      == ''"></EmPreloadFile>
     <EmEmbeddedFile      Condition="'$(EmEmbeddedFile)'     == ''"></EmEmbeddedFile>
+
+    <EmEchoCommandLines  Condition="'$(EmEchoCommandLines)' == ''">false</EmEchoCommandLines>
   </PropertyGroup>
 
 
@@ -94,7 +96,7 @@
       <DisableSpecificWarnings            Condition="'%(ClCompile.DisableSpecificWarnings)'            == ''"/>
       <TreatSpecificWarningsAsErrors      Condition="'%(ClCompile.TreatSpecificWarningsAsErrors)'      == ''"/>
       <TreatSpecificWarningsNotAsErrors   Condition="'%(ClCompile.TreatSpecificWarningsNotAsErrors)'   == ''"/>
-      <EchoCommandLines                   Condition="'%(ClCompile.EchoCommandLines)'                   == ''">false</EchoCommandLines>
+      <EchoCommandLines                   Condition="'%(ClCompile.EchoCommandLines)'                   == ''">$(EmEchoCommandLines)</EchoCommandLines>
       <RunStaticAnalysis                  Condition="'%(ClCompile.RunStaticAnalysis)'                  == ''">false</RunStaticAnalysis>
       <!-- Command Line -->
       <AdditionalOptions                  Condition="'%(ClCompile.AdditionalOptions)'                  == ''"/>
@@ -173,7 +175,7 @@
       <TypedArrays                   Condition="'%(Link.TypedArrays)'                    == ''">Default</TypedArrays>
       <IgnoreDynamicLinking          Condition="'%(Link.IgnoreDynamicLinking)'           == ''">false</IgnoreDynamicLinking>
       <SystemLibraryDirectories      Condition="'%(Link.SystemLibraryDirectories)'       == ''">$(LibraryPath)</SystemLibraryDirectories>
-      <EchoCommandLines              Condition="'%(Link.EchoCommandLines)'               == ''">false</EchoCommandLines>
+      <EchoCommandLines              Condition="'%(Link.EchoCommandLines)'               == ''">$(EmEchoCommandLines)</EchoCommandLines>
       <TrackerLogDirectory           Condition="'%(Link.TrackerLogDirectory)'            == ''">$(TLogLocation)</TrackerLogDirectory>
       <MinimalRebuildFromTracking    Condition="'%(Link.MinimalRebuildFromTracking)'     == ''">true</MinimalRebuildFromTracking>
 

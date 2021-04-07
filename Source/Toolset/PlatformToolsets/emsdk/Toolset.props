@@ -130,6 +130,7 @@
     <EmInitialMemory     Condition="'$(EmInitialMemory)'      == ''">16777216</EmInitialMemory>
     <EmUseUBSan          Condition="'$(EmUseUBSan)'           == ''">false</EmUseUBSan>
     <EmUseASan           Condition="'$(EmUseASan)'            == ''">false</EmUseASan>
+    <EmEchoCommandLines  Condition="'$(EmEchoCommandLines)'     == ''">false</EmEchoCommandLines>
   </PropertyGroup>
 
   <!-- Define The default settings for common properties -->
@@ -187,7 +188,7 @@
       <DisableSpecificWarnings />
       <TreatSpecificWarningsAsErrors />
       <TreatSpecificWarningsNotAsErrors />
-      <EchoCommandLines>false</EchoCommandLines>
+      <EchoCommandLines>$(EmEchoCommandLines)</EchoCommandLines>
       <RunStaticAnalysis>false</RunStaticAnalysis>
 
 
@@ -253,6 +254,7 @@
 
 
     <Link>
+      <EchoCommandLines>$(EmEchoCommandLines)</EchoCommandLines>
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <AdditionalDependencies/>
