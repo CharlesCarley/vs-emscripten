@@ -24,6 +24,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>emsdk</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <VerboseOutput>NoVerboseOutput</VerboseOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -60,10 +61,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>FullDebug</DebugInformationFormat>
+      <EchoCommandLines>true</EchoCommandLines>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EchoCommandLines>true</EchoCommandLines>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">

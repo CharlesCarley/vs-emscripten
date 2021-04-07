@@ -118,6 +118,54 @@ namespace EmscriptenTask
         [StringSwitch("--embed-file", BaseSwitch.QuoteIfWhiteSpace)]
         public string EmEmbeddedFile { get; set; }
 
+        /// <summary>
+        /// Runtime assertion level
+        /// </summary>
+        [IntSwitch("-s ASSERTIONS=", new[] {0, 1, 2})]
+        public string EmAssertions { get; set; }
+
+        /// <summary>
+        /// Chooses what kind of stack smash checks to emit to generated code.
+        /// </summary>
+        [EnumSwitch("Disabled,SecurityCookie,Binaryen",
+            "-s STACK_OVERFLOW_CHECK=0,-s STACK_OVERFLOW_CHECK=1,-s STACK_OVERFLOW_CHECK=2")]
+        public string EmTestStackOverflow { get; set; }
+
+        /// <summary>
+        /// Whether extra logging should be enabled.
+        /// </summary>
+        [BoolSwitch("-s RUNTIME_LOGGING=1")]
+        public bool EmRuntimeLogging { get; set; }
+
+        /// <summary>
+        /// When set to 1, will generate more verbose output during compilation.
+        /// </summary>
+        [BoolSwitch("-s VERBOSE=1")]
+        public bool EmVerbose { get; set; }
+
+        /// <summary>
+        /// Allows for memory to be expanded beyond INITIAL_MEMORY.
+        /// </summary>
+        [BoolSwitch("-s ALLOW_MEMORY_GROWTH=1")]
+        public bool EmAllowMemoryGrowth { get; set; }
+
+        /// <summary>
+        /// The initial amount of memory to use.
+        /// </summary>
+        [IntSwitch("-s INITIAL_MEMORY=", null, BaseSwitch.GlueSwitch|BaseSwitch.SkipIfZero)] 
+        public int EmInitialMemory { get; set; }
+
+        /// <summary>
+        /// Use Clang's undefined behavior sanitizer.
+        /// </summary>
+        [BoolSwitch("-fsanitize=undefined")] 
+        public bool EmUseUBSan { get; set; }
+
+        /// <summary>
+        /// Use Clang's address sanitizer.
+        /// </summary>
+        [BoolSwitch("-fsanitize=address")] 
+        public bool EmUseASan { get; set; }
 
         [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace, ' ')]
         public ITaskItem[] AllSource => Sources;
@@ -163,10 +211,11 @@ namespace EmscriptenTask
             case "HTMLApplication":
                 var swapName = OutputFile.GetMetadata(Filename);
                 EmitOutputForInput(OutputFile, MergedInputs);
-                EmitOutputForInput(new TaskItem($"{swapName}.html"), MergedInputs);
-                EmitOutputForInput(new TaskItem($"{swapName}.js"), MergedInputs);
+                EmitOutputForInput(OutputFile, new ITaskItem[] { new TaskItem($"{swapName}.html") });
+                EmitOutputForInput(OutputFile, new ITaskItem[] { new TaskItem($"{swapName}.js") });
                 break;
             case "Application":
+
                 EmitOutputForInput(OutputFile, MergedInputs);
                 break;
             }

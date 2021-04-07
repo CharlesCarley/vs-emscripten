@@ -114,13 +114,22 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <EmSdlVersion        Condition="'$(EmSdlVersion)'       == ''"></EmSdlVersion>
-    <EmUseFullOpenGles2  Condition="'$(EmUseFullOpenGles2)' == ''"></EmUseFullOpenGles2>
-    <EmUseFullOpenGles3  Condition="'$(EmUseFullOpenGles3)' == ''"></EmUseFullOpenGles3>
-    <EmMinWebGlVersion   Condition="'$(EmMinWebGlVersion)'  == ''"></EmMinWebGlVersion>
-    <EmMaxWebGlVersion   Condition="'$(EmMaxWebGlVersion)'  == ''"></EmMaxWebGlVersion>
-    <EmPreloadFile       Condition="'$(EmPreloadFile)'      == ''"></EmPreloadFile>
-    <EmEmbeddedFile      Condition="'$(EmEmbeddedFile)'     == ''"></EmEmbeddedFile>
+    <!-- Defaults if not set -->
+    <EmAssertions        Condition="'$(EmAssertions)'         == ''">1</EmAssertions>
+    <EmVerbose           Condition="'$(EmAssertions)'         == ''">false</EmVerbose>
+    <EmTestStackOverflow Condition="'$(EmTestStackOverflow)'  == ''">Disabled</EmTestStackOverflow>
+    <EmAllowMemoryGrowth Condition="'$(EmAllowMemoryGrowth)'  == ''">false</EmAllowMemoryGrowth>
+    <EmRuntimeLogging    Condition="'$(EmRuntimeLogging)'     == ''">0</EmRuntimeLogging>
+    <EmSdlVersion        Condition="'$(EmSdlVersion)'         == ''">0</EmSdlVersion>
+    <EmUseFullOpenGles2  Condition="'$(EmUseFullOpenGles2)'   == ''">false</EmUseFullOpenGles2>
+    <EmUseFullOpenGles3  Condition="'$(EmUseFullOpenGles3)'   == ''">false</EmUseFullOpenGles3>
+    <EmMinWebGlVersion   Condition="'$(EmMinWebGlVersion)'    == ''">1</EmMinWebGlVersion>
+    <EmMaxWebGlVersion   Condition="'$(EmMaxWebGlVersion)'    == ''">1</EmMaxWebGlVersion>
+    <EmPreloadFile       Condition="'$(EmPreloadFile)'        == ''"></EmPreloadFile>
+    <EmEmbeddedFile      Condition="'$(EmEmbeddedFile)'       == ''"></EmEmbeddedFile>
+    <EmInitialMemory     Condition="'$(EmInitialMemory)'      == ''">16777216</EmInitialMemory>
+    <EmUseUBSan          Condition="'$(EmUseUBSan)'           == ''">false</EmUseUBSan>
+    <EmUseASan           Condition="'$(EmUseASan)'            == ''">false</EmUseASan>
   </PropertyGroup>
 
   <!-- Define The default settings for common properties -->

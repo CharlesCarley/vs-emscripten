@@ -85,6 +85,11 @@ namespace UnitTest
             Assert.AreEqual(null, obj.CompileAs);
             Assert.AreEqual(false, obj.ShowIncludes);
             Assert.AreEqual(null, obj.AdditionalOptions);
+
+            Assert.AreEqual(false, obj.EmVerbose);
+            Assert.AreEqual(false, obj.EmUseUBSan);
+            Assert.AreEqual(false, obj.EmUseASan);
+
         }
 
         [TestMethod]
@@ -478,6 +483,51 @@ namespace UnitTest
 
             var result2 = WriteSwitchesToString(obj);
             Assert.AreEqual(" -H", result2);
+        }
+
+        [TestMethod]
+        public void TestEmVerbose()
+        {
+            var obj = new EmscriptenTask.EmCxx
+            {
+                EmVerbose = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmVerbose = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s VERBOSE=1", result4);
+        }
+
+        [TestMethod]
+        public void TestEmUseUBSan()
+        {
+            var obj = new EmscriptenTask.EmCxx
+            {
+                EmUseUBSan = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmUseUBSan = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -fsanitize=undefined", result4);
+        }
+
+        [TestMethod]
+        public void TestEmUseASan()
+        {
+            var obj = new EmscriptenTask.EmCxx
+            {
+                EmUseASan = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmUseASan = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -fsanitize=address", result4);
         }
 
     }

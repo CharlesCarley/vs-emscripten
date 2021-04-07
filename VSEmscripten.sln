@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{8718CD30-6
 		clean.bat = clean.bat
 		install.bat = install.bat
 		LICENSE = LICENSE
+		Settings.md = Settings.md
 	EndProjectSection
 EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Tools", "BuildTools\Tools.pyproj", "{22F11BE4-4710-406A-81C5-1C6D83D20ABB}"
@@ -89,6 +90,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{1E9480F3-39B6-4814-A92E-095691AC5457}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtils", "Test\Common\TestUtils.csproj", "{47274028-A7C0-44E2-BB99-977530F214FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test04", "Test\Test04\Test04.csproj", "{06138D2E-184D-45C1-9573-648406CEEEE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -190,6 +193,22 @@ Global
 		{47274028-A7C0-44E2-BB99-977530F214FE}.Release|x64.Build.0 = Release|Any CPU
 		{47274028-A7C0-44E2-BB99-977530F214FE}.Release|x86.ActiveCfg = Release|Any CPU
 		{47274028-A7C0-44E2-BB99-977530F214FE}.Release|x86.Build.0 = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|Emscripten.ActiveCfg = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|Emscripten.Build.0 = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|x64.Build.0 = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Debug|x86.Build.0 = Debug|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|Emscripten.ActiveCfg = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|Emscripten.Build.0 = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|x64.ActiveCfg = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|x64.Build.0 = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|x86.ActiveCfg = Release|Any CPU
+		{06138D2E-184D-45C1-9573-648406CEEEE4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -213,6 +232,7 @@ Global
 		{45345B30-5A8F-4BA5-911C-5930EAA7B743} = {1CBAC763-C600-4678-92A8-2310021FCB00}
 		{1E9480F3-39B6-4814-A92E-095691AC5457} = {21F7F39F-CC7E-4810-BA01-55EB59889A00}
 		{47274028-A7C0-44E2-BB99-977530F214FE} = {1E9480F3-39B6-4814-A92E-095691AC5457}
+		{06138D2E-184D-45C1-9573-648406CEEEE4} = {33BDC5B4-707B-48AC-81D7-3CDF1FB66AAA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0B4BE6E9-F7C1-4ADE-B5AE-70F7E6E93EEF}

@@ -38,6 +38,7 @@ namespace EmscriptenTask
         public const int QuoteIfWhiteSpace  = 0x10;
         public const int AlwaysQuote        = 0x20;
         public const int PreValidated       = 0x40;
+        public const int SkipIfZero         = 0x80;
         public const int DefaultFlags       = PadSwitch | NoQuote;
 
         public BaseSwitch(int flags = DefaultFlags)
@@ -73,6 +74,11 @@ namespace EmscriptenTask
         public bool PreConverted()
         {
             return (Flags & PreValidated) != 0;
+        }
+
+        public bool ShouldSkipIfZero()
+        {
+            return (Flags & SkipIfZero) != 0;
         }
 
         protected int Flags { get; set; }
@@ -466,6 +472,9 @@ namespace EmscriptenTask
                 return;
 
             if (!int.TryParse(obj.ConvertedValue, out var outResult))
+                return;
+
+            if (obj.ShouldSkipIfZero() && outResult == 0)
                 return;
 
             if (obj.ValidValues != null)

@@ -76,6 +76,17 @@ namespace UnitTest
             Assert.AreEqual(null, obj.EmMaxWebGlVersion);
             Assert.AreEqual(null, obj.EmPreloadFile);
             Assert.AreEqual(null, obj.EmEmbeddedFile);
+
+            Assert.AreEqual(null, obj.EmAssertions);
+            Assert.AreEqual(null, obj.EmTestStackOverflow);
+            Assert.AreEqual(false, obj.EmRuntimeLogging);
+
+            Assert.AreEqual(false, obj.EmVerbose);
+            Assert.AreEqual(false, obj.EmAllowMemoryGrowth);
+            Assert.AreEqual(0, obj.EmInitialMemory);
+            Assert.AreEqual(false, obj.EmUseUBSan);
+            Assert.AreEqual(false, obj.EmUseASan);
+
         }
 
         private static ITaskItem[] ItemsFromString(string semiColonSeparated)
@@ -363,5 +374,129 @@ namespace UnitTest
             var result2 = WriteSwitchesToString(obj);
             Assert.AreEqual($" --embed-file \"{CurrentDirectory}\\Tests\\New Folder\\New Text Document.c\"", result2);
         }
+
+
+        [TestMethod]
+        public void TestEmTestStackOverflow()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmTestStackOverflow = null
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmTestStackOverflow = "Disabled";
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s STACK_OVERFLOW_CHECK=0", result2);
+
+            obj.EmTestStackOverflow = "SecurityCookie";
+            var result3 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s STACK_OVERFLOW_CHECK=1", result3);
+
+            obj.EmTestStackOverflow = "Binaryen";
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s STACK_OVERFLOW_CHECK=2", result4);
+
+        }
+
+
+        [TestMethod]
+        public void TestEmRuntimeLogging()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmRuntimeLogging = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmRuntimeLogging = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s RUNTIME_LOGGING=1", result4);
+        }
+
+        [TestMethod]
+        public void TestEmVerbose()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmVerbose = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmVerbose = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s VERBOSE=1", result4);
+        }
+
+        [TestMethod]
+        public void TestEmAllowMemoryGrowth()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmAllowMemoryGrowth = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmAllowMemoryGrowth = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -s ALLOW_MEMORY_GROWTH=1", result4);
+        }
+
+
+        [TestMethod]
+        public void TestEmInitialMemory()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmInitialMemory = 0
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            int v = int.MaxValue >> 1;
+            obj.EmInitialMemory = v;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual($" -s INITIAL_MEMORY={v}", result4);
+
+            int v1 = -1;
+            obj.EmInitialMemory = v1;
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual($" -s INITIAL_MEMORY={v1}", result2);
+        }
+
+        [TestMethod]
+        public void TestEmUseUBSan()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmUseUBSan = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmUseUBSan = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -fsanitize=undefined", result4);
+        }
+
+        [TestMethod]
+        public void TestEmUseASan()
+        {
+            var obj = new EmscriptenTask.EmLink
+            {
+                EmUseASan = false
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.EmUseASan = true;
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -fsanitize=address", result4);
+        }
+
     }
 }

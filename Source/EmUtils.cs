@@ -105,8 +105,7 @@ namespace EmscriptenTask
             return $@"{cur}{path}";
         }
 
-
-        public static ITaskItem[] StringToTaskItemList(string inputString, char charSeparator =';')
+        public static ITaskItem[] StringToTaskItemList(string inputString, char charSeparator = ';')
         {
             if (inputString is null)
             {
@@ -114,10 +113,10 @@ namespace EmscriptenTask
                     "The supplied input variable cannot be null or empty");
             }
 
-            var input = inputString.Split(charSeparator);
-            return input.Select(inp => new TaskItem(inp)).Cast<ITaskItem>().ToArray();
+            var inputs = inputString.Split(charSeparator);
+            return (from inp in inputs where !string.IsNullOrEmpty(inp) 
+                select new TaskItem(inp)).Cast<ITaskItem>().ToArray();
         }
-
 
         public static string GetSeparatedSource(char charSeparator, ITaskItem[] input, bool quoteIfHasWs = false)
         {

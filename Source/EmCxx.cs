@@ -131,6 +131,17 @@ namespace EmscriptenTask
         public bool UseShortEnums { get; set; }
 
 
+        [BoolSwitch("-fsanitize=undefined")] 
+        public bool UseUBSan { get; set; }
+
+
+        [BoolSwitch("-fsanitize=address")]
+        public bool UseASan { get; set; }
+
+        [BoolSwitch("-pthread")]
+        public bool UsePThread { get; set; }
+
+
         // ============================= Language ==============================----
         // EnableMicrosoftExtensions
         // ConstExprLimit
@@ -208,6 +219,24 @@ namespace EmscriptenTask
 
         [StringSwitch]
         public string AdditionalOptions { get; set; }
+
+        /// <summary>
+        /// When set to 1, will generate more verbose output during compilation.
+        /// </summary>
+        [BoolSwitch("-s VERBOSE=1")]
+        public bool EmVerbose { get; set; }
+        /// <summary>
+        /// Use Clang's undefined behavior sanitizer.
+        /// </summary>
+        [BoolSwitch("-fsanitize=undefined")]
+        public bool EmUseUBSan { get; set; }
+
+        /// <summary>
+        /// Use Clang's address sanitizer.
+        /// </summary>
+        [BoolSwitch("-fsanitize=address")]
+        public bool EmUseASan { get; set; }
+
 
         // clang-format on
 

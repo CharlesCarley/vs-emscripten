@@ -19,11 +19,27 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <EmSdlVersion        Condition="'$(EmSdlVersion)'       == ''"></EmSdlVersion>
-    <EmUseFullOpenGles2  Condition="'$(EmUseFullOpenGles2)' == ''"></EmUseFullOpenGles2>
-    <EmUseFullOpenGles3  Condition="'$(EmUseFullOpenGles3)' == ''"></EmUseFullOpenGles3>
-    <EmMinWebGlVersion   Condition="'$(EmMinWebGlVersion)'  == ''"></EmMinWebGlVersion>
-    <EmMaxWebGlVersion   Condition="'$(EmMaxWebGlVersion)'  == ''"></EmMaxWebGlVersion>
+    <!-- This is testing for the default value, then clearing it so that it 
+         is not part of the command line. 
+         See test04 ==> TestDefaultSwitchOutput
+         Its setup this way so that a default 'informative' value can be reported in the 
+         property panel.
+         -->
+    <EmAssertions        Condition="'$(EmAssertions)'        == '1'"></EmAssertions>
+    <EmVerbose           Condition="'$(EmVerbose)'           == 'false'"></EmVerbose>
+    <EmTestStackOverflow Condition="'$(EmTestStackOverflow)' == 'Disabled'"></EmTestStackOverflow>
+    <EmAllowMemoryGrowth Condition="'$(EmAllowMemoryGrowth)' == 'false'"></EmAllowMemoryGrowth>
+    <EmRuntimeLogging    Condition="'$(EmRuntimeLogging)'    == '0'"></EmRuntimeLogging>
+    <EmInitialMemory     Condition="'$(EmInitialMemory)'      == '16777216'"></EmInitialMemory>
+    <EmUseUBSan          Condition="'$(EmUseUBSan)'           == 'false'"></EmUseUBSan>
+    <EmUseASan           Condition="'$(EmUseASan)'            == 'false'"></EmUseASan>
+
+    <EmSdlVersion        Condition="'$(EmSdlVersion)'        == '0'"></EmSdlVersion>
+    <EmUseFullOpenGles2  Condition="'$(EmUseFullOpenGles2)'  == 'false'"></EmUseFullOpenGles2>
+    <EmUseFullOpenGles3  Condition="'$(EmUseFullOpenGles3)'  == 'false'"></EmUseFullOpenGles3>
+    <EmMinWebGlVersion   Condition="'$(EmMinWebGlVersion)'   == '1'"></EmMinWebGlVersion>
+    <EmMaxWebGlVersion   Condition="'$(EmMaxWebGlVersion)'   == '1'"></EmMaxWebGlVersion>
+
     <EmPreloadFile       Condition="'$(EmPreloadFile)'      == ''"></EmPreloadFile>
     <EmEmbeddedFile      Condition="'$(EmEmbeddedFile)'     == ''"></EmEmbeddedFile>
   </PropertyGroup>
@@ -288,6 +304,9 @@
            MinimalRebuildFromTracking       ="%(ClCompile.MinimalRebuildFromTracking)"
            TrackerLogDirectory              ="%(ClCompile.TrackerLogDirectory)"
            UseShortEnums                    ="%(ClCompile.UseShortEnums)"
+           EmVerbose                        ="$(EmVerbose)"
+           EmUseUBSan                       ="$(EmUseUBSan)"
+           EmUseASan                        ="$(EmUseASan)"
            Verbose                          ="$(DoVerbose)">
       <Output TaskParameter="SkippedExecution"
               PropertyName="ClSkippedExecution" />
@@ -344,6 +363,7 @@
             TrackerLogDirectory            ="%(Link.TrackerLogDirectory)"
             MinimalRebuildFromTracking     ="$(Link_MinimalRebuildFromTracking)"
             AdditionalOptions              ="%(Link.AdditionalOptions)"
+            EchoCommandLines               ="%(Link.EchoCommandLines)"
             EmWasmMode                     ="%(Link.EmWasmMode)"
             EmSdlVersion                   ="$(EmSdlVersion)"
             EmUseFullOpenGles2             ="$(EmUseFullOpenGles2)"
@@ -352,6 +372,14 @@
             EmMaxWebGlVersion              ="$(EmMinWebGlVersion)"
             EmPreloadFile                  ="$(EmPreloadFile)"
             EmEmbeddedFile                 ="$(EmEmbeddedFile)"
+            EmAssertions                   ="$(EmAssertions)"
+            EmTestStackOverflow            ="$(EmTestStackOverflow)"
+            EmRuntimeLogging               ="$(EmRuntimeLogging)"
+            EmAllowMemoryGrowth            ="$(EmAllowMemoryGrowth)"
+            EmInitialMemory                ="$(EmInitialMemory)"
+            EmVerbose                      ="$(EmVerbose)"
+            EmUseUBSan                     ="$(EmUseUBSan)"
+            EmUseASan                      ="$(EmUseASan)"
             Sources                        ="@(Link)"
             Verbose                        ="$(DoVerbose)">
       <Output TaskParameter="SkippedExecution"

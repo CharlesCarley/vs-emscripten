@@ -16,15 +16,18 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{FC5990F9-ACD5-4D2D-9275-467620E652D4}</ProjectGuid>
+    <ProjectGuid>{2EAECC09-896D-4CFB-985A-5D9A46AB82B8}</ProjectGuid>
     <RootNamespace>Project2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>SDLApp</ProjectName>
+    <ProjectName>HTMLApplication</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <PlatformToolset>emsdk</PlatformToolset>
     <ConfigurationType>HTMLApplication</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">
+    <VerboseOutput>NoVerboseOutput</VerboseOutput>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -36,13 +39,14 @@
     <TargetExt>.html</TargetExt>
     <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">
-    <EmSDLVersion>2</EmSDLVersion>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">
     <ClCompile>
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
+      <EchoCommandLines>true</EchoCommandLines>
     </ClCompile>
+    <Link>
+      <EchoCommandLines>true</EchoCommandLines>
+    </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

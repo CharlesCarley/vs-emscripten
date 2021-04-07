@@ -61,6 +61,8 @@ namespace TestUtils
             {
                 Log(ex.Message);
             }
+
+            Assert.IsFalse(Directory.Exists(dir));
         }
 
         public static void Log(string message)
