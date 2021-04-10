@@ -24,7 +24,7 @@ using System.Diagnostics;
 
 namespace EmscriptenTask
 {
-    public interface IEmTask : ITask
+    public interface IEmTask : ICancelableTask
     {
         /// <summary>
         /// Spawns the process described in info

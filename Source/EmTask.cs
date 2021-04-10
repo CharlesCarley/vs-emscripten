@@ -19,12 +19,11 @@
   3. This notice may not be removed or altered from any source distribution.
 -------------------------------------------------------------------------------
 */
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using static EmscriptenTask.EmUtils;
@@ -35,7 +34,7 @@ namespace EmscriptenTask
 {
     public abstract class EmTask : IEmTask
     {
-        private const int TimeOut = 45000;
+        private const int TimeOut = 300000;
 
         protected abstract string SenderName { get; }
 
@@ -351,6 +350,8 @@ namespace EmscriptenTask
             });
         }
 
+        private Process _currentProcess;
+
         bool IEmTask.Spawn(ProcessStartInfo info)
         {
             if (Verbose || EchoCommandLines)
@@ -360,26 +361,43 @@ namespace EmscriptenTask
             info.RedirectStandardOutput = true;
             info.RedirectStandardError  = true;
 
-            var process = Process.Start(info);
-            if (process == null)
+            _currentProcess = Process.Start(info);
+            if (_currentProcess == null)
             {
                 LogError($"{info.FileName} failed to start");
                 return true;
             }
 
-            process.OutputDataReceived += OnMessageDataReceived;
-            process.ErrorDataReceived += OnErrorDataReceived;
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            _currentProcess.OutputDataReceived += OnMessageDataReceived;
+            _currentProcess.ErrorDataReceived += OnErrorDataReceived;
+            _currentProcess.BeginOutputReadLine();
+            _currentProcess.BeginErrorReadLine();
 
             // Wait at least the specified TimeOut.
             // If the process has not finished
             // by then, kill it and report a time out.
-            if (process.WaitForExit(TimeOut))
-                return process.ExitCode != 0;
+            if (_currentProcess.WaitForExit(TimeOut))
+            {
+                var ret = _currentProcess.ExitCode != 0;
 
+                _currentProcess.Dispose();
+                _currentProcess = null;
+                return ret;
+            }
+
+            _currentProcess.Dispose();
+            _currentProcess = null;
             LogError($"the process {BaseName(info.FileName)} timed out.");
             return false;
+        }
+        
+        public void Cancel()
+        {
+            if (_currentProcess != null)
+            {
+                LogError($"Canceling {_currentProcess.StartInfo.FileName}.");
+                _currentProcess.Kill();
+            }
         }
 
         private void OnMessageDataReceived(object sender, DataReceivedEventArgs e)
