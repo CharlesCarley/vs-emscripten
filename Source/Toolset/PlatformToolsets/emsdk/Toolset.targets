@@ -58,8 +58,8 @@
       <DebugInformationFormat             Condition="'%(ClCompile.DebugInformationFormat)'             == ''">FullDebug</DebugInformationFormat>
       <WarningLevel                       Condition="'%(ClCompile.WarningLevel)'                       == ''">Default</WarningLevel>
       <TreatWarningAsError                Condition="'%(ClCompile.TreatWarningAsError)'                == ''">false</TreatWarningAsError>
-      <ErrorLimit                         Condition="'%(ClCompile.ErrorLimit)'                         == ''"/> <!--Redundant, but consistency is important! -->
-      <TemplateBacktraceLimit             Condition="'%(ClCompile.TemplateBacktraceLimit)'             == ''"/>
+      <ErrorLimit                         Condition="'%(ClCompile.ErrorLimit)'                         == ''"></ErrorLimit> 
+      <TemplateBacktraceLimit             Condition="'%(ClCompile.TemplateBacktraceLimit)'             == ''"></TemplateBacktraceLimit>
       <!-- Optimization -->
       <OptimizationLevel                  Condition="'%(ClCompile.OptimizationLevel)'                  == ''">O0</OptimizationLevel>
       <OmitFramePointers                  Condition="'%(ClCompile.OmitFramePointers)'                  == ''">false</OmitFramePointers>
@@ -70,7 +70,7 @@
       <UndefineAllPreprocessorDefinitions Condition="'%(ClCompile.UndefineAllPreprocessorDefinitions)' == ''" >false</UndefineAllPreprocessorDefinitions>
       <SystemPreprocessorDefinitions      Condition="'%(ClCompile.SystemPreprocessorDefinitions)'      == ''" >__EMSCRIPTEN__;$(SystemPreprocessorDefinitions)</SystemPreprocessorDefinitions>
       <!-- Code Generation -->
-      <ExceptionHandling                  Condition="'%(ClCompile.ExceptionHandling)'                  == ''" >Enabled</ExceptionHandling>
+      <ExceptionHandling                  Condition="'%(ClCompile.ExceptionHandling)'                  == ''" ></ExceptionHandling>
       <FunctionLevelLinking               Condition="'%(ClCompile.FunctionLevelLinking)'               == ''">false</FunctionLevelLinking>
       <DataLevelLinking                   Condition="'%(ClCompile.DataLevelLinking)'                   == ''">false</DataLevelLinking>
       <BufferSecurityCheck                Condition="'%(ClCompile.BufferSecurityCheck)'                == ''">true</BufferSecurityCheck>
@@ -78,22 +78,23 @@
       <UseShortEnums                      Condition="'%(ClCompile.UseShortEnums)'                      == ''">false</UseShortEnums>
       <!-- Language -->
       <RuntimeTypeInfo                    Condition="'%(ClCompile.RuntimeTypeInfo)'                    == ''">false</RuntimeTypeInfo>
-      <LanguageStandard                   Condition="'%(ClCompile.LanguageStandard)'                   == ''">gnucpp11</LanguageStandard>
+      <LanguageStandard                   Condition="'%(ClCompile.LanguageStandard)'                   == ''"></LanguageStandard>
       <LanguageExtensions                 Condition="'%(ClCompile.LanguageExtensions)'                 == ''">EnableLanguageExtensions</LanguageExtensions>
       <EnableMicrosoftExtensions          Condition="'%(ClCompile.EnableMicrosoftExtensions)'          == ''">true</EnableMicrosoftExtensions>
       <MscVersion                         Condition="'%(ClCompile.MscVersion)'                         == ''">VisualC120</MscVersion>
-      <ConstExprLimit                     Condition="'%(ClCompile.ConstExprLimit)'                     == ''"/>
-      <TemplateRecursionLimit             Condition="'%(ClCompile.TemplateRecursionLimit)'             == ''"/>
-      <!-- Output Files -->
+      <ConstExprLimit                     Condition="'%(ClCompile.ConstExprLimit)'                     == ''"></ConstExprLimit>
+      <TemplateRecursionLimit             Condition="'%(ClCompile.TemplateRecursionLimit)'             == ''"></TemplateRecursionLimit>
+    
+        <!-- Output Files -->
       <ObjectFileName                     Condition="'%(ClCompile.OutputFile)'                         == ''">$(IntDir)%(Filename).o</ObjectFileName>
-      <DependencyFileName                 Condition="'%(ClCompile.DependencyFileName)'                 == ''">$(IntDir)%(Filename)_dep.o</DependencyFileName>
+      <DependencyFileName                 Condition="'%(ClCompile.DependencyFileName)'                 == ''">$(IntDir)%(Filename).d</DependencyFileName>
       <GenerateDependencyFile             Condition="'%(ClCompile.GenerateDependencyFile)'             == ''">true</GenerateDependencyFile>
       <!-- Advanced -->
       <CompileAs                          Condition="'%(ClCompile.CompileAs)'                          == ''">Default</CompileAs>
       <ForcedIncludeFiles                 Condition="'%(ClCompile.ForcedIncludeFiles)'                 == ''"></ForcedIncludeFiles>
       <ShowIncludes                       Condition="'%(ClCompile.ShowIncludes)'                       == ''">false</ShowIncludes>
-      <EnableSpecificWarnings             Condition="'%(ClCompile.EnableSpecificWarnings)'             == ''"/>
-      <DisableSpecificWarnings            Condition="'%(ClCompile.DisableSpecificWarnings)'            == ''"/>
+      <EnableSpecificWarnings             Condition="'%(ClCompile.EnableSpecificWarnings)'             == ''">-Wcast-align</EnableSpecificWarnings>
+      <DisableSpecificWarnings            Condition="'%(ClCompile.DisableSpecificWarnings)'            == ''"></DisableSpecificWarnings>
       <TreatSpecificWarningsAsErrors      Condition="'%(ClCompile.TreatSpecificWarningsAsErrors)'      == ''"/>
       <TreatSpecificWarningsNotAsErrors   Condition="'%(ClCompile.TreatSpecificWarningsNotAsErrors)'   == ''"/>
       <EchoCommandLines                   Condition="'%(ClCompile.EchoCommandLines)'                   == ''">$(EmEchoCommandLines)</EchoCommandLines>

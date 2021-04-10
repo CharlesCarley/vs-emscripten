@@ -139,14 +139,14 @@
       
       <!-- General -->
       <AdditionalIncludeDirectories />
-      <DebugInformationFormat >FullDebug</DebugInformationFormat>
+      <DebugInformationFormat Condition="'$(DebugInformationFormat)'==''">FullDebug</DebugInformationFormat>
       <WarningLevel>Default</WarningLevel>
       <TreatWarningAsError>false</TreatWarningAsError>
       <ErrorLimit />
       <TemplateBacktraceLimit />
 
       <!-- Optimization -->
-      <OptimizationLevel>O0</OptimizationLevel>
+      <OptimizationLevel Condition="'%(ClCompile.OptimizationLevel)' == ''" >O0</OptimizationLevel>
       <OmitFramePointers>false</OmitFramePointers>
 
       <!-- Preprocessor -->
@@ -156,7 +156,7 @@
       <UndefineAllPreprocessorDefinitions>false</UndefineAllPreprocessorDefinitions>
 
       <!-- Code Generation -->
-      <ExceptionHandling>Enabled</ExceptionHandling>
+      <ExceptionHandling></ExceptionHandling>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <DataLevelLinking>false</DataLevelLinking>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -165,7 +165,7 @@
 
       <!-- Language -->
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
-      <LanguageStandard>gnucpp11</LanguageStandard>
+      <LanguageStandard Condition="'$(LanguageStandard)'==''" >gnucpp11</LanguageStandard>
       <LanguageExtensions>EnableLanguageExtensions</LanguageExtensions>
       <EnableMicrosoftExtensions>true</EnableMicrosoftExtensions>
       <MscVersion>VisualC160</MscVersion>
@@ -174,14 +174,14 @@
 
 
       <!-- Output Files -->
-      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ObjectFileName >$(IntDir)</ObjectFileName>
       <PreserveTempFiles />
       <GenerateDependencyFile>true</GenerateDependencyFile>
-      <DependencyFileName>$(IntDir)%(Filename)_dep.o</DependencyFileName>
+      <DependencyFileName >$(IntDir)%(Filename).d</DependencyFileName>
 
 
       <!-- Advanced -->
-      <CompileAs>Default</CompileAs>
+      <CompileAs Condition="'%(ClCompile.CompileAs)' == ''" >Default</CompileAs>
       <ForcedIncludeFiles />
       <ShowIncludes>false</ShowIncludes>
       <EnableSpecificWarnings />

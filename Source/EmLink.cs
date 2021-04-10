@@ -40,20 +40,6 @@ namespace EmscriptenTask
         public string             ConfigurationType { get; set; }
 
         // clang-format off
-
-        /// <summary>
-        /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
-        /// </summary>
-        [Required]
-        [StringSwitch("-o", BaseSwitch.QuoteIfWhiteSpace)]
-        public ITaskItem OutputFile { get; set; }
-
-        /// <summary>
-        /// User supplied libraries.
-        /// </summary>
-        [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
-        public string AdditionalDependencies { get; set; }
-
         /// <summary>
         /// Extra library search paths.
         /// </summary>
@@ -66,7 +52,14 @@ namespace EmscriptenTask
         [StringSwitch(" ")]
         public string AdditionalOptions { get; set; }
 
+        
+        [BoolSwitch("-s WARN_UNALIGNED=1")]
+        public bool WarnAlignment { get; set; }
 
+        [BoolSwitch("-s EXCEPTION_DEBUG=1")]
+        public bool ExceptionDebug { get; set; }
+
+        
         /// <summary>
         /// Settings.js conversion, the argument to WASM=[0,1,2]
         /// </summary>
@@ -158,17 +151,38 @@ namespace EmscriptenTask
         /// <summary>
         /// Use Clang's undefined behavior sanitizer.
         /// </summary>
-        [BoolSwitch("-fsanitize=undefined")] 
-        public bool EmUseUBSan { get; set; }
-
+        [BoolSwitch("-fsanitize=undefined")]
+        public bool EmUseUBSan { get; set; } 
+            
         /// <summary>
         /// Use Clang's address sanitizer.
         /// </summary>
-        [BoolSwitch("-fsanitize=address")] 
+        [BoolSwitch("-fsanitize=address")]
         public bool EmUseASan { get; set; }
+
+
+        [BoolSwitch("-Oz --profiling")] 
+        public bool EmProfiling { get; set; }
+
 
         [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace, ' ')]
         public ITaskItem[] AllSource => Sources;
+
+
+        /// <summary>
+        /// Output file name parameter $(OutDir)$(TargetName)$(TargetExt)
+        /// </summary>
+        [Required]
+        [StringSwitch("-o", BaseSwitch.QuoteIfWhiteSpace)]
+        public ITaskItem OutputFile { get; set; }
+
+        /// <summary>
+        /// User supplied libraries.
+        /// </summary>
+        [SeparatedStringSwitch(" ", BaseSwitch.RequiresValidation | BaseSwitch.QuoteIfWhiteSpace)]
+        public string AdditionalDependencies { get; set; }
+
+
 
         // clang-format on
 
@@ -211,8 +225,8 @@ namespace EmscriptenTask
             case "HTMLApplication":
                 var swapName = OutputFile.GetMetadata(Filename);
                 EmitOutputForInput(OutputFile, MergedInputs);
-                EmitOutputForInput(OutputFile, new ITaskItem[] { new TaskItem($"{swapName}.html") });
-                EmitOutputForInput(OutputFile, new ITaskItem[] { new TaskItem($"{swapName}.js") });
+                EmitOutputForInput(new TaskItem($"{swapName}.js"), MergedInputs);
+                EmitOutputForInput(new TaskItem($"{swapName}.wasm"), MergedInputs);
                 break;
             case "Application":
 

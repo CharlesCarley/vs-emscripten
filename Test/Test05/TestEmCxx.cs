@@ -50,6 +50,7 @@ namespace UnitTest
             Assert.AreEqual(false, obj.SkippedExecution);
             Assert.AreEqual(false, obj.Verbose);
             Assert.AreEqual(false, obj.EchoCommandLines);
+            Assert.AreEqual(null, obj.OptimizationLevel);
 
             // Points to static data, so it's dependent on the whole test set
             // and is valid only if ValidateSdk is called. It's not public, so...
@@ -529,6 +530,43 @@ namespace UnitTest
             var result4 = WriteSwitchesToString(obj);
             Assert.AreEqual(" -fsanitize=address", result4);
         }
+
+
+        [TestMethod]
+        public void TestOptimizationLevel()
+        {
+            var obj = new EmscriptenTask.EmCxx
+            {
+                OptimizationLevel = null
+            };
+            var result1 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result1);
+
+            obj.OptimizationLevel = "Some invalid string";
+            var result2 = WriteSwitchesToString(obj);
+            Assert.AreEqual(string.Empty, result2);
+
+            obj.OptimizationLevel = "O0";
+            var result3 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -O0", result3);
+
+            obj.OptimizationLevel = "O1";
+            var result4 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -O1", result4);
+
+            obj.OptimizationLevel = "O2";
+            var result5 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -O2", result5);
+
+            obj.OptimizationLevel = "Os";
+            var result6 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -Os", result6);
+
+            obj.OptimizationLevel = "O3";
+            var result7 = WriteSwitchesToString(obj);
+            Assert.AreEqual(" -O3", result7);
+        }
+
 
     }
 }

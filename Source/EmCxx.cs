@@ -74,14 +74,15 @@ namespace EmscriptenTask
         [BoolSwitch("-Werror")]
         public bool TreatWarningAsError { get; set; }
 
-        [IntSwitch("-ferror-limit=")]
+        [IntSwitch("-ferror-limit=")] 
         public string ErrorLimit { get; set; }
 
-        [IntSwitch("-ftemplate-backtrace-limit=")]
+        [IntSwitch("-ftemplate-backtrace-limit=")] 
         public string TemplateBacktraceLimit { get; set; }
 
+        [EnumSwitch("O0,O1,Os,O2,O3", "-O0,-O1,-Os,-O2,-O3")] 
+        public string OptimizationLevel { get; set; }
 
-        // OptimizationLevel
         // OmitFramePointers
 
         /// <summary>
@@ -101,8 +102,7 @@ namespace EmscriptenTask
         /// </summary>
         public bool UndefineAllPreprocessorDefinitions { get; set; }
 
-        // ============================= Code Generation ===========================
-
+     
         
         /// <summary>
         /// Set standard exception handling.
@@ -118,39 +118,28 @@ namespace EmscriptenTask
         [BoolSwitch("-ffunction-sections")]
         public bool FunctionLevelLinking { get; set; }
 
-        [BoolSwitch("-fdata-sections")]
+        [BoolSwitch("-fdata-sections")] 
         public bool DataLevelLinking { get; set; }
 
-        [BoolSwitch("-fstack-protector")] // favor -s STACK_OVERFLOW_CHECK=1
+        [BoolSwitch("-fstack-protector")] 
         public bool BufferSecurityCheck { get; set; }
 
-        [BoolSwitch("-fpic")]
+        [BoolSwitch("-fpic")] 
         public bool PositionIndependentCode { get; set; }
 
-        [BoolSwitch("-fshort-enums")]
+        [BoolSwitch("-fshort-enums")] 
         public bool UseShortEnums { get; set; }
 
 
-        [BoolSwitch("-fsanitize=undefined")] 
-        public bool UseUBSan { get; set; }
+        [BoolSwitch("-pthread")] 
+        public bool EmUsePThread { get; set; }
 
-
-        [BoolSwitch("-fsanitize=address")]
-        public bool UseASan { get; set; }
-
-        [BoolSwitch("-pthread")]
-        public bool UsePThread { get; set; }
-
-
-        // ============================= Language ==============================----
         // EnableMicrosoftExtensions
         // ConstExprLimit
         // TemplateRecursionLimit
 
-
-        [BoolSwitch("-frtti")]
+        [BoolSwitch("-frtti")] 
         public bool RuntimeTypeInfo { get; set; }
-
 
         /// <summary>
         /// Option to explicitly set the desired C++ standard version.
@@ -158,10 +147,9 @@ namespace EmscriptenTask
         public string LanguageStandard { get; set; }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
-       [EnumSwitch(
-            "EnableLanguageExtensions,WarnLanguageExtensions,DisableLanguageExtensions",
+        [EnumSwitch("EnableLanguageExtensions,WarnLanguageExtensions,DisableLanguageExtensions",
             ",-pedantic,-pedantic-errors")]
         public string LanguageExtensions { get; set; }
 
@@ -170,8 +158,8 @@ namespace EmscriptenTask
         /// <summary>
         /// The output object file defined as $(OutDir)%(Filename).o
         /// </summary>
-        [Required]
-        [StringSwitch("-o", BaseSwitch.QuoteIfWhiteSpace)]
+        [Required] 
+        [StringSwitch("-o", BaseSwitch.QuoteIfWhiteSpace)] 
         public string ObjectFileName { get; set; }
 
         /// <summary>
@@ -217,7 +205,7 @@ namespace EmscriptenTask
         [BoolSwitch("-H")]
         public bool ShowIncludes { get; set; }
 
-        [StringSwitch]
+        [StringSwitch] 
         public string AdditionalOptions { get; set; }
 
         /// <summary>
@@ -237,17 +225,8 @@ namespace EmscriptenTask
         [BoolSwitch("-fsanitize=address")]
         public bool EmUseASan { get; set; }
 
-
         // clang-format on
 
-        /// <summary>
-        /// Test to determine whether or not the supplied source code
-        /// should be compiled as c code
-        /// </summary>
-        /// <returns>
-        /// True if the file should be compiled as c. Internally sets the CompileAs
-        /// property to CompileAsC or CompileAsCpp
-        /// </returns>
         private bool TestCompileAsC()
         {
             // use own test.
@@ -274,10 +253,6 @@ namespace EmscriptenTask
             return result;
         }
 
-        /// <summary>
-        /// Builds a a space separated string of all command line parameters.
-        /// </summary>
-        /// <returns>The space separated string that should be passed to the process.</returns>
         protected string BuildSwitches()
         {
             var builder = new StringWriter();
@@ -331,10 +306,6 @@ namespace EmscriptenTask
 
         protected override void OnStart()
         {
-            // enabled by default if not set.
-            if (string.IsNullOrEmpty(ExceptionHandling))
-                ExceptionHandling = "Enabled";
-
             if (UndefineAllPreprocessorDefinitions)
                 PreprocessorDefinitions = null;
 
@@ -344,7 +315,7 @@ namespace EmscriptenTask
             if (Verbose)
                 LogTaskProps(GetType(), this);
         }
-        
+
         public void ValidateOutputFile()
         {
             var baseName = BaseName(ObjectFileName);
@@ -429,7 +400,6 @@ namespace EmscriptenTask
                     throw new FileNotFoundException(
                         $"{SenderName}: the file '{filename}' could not be found.");
                 }
-
                 if (!ProcessFile(file))
                     return false;
             }
