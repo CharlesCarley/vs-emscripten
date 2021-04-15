@@ -130,10 +130,6 @@ namespace EmscriptenTask
         [BoolSwitch("-fshort-enums")] 
         public bool UseShortEnums { get; set; }
 
-
-        [BoolSwitch("-pthread")] 
-        public bool EmUsePThread { get; set; }
-
         // EnableMicrosoftExtensions
         // ConstExprLimit
         // TemplateRecursionLimit
