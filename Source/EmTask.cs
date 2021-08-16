@@ -156,6 +156,23 @@ namespace EmscriptenTask
 
         // clang-format on
 
+        public void LogMetadata(ITaskItem item)
+        {
+            if (item != null)
+            {
+                LogSeparator("Meta Data");
+
+                foreach (var name in item.MetadataNames)
+                {
+                    var metadata = item.GetMetadata(name.ToString());
+                    if (metadata != null)
+                    {
+                        LogMessage($"{name} => {metadata}");
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// The main verbose log function.
         /// Outputs the value of all readable properties.
@@ -311,7 +328,7 @@ namespace EmscriptenTask
         private void NotifyTaskFinished(bool succeeded)
         {
             OnStop(succeeded);
-            
+
             if (succeeded && _currentSources.Length <= 0)
                 SkippedExecution = true;
             else
@@ -322,7 +339,6 @@ namespace EmscriptenTask
                 _inputFiles.SaveTlog();
                 _outputFiles.SaveTlog();
             }
-
         }
 
         /// <summary>
@@ -390,7 +406,7 @@ namespace EmscriptenTask
             LogError($"the process {BaseName(info.FileName)} timed out.");
             return false;
         }
-        
+
         public void Cancel()
         {
             if (_currentProcess != null)

@@ -1,0 +1,5 @@
+interface AppBridge
+{
+    void AppBridge();
+    void setBackgroundColor(long r, long g, long b);
+};

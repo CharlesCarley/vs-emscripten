@@ -93,7 +93,7 @@ def testCMake(projDir):
     if (success):
         absDir = os.getcwd() + os.sep + ConfigEnv['BuildDir'] + os.sep
         vsDir = os.environ.get("VS2019INSTALLDIR") + "\\Common7\\IDE\\devenv.exe"
-        os.system(vsDir + " " + absDir + "Main1.sln")
+        os.system(vsDir + " " + absDir + "TestCMakeSupport.sln")
 
 
 def test01():

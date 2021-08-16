@@ -10,6 +10,11 @@
             == $(EMSDK)\upstream\bin
             == $(EMSDK)\upstream\emscripten - .bat
     ====================================== -->
+
+
+
+  <Import Project="$(MSBuildThisFileDirectory)\WebIDL.props" />
+
   <PropertyGroup>
     <!-- Required for enabling Team Build for packaging Windows Store app projects -->
     <OutDirWasSpecified Condition=" '$(OutDir)'!='' AND '$(OutDirWasSpecified)'=='' ">true</OutDirWasSpecified>
@@ -52,8 +57,6 @@
     <TargetExt>.js</TargetExt>
     <OutputType>exe</OutputType>
   </PropertyGroup>
-
-
 
   <PropertyGroup>
     <PreferredToolArchitecture>x86</PreferredToolArchitecture>
@@ -241,16 +244,23 @@
       <UseFullPaths/>
       <OmitDefaultLibName/>
       <ErrorReporting/>
+
       <SystemIncludeDirectories>$(EmscriptenInclude)</SystemIncludeDirectories>
+
       <!-- Extra -->
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
+
     </ClCompile>
 
     <Lib>
       <VerboseOutput>NoVerboseOutput</VerboseOutput>
       <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Lib>
+
+    <Midl>
+      <VerboseOutput>NoVerboseOutput</VerboseOutput>
+    </Midl>
 
 
     <Link>

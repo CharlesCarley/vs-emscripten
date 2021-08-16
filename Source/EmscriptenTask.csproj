@@ -55,6 +55,7 @@
     <Compile Include="EmSwitchs.cs" />
     <Compile Include="EmTask.cs" />
     <Compile Include="EmUtils.cs" />
+    <Compile Include="EmWebIDL.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework">

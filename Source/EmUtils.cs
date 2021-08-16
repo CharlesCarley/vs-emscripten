@@ -36,6 +36,8 @@ namespace EmscriptenTask
         public static string EmCppTool { get; private set; }
         public static string EmArTool { get; private set; }
         public static string EmRanLibTool { get; private set; }
+        public static string EmWebIDLTool { get; private set; }
+        public static string Python { get; private set; }
 
         public static string EmccTool { get; private set; }
         public static string EmscriptenDirectory { get; set; }
@@ -63,6 +65,26 @@ namespace EmscriptenTask
             return path;
         }
 
+        public static bool FindPython()
+        {
+            var path = Sanitize(Environment.GetEnvironmentVariable("PATH"));
+
+            if (!string.IsNullOrEmpty(path))
+            {
+                var paths = path.Split(';');
+                foreach (var dir in paths)
+                {
+                    if (File.Exists($"{dir}/python.exe"))
+                    {
+                        // really?
+                        Python = Sanitize($"{dir}/python.exe");
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public static bool ValidateSdk()
         {
             if (EmccTool != null)
@@ -84,12 +106,26 @@ namespace EmscriptenTask
                     $"The emcc.bat batch file was not found in ${emsdk}\\upstream\\emscripten");
             }
 
+            if (!File.Exists($"{emsdk}\\upstream\\emscripten\\tools\\webidl_binder.py"))
+            {
+                throw new FileNotFoundException(
+                    $"The webidl_binder.py script was not found in ${emsdk}\\upstream\\emscripten\\tools");
+            }
+
+            FindPython();
+            if (!File.Exists(Python))
+            {
+                throw new FileNotFoundException(
+                    "Failed to locate a python executable in the system path.");
+            }
+
             EmscriptenDirectory = $"{emsdk}\\upstream\\emscripten";
 
             EmccTool     = $"{EmscriptenDirectory}\\emcc.bat";
             EmArTool     = EmccTool.Replace("emcc.bat", "emar.bat");
             EmCppTool    = EmccTool.Replace("emcc.bat", "em++.bat");
             EmRanLibTool = EmccTool.Replace("emcc.bat", "emranlib.bat");
+            EmWebIDLTool = $"{EmscriptenDirectory}\\tools\\webidl_binder.py";
             return true;
         }
 

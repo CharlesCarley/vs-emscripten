@@ -183,6 +183,12 @@ namespace EmscriptenTask
         public string AdditionalDependencies { get; set; }
 
 
+        [StringSwitch("--post-js", BaseSwitch.QuoteIfWhiteSpace)]
+        public ITaskItem PostJs { get; set; }
+
+        [StringSwitch("--pre-js", BaseSwitch.QuoteIfWhiteSpace)]
+        public ITaskItem PreJs { get; set; }
+
 
         // clang-format on
 
@@ -229,7 +235,6 @@ namespace EmscriptenTask
                 EmitOutputForInput(new TaskItem($"{swapName}.wasm"), MergedInputs);
                 break;
             case "Application":
-
                 EmitOutputForInput(OutputFile, MergedInputs);
                 break;
             }

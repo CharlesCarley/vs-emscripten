@@ -2,12 +2,7 @@
   <PropertyGroup>
     <UseDefaultProjectTools>false</UseDefaultProjectTools>
   </PropertyGroup>
-
-
-  
   <!-- ============================================================ -->
-  
-
   <Import Project="$(VCTargetsPath)\Microsoft.CppCommon.targets" />
 
   <!-- CppCommon.targets defines ==> $(TargetPath) -->
@@ -42,6 +37,7 @@
 
     <EmPreloadFile       Condition="'$(EmPreloadFile)'      == ''"></EmPreloadFile>
     <EmEmbeddedFile      Condition="'$(EmEmbeddedFile)'     == ''"></EmEmbeddedFile>
+    <EmGenerateBinding   Condition="'$(EmGenerateBinding)'  == ''">false</EmGenerateBinding>
 
     <EmEchoCommandLines  Condition="'$(EmEchoCommandLines)' == ''">false</EmEchoCommandLines>
   </PropertyGroup>
@@ -185,6 +181,13 @@
       <EmWasmMode Condition="'%(Link.EmWasmMode)' == '' and '$(ConfigurationType)' == 'JavaScriptApplication'">EmWasmOnlyJS</EmWasmMode>
 
     </Link>
+
+    <Midl>
+      <VerboseOutput                 Condition="'%(Midl.VerboseOutput)'                  == ''">NoVerboseOutput</VerboseOutput>
+      <OutputFile                    Condition="'%(Midl.OutputFile)'                     == ''">$(OutDir)%(Filename)Glue.cpp</OutputFile>
+      <TrackerLogDirectory           Condition="'%(Midl.TrackerLogDirectory)'            == ''">$(TLogLocation)</TrackerLogDirectory>
+      <MinimalRebuildFromTracking    Condition="'%(Midl.MinimalRebuildFromTracking)'     == ''">true</MinimalRebuildFromTracking>
+    </Midl>
   </ItemDefinitionGroup>
 
   <!-- ============================================================ -->
@@ -214,6 +217,7 @@
                         Include="$(MSBuildThisFileDirectory)\Properties\em_ar.xml" />
 
   </ItemGroup>
+
   <!-- ============================================================ -->
   <UsingTask AssemblyFile="$(VCTargetsPath)Platforms\$(Platform)\EmscriptenTask.CPP.Tasks.dll"
              TaskName="EmCxx" />
@@ -221,9 +225,11 @@
              TaskName="EmLink" />
   <UsingTask AssemblyFile="$(VCTargetsPath)Platforms\$(Platform)\EmscriptenTask.CPP.Tasks.dll"
              TaskName="EmAr" />
+  <UsingTask AssemblyFile="$(VCTargetsPath)Platforms\$(Platform)\EmscriptenTask.CPP.Tasks.dll"
+             TaskName="EmWebIDL" />
 
 
-  <!-- ============================================================ -->
+  <!-- ====== Debug Defaults  ===== -->
   <ItemDefinitionGroup Condition="$(Configuration) == 'Debug'">
     <ClCompile>
       <OptimizationLevel Condition="'%(ClCompile.OptimizationLevel)' == ''">O0</OptimizationLevel>
@@ -260,6 +266,7 @@
     <ProjectTools Include="Link" />
     <ProjectTools Include="CustomBuildStep" />
   </ItemGroup>
+
   <PropertyGroup>
     <UseDefaultDebuggersPropertyPageSchemas>true</UseDefaultDebuggersPropertyPageSchemas>
   </PropertyGroup>
@@ -278,6 +285,8 @@
     <PropertyGroup>
       <DoVerbose Condition="'$(VerboseOutput)' == 'VerboseOutputMode'">true</DoVerbose>
     </PropertyGroup>
+
+
     <!-- ============================================================ -->
     <EmCxx Condition="'%(ClCompile.ExcludedFromBuild)' != 'true'"
 
@@ -319,8 +328,12 @@
     <Message Condition="'$(ClSkippedExecution)' == 'false'"
              Text="Linking..."
              Importance="High" />
+
   </Target>
-  <!-- Lib -->
+  
+  
+  
+  <!--===== Lib =====-->
   <Target Name="Lib"
           Condition="'@(Lib)' != ''">
     <ItemGroup>
@@ -342,12 +355,15 @@
               PropertyName="LibSkippedExecution" />
     </EmAr>
 
-    <!-- Reflect the status of the build -->
+    <!--==== Reflect the status of the build ====-->
     <Message Condition="'$(LibSkippedExecution)' == 'false'"
              Text="$(MSBuildProjectFile) -> $(TargetPath)"
              Importance="High" />
+
   </Target>
-  <!-- Link -->
+
+
+  <!--==== Link ====-->
   <Target Name="Link"
           Condition="'@(Link)' != ''">
     <PropertyGroup>
@@ -393,6 +409,36 @@
     <Message Condition="'$(LinkSkippedExecution)' == 'false'"
              Text="$(MSBuildProjectFile) -> $(TargetPath)"
              Importance="High" />
+  </Target>
+
+
+
+  <!--===== Midl =====-->
+  <Target Name="Midl"
+          Condition="'@(Midl)' != ''">
+    <ItemGroup>
+      <Midl>
+        <MinimalRebuildFromTracking Condition="'$(_BuildActionType)' != 'Build' or '$(ForceRebuild)' == 'true'">false</MinimalRebuildFromTracking>
+      </Midl>
+    </ItemGroup>
+
+    <PropertyGroup>
+      <DoVerbose Condition="'$(VerboseOutput)' == 'VerboseOutputMode'">true</DoVerbose>
+    </PropertyGroup>
+
+    <!--<Message Text="======== MIDL =======" Importance="High"/>-->
+
+
+    <EmWebIDL OutputFile="%(Midl.OutputFile)"
+              Sources                        ="@(Midl)"
+              TrackerLogDirectory            ="%(Midl.TrackerLogDirectory)"
+              MinimalRebuildFromTracking     ="$(MinimalRebuildFromTracking)"
+              Configuration                  ="$(Configuration)"
+              Verbose                        ="$(DoVerbose)">
+
+    </EmWebIDL>
+
+
   </Target>
 
 </Project>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<html>
+
+<head>
+    <title>Tests</title>
+    <style type="text/css">
+        body {
+            background-color: #FFF;
+            margin: 0;
+            padding: 12px;
+        }
+        
+        .text-container {
+            text-align: center;
+        }
+        
+        .text-area {
+            height: inherit;
+            width: inherit;
+            font-size: 8pt;
+            resize: none;
+            color: inherit;
+        }
+        
+        .canvas-container {
+            text-align: center;
+        }
+        
+        .canvas-area {
+            padding: 1px;
+            min-width: 320px;
+            min-height: 240px;
+        }
+    </style>
+</head>
+
+<body onresize="Module.notifySize()">
+    <table>
+        <tr>
+            <td>
+                <table width="100">
+                    <tr>
+                        <td>Red</td>
+                        <td id="RV"></td>
+                        <td>
+                            <div>
+
+                                <input type="range" min="1" max="256" value="255" id="R" oninput="Module.updateColors()">
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Green</td>
+                        <td id="GV"></td>
+                        <td>
+                            <input type="range" min="1" max="256" value="255" id="G" oninput="Module.updateColors()">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Blue</td>
+                        <td id="BV"></td>
+                        <td>
+                            <input type="range" min="1" max="256" value="255" id="B" oninput="Module.updateColors()">
+
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+            <td>
+                <div id="canvas-container" class="canvas-container">
+                    <canvas class="canvas-area" id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        function setSize() {
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+
+            const canvas = document.getElementById("canvas");
+
+            if (canvas) {
+                if (w < 320)
+                    w = 320;
+                if (h < 240)
+                    h = 240;
+
+                canvas.width = w - (w / 3);
+                canvas.height = h / 1.3333;
+            }
+        }
+
+        var Module = {
+            postRun: [function() {
+                setSize();
+                window.dispatchEvent(new Event('resize'));
+                Module.updateColors();
+            }],
+
+            focusRed: (function() {
+                document.getElementById("R").focus();
+            }),
+            focusGreen: (function() {
+                document.getElementById("G").focus();
+            }),
+            focusBlue: (function() {
+                document.getElementById("B").focus();
+            }),
+            updateColors: (function() {
+                let RV = document.getElementById("RV");
+                let R = document.getElementById("R");
+                let G = document.getElementById("G");
+                let GV = document.getElementById("GV");
+                let B = document.getElementById("B");
+                let BV = document.getElementById("BV");
+
+                RV.innerHTML = R.value;
+                GV.innerHTML = G.value;
+                BV.innerHTML = B.value;
+
+                let app = new Module.AppBridge();
+                app.setBackgroundColor(R.value, G.value, B.value);
+            }),
+
+            canvas: (function() {
+
+                const canvas = document.getElementById("canvas");
+
+                canvas.addEventListener("webglcontextlost",
+                    function(e) {
+                        alert('WebGL context lost. You will need to reload the page.');
+                        e.preventDefault();
+                    },
+                    false
+                );
+                return canvas;
+            })(),
+
+            notifySize: function() {
+                setSize();
+            }
+        };
+    </script>
+
+    <script async type="text/javascript" src="./SDL.js"></script>
+</body>
+
+</html>

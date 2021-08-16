@@ -1,7 +1,15 @@
 include_directories(../Lib)
-add_executable(Main1 main.cpp)
-target_link_libraries(Main1 MockAPI)
-set_target_properties(Main1 PROPERTIES SUFFIX .wasm)
-set_target_properties(Main1 PROPERTIES VS_GLOBAL_VerboseOutput NoVerboseOutput)
-set_target_properties(Main1 PROPERTIES VS_GLOBAL_EchoCommandLines true)
-#set_target_properties(Main1 PROPERTIES VS_GLOBAL_DebugTask true)
+
+
+add_executable(WavmExeTest main.cpp)
+
+target_link_libraries(
+	WavmExeTest
+	MockAPI
+)
+
+set_target_properties(WavmExeTest PROPERTIES SUFFIX .wasm)
+
+
+set_target_properties(WavmExeTest PROPERTIES VS_GLOBAL_VerboseOutput ${Verbose})
+set_target_properties(WavmExeTest PROPERTIES VS_GLOBAL_EchoCommandLines ${EchoTaskCL})
